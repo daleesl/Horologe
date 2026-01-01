@@ -22,13 +22,13 @@
         </div>
 </nav>
 
-    <div class="d-flex align-items-center justify-content-center min-vh-100 mt-3 py-5 py-lg-0 px-3 px-sm-0">
+    <div class="d-flex align-items-center justify-content-center py-5 px-3 px-sm-0">
         <div class="w-100" style="max-width: 500px;">
             <form class="border rounded border-secondary bg-dark p-3 p-sm-4">
                 <h1 class="fs-3 fs-sm-2 fw-bold text-white mb-3 text-uppercase">Become a Member</h1>
-                <p class="fs-6 text-secondary text-uppercase mb-5">Create account to start your horological journey</p>
+                <p class="fs-6 text-secondary text-uppercase mb-3">Create account to start your horological journey</p>
 
-                <div class="row g-3 mb-4 mb-sm-5">
+                <div class="row g-3 mb-4 mb-md-3">
                     <div class="col-md-6 col-12">
                         <label for="firstName" class="form-label fs-6 text-secondary text-uppercase">First Name</label>
                         <input type="text" class="form-control form-control-lg bg-dark border-secondary text-white" id="firstName" placeholder="" required>
@@ -47,7 +47,7 @@
 
                 <button type="submit" class="btn btn-light w-100 fw-bold py-2 py-sm-3 text-uppercase mb-3 mb-sm-4">Create Profile</button>
 
-                <p class="text-center fs-6 text-secondary text-uppercase">Already a member? <a href="login.html" class="text-white text-decoration-none fw-bold">Sign In</a></p>
+                <p class="text-center fs-6 text-secondary text-uppercase">Already a member? <a href="sign-in.php" class="text-white text-decoration-none fw-bold">Sign In</a></p>
             </form>
         </div>
     </div>

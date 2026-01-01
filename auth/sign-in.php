@@ -22,11 +22,11 @@
         </div>
     </nav>
 
-    <div class="d-flex align-items-center justify-content-center min-vh-100 py-5 py-lg-0 px-3 px-sm-0">
+    <div class="d-flex align-items-center justify-content-center py-5 px-3 px-sm-0">
         <div class="w-100" style="max-width: 500px;">
             <form class="border rounded border-secondary bg-dark p-3 p-sm-4">
                 <h1 class="fs-3 fs-sm-2 fw-bold text-white mb-3 text-uppercase">Sign In</h1>
-                <p class="fs-6 text-secondary text-uppercase mb-5">Enter your credentials to access your account</p>
+                <p class="fs-6 text-secondary text-uppercase mb-4">Enter your credentials to access your account</p>
 
                 <label for="email" class="form-label fs-6 text-secondary text-uppercase">Email Address</label>
                 <input type="email" class="form-control form-control-lg bg-dark border-secondary text-white mb-3 mb-sm-4" id="email" placeholder="sample@account@gmail.com" required>
@@ -40,7 +40,7 @@
                     <span class="text-secondary fs-6 text-uppercase">Or</span>
                 </div>
 
-                <p class="text-center fs-6 text-secondary text-uppercase">Don't have an account? <a href="register.html" class="text-white text-decoration-none fw-bold">Become a Member</a></p>
+                <p class="text-center fs-6 text-secondary text-uppercase">Don't have an account? <a href="register.php" class="text-white text-decoration-none fw-bold">Become a Member</a></p>
             </form>
         </div>
     </div>
