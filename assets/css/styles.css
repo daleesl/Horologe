@@ -1,0 +1,55 @@
+* {
+    font-family: 'EB Garamond', serif;
+    color: #e8e0d1;
+}
+
+/* Navigation */
+.navbar-nav .nav-link {
+    letter-spacing: 0.08rem;
+}
+
+.icon-link {
+    color: #e8e0d1;
+    transition: color 0.2s ease;
+    font-size: 1.15rem;
+}
+
+.icon-link:hover,
+.icon-link:focus {
+    color: #ffffff;
+}
+
+.navbar-toggler {
+    border-color: #5a5a5a;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+.navbar-brand span {
+    font-size: 2.0rem;
+    font-weight: 500;
+    letter-spacing: 0.30rem;
+}
+
+/* EST Badge */
+.est-badge {
+    font-size: clamp(0.75rem, 2vw, 1rem);
+    letter-spacing: 0.15em;
+}
+
+/* Text Utilities */
+.lh-custom {
+    line-height: 1.8;
+}
+
+.lh-custom-lg {
+    line-height: 1.7;
+}
+
+/* Images */
+img {
+    aspect-ratio: 4/3;
+    object-fit: cover;
+}
