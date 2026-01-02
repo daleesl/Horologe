@@ -17,7 +17,7 @@
     <?php include '../includes/navbar.php'; ?>
 
     <!-- HERITAGE INTRO -->
-    <div class="container py-5">
+    <div class="container-fluid py-5" style="background-color: #171717;">
         <div class="row">
             <div class="col-12">
                 <div class="text-center mb-4">
@@ -75,7 +75,7 @@
     </div>
 
     <!-- PHILOSOPHY SECTION -->
-    <section class="bg-dark py-5 mt-5">
+    <section class="bg-black py-5 mt-5">
         <div class="container">
             <h2 class="display-3 fw-bold text-white text-center mb-5">Our Philosophy</h2>
             <div class="row g-4">
@@ -110,6 +110,7 @@
         </div>
     </section>
 
+    <?php include '../includes/footer.php'; ?>
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
