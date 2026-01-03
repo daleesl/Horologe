@@ -44,8 +44,7 @@
 
                 <!-- Right Image -->
                 <div class="col-lg-6">
-                    <img src="assets/images/heritageImages/black-men.png" alt="Luxury Watch" class="img-fluid w-100 h-100 object-fit-cover d-none d-lg-block">
-                    <img src="assets/images/heritageImages/black-men.png" alt="Luxury Watch" class="img-fluid w-100 object-fit-cover d-lg-none" style="max-height: 500px;">
+                    <img src="../assets/images/hero-picture.png" alt="Luxury Watch" class="img-fluid w-100 h-100 object-fit-cover d-lg-block">
                 </div>
             </div>
         </div>
@@ -67,54 +66,8 @@
             </div>
 
             <!-- Products Grid -->
-            <div class="row g-3 g-md-4">
-                <!-- Product 1 -->
-                <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="bg-secondary">
-                        <img src="assets/images/heritageImages/watchMaker-Heritage.jpg" alt="Aether Chronograph" class="img-fluid w-100" style="aspect-ratio: 3/4; object-fit: cover;">
-                    </div>
-                    <div class="pt-3">
-                        <p class="small text-secondary mb-2" style="letter-spacing: .1rem;">CLASSIC HERITAGE</p>
-                        <h3 class="h5 fw-normal mb-2">Aether Chronograph</h3>
-                        <p class="text-white fw-semibold">$12,400</p>
-                    </div>
-                </div>
+            <div id="productsRow" class="row g-3 g-md-4 justify-content-center">
 
-                <!-- Product 2 -->
-                <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="bg-secondary">
-                        <img src="assets/images/heritageImages/luxuryWatch-Heritage.jpg" alt="Deep Sea Navigator" class="img-fluid w-100" style="aspect-ratio: 3/4; object-fit: cover;">
-                    </div>
-                    <div class="pt-3">
-                        <p class="small text-secondary mb-2" style="letter-spacing: .1rem;">GRAND SPORT</p>
-                        <h3 class="h5 fw-normal mb-2">Deep Sea Navigator</h3>
-                        <p class="text-white fw-semibold">$8,900</p>
-                    </div>
-                </div>
-
-                <!-- Product 3 -->
-                <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="bg-secondary">
-                        <img src="assets/images/heritageImages/watchMaker-Heritage.jpg" alt="Vanguard GMT" class="img-fluid w-100" style="aspect-ratio: 3/4; object-fit: cover;">
-                    </div>
-                    <div class="pt-3">
-                        <p class="small text-secondary mb-2" style="letter-spacing: .1rem;">CLASSIC HERITAGE</p>
-                        <h3 class="h5 fw-normal mb-2">Vanguard GMT</h3>
-                        <p class="text-white fw-semibold">$15,600</p>
-                    </div>
-                </div>
-
-                <!-- Product 4 -->
-                <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="bg-secondary">
-                        <img src="assets/images/heritageImages/luxuryWatch-Heritage.jpg" alt="Midnight Tourbillion" class="img-fluid w-100" style="aspect-ratio: 3/4; object-fit: cover;">
-                    </div>
-                    <div class="pt-3">
-                        <p class="small text-secondary mb-2" style="letter-spacing: .1rem;">LIMITED EDITIONS</p>
-                        <h3 class="h5 fw-normal mb-2">Midnight Tourbillion</h3>
-                        <p class="text-white fw-semibold">$112,000</p>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
@@ -185,6 +138,26 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+
+        <script src="../assets/js/sample-products.js"></script>
+    <script>
+        var productsRow = document.getElementById('productsRow');
+
+        for (var i = 0; i < products.length; i++) {
+          productsRow.innerHTML += `
+           <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div>
+                        <img src="${products[i].image}" alt="Deep Sea Navigator" class="img-fluid w-100" style="max-height: 350px; object-fit: contain;">
+                    </div>
+                    <div class="pt-3">
+                        <p class="small text-secondary mb-2" style="letter-spacing: .1rem;">${products[i].category}</p>
+                        <h3 class="h5 fw-normal mb-2">${products[i].name}</h3>
+                        <p class="text-white fw-semibold">$${products[i].price}</p>
+                    </div>
+                </div>`
+
+        }
+    </script>
 </body>
 
 </html>
