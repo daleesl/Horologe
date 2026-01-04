@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-black sticky-top border-bottom border-secondary">
+<nav class="navbar navbar-expand-lg navbar-dark bg-black sticky-top border-bottom border-secondary" style="z-index: 1030;">
     <div class="container-fluid position-relative px-4 py-3">
         <button class="navbar-toggler me-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
             aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -11,7 +11,7 @@
             <a href="#" class="text-decoration-none icon-link px-lg-4 px-2" aria-label="Search">
                 <i class="bi bi-search text-white"></i>
             </a>
-            <a href="#" class="text-decoration-none icon-link px-lg-4 px-2" aria-label="Bag">
+            <a href="cart.php" class="text-decoration-none icon-link px-lg-4 px-2" aria-label="Bag">
                 <i class="bi bi-bag text-white"></i>
             </a>
             <a href="#" class="text-decoration-none icon-link px-lg-4 px-2" aria-label="Account">
