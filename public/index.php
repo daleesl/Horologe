@@ -140,23 +140,62 @@
         crossorigin="anonymous"></script>
 
         <script src="../assets/js/sample-products.js"></script>
+    <script src="../assets/js/cart.js"></script>
     <script>
-        var productsRow = document.getElementById('productsRow');
-
-        for (var i = 0; i < products.length; i++) {
-          productsRow.innerHTML += `
-           <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div>
-                        <img src="${products[i].image}" alt="Deep Sea Navigator" class="img-fluid w-100" style="max-height: 350px; object-fit: contain;">
+        // Render Featured Products
+        function renderFeaturedProducts() {
+            const productsRow = document.getElementById('productsRow');
+            
+            products.forEach(product => {
+                productsRow.innerHTML += `
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="product-card h-100 d-flex flex-column p-3 rounded-3">
+                            <a href="viewProduct.php?id=${product.id}" class="text-decoration-none">
+                                <img src="${product.image}" alt="${product.name}" class="img-fluid w-100 object-fit-contain" style="max-height: 350px;">
+                                <div class="pt-3">
+                                    <p class="small text-secondary mb-2 text-uppercase">${product.category}</p>
+                                    <h3 class="h5 fw-normal mb-2 text-white">${product.name}</h3>
+                                    <p class="text-white fw-semibold mb-3">${formatPrice(product.price)}</p>
+                                </div>
+                            </a>
+                            <div class="d-flex gap-2 mt-auto">
+                                <a href="viewProduct.php?id=${product.id}" class="btn btn-sm btn-outline-light flex-fill">VIEW</a>
+                                <button class="btn btn-sm btn-outline-light flex-fill add-to-cart-btn" type="button" data-product-id="${product.id}">ADD TO CART</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="pt-3">
-                        <p class="small text-secondary mb-2" style="letter-spacing: .1rem;">${products[i].category}</p>
-                        <h3 class="h5 fw-normal mb-2">${products[i].name}</h3>
-                        <p class="text-white fw-semibold">$${products[i].price}</p>
-                    </div>
-                </div>`
-
+                `;
+            });
+            
+            attachAddToCartListeners();
         }
+        
+        // Attach Add to Cart Event Listeners
+        function attachAddToCartListeners() {
+            const addToCartBtns = document.querySelectorAll('.add-to-cart-btn');
+            
+            addToCartBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const productId = parseInt(this.dataset.productId);
+                    const product = products.find(p => p.id === productId);
+                    
+                    if (product) {
+                        addToCart(product, 1);
+                        
+                        this.textContent = 'ADDED!';
+                        this.classList.add('disabled');
+                        
+                        setTimeout(() => {
+                            this.textContent = 'ADD TO CART';
+                            this.classList.remove('disabled');
+                        }, 2000);
+                    }
+                });
+            });
+        }
+        
+        renderFeaturedProducts();
     </script>
 </body>
 
