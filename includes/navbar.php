@@ -11,8 +11,11 @@
             <a href="#" class="text-decoration-none icon-link px-lg-4 px-2" aria-label="Search">
                 <i class="bi bi-search text-white"></i>
             </a>
-            <a href="cart.php" class="text-decoration-none icon-link px-lg-4 px-2" aria-label="Bag">
+            <a href="cart.php" class="text-decoration-none icon-link px-lg-4 px-2 position-relative" aria-label="Bag">
                 <i class="bi bi-bag text-white"></i>
+                <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
+                    <span id="cartCount">0</span>
+                </span>
             </a>
             <a href="#" class="text-decoration-none icon-link px-lg-4 px-2" aria-label="Account">
                 <i class="bi bi-person text-white"></i>
