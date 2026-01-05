@@ -121,7 +121,7 @@
                         </div>
 
                         <!-- Product Image -->
-                        <div class="col-auto p-3" style="width: 175px; border: 1px solid #7c8288ff; border-radius: 4px;">
+                        <div class="col-auto p-3" style="width: 175px;">
                             <img src="${product.image}" alt="${product.name}" class="w-100" style="width: 100%; height: 150px; object-fit: contain;">
                         </div>
 
