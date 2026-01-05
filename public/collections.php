@@ -57,13 +57,13 @@
         </div>
 
 
-     <!-- Products Grid -->
+        <!-- Products Grid -->
         <div class="container">
             <div id="productsRow" class="row g-3 g-lg-5">
                 <!-- Products will be loaded dynamically -->
             </div>
         </div>
-    
+
     </section>
 
     <?php include '../includes/footer.php'; ?>
@@ -71,14 +71,14 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
-    
+
     <script src="../assets/js/sample-products.js"></script>
     <script src="../assets/js/cart.js"></script>
     <script>
         // Render Products Grid
         function renderProducts() {
             const productsRow = document.getElementById('productsRow');
-            
+
             products.forEach(product => {
                 productsRow.innerHTML += `
                     <div class="col-12 col-sm-6 col-lg-3">
@@ -102,26 +102,26 @@
                     </div>
                 `;
             });
-            
+
             attachAddToCartListeners();
         }
-        
+
         // Attach Add to Cart Event Listeners
         function attachAddToCartListeners() {
             const addToCartBtns = document.querySelectorAll('.add-to-cart-btn');
-            
+
             addToCartBtns.forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     const productId = parseInt(this.dataset.productId);
                     const product = products.find(p => p.id === productId);
-                    
+
                     if (product) {
                         addToCart(product, 1);
-                        
+
                         this.textContent = 'ADDED!';
                         this.classList.add('disabled');
-                        
+
                         setTimeout(() => {
                             this.textContent = 'ADD TO CART';
                             this.classList.remove('disabled');
@@ -130,7 +130,7 @@
                 });
             });
         }
-        
+
         renderProducts();
     </script>
 </body>

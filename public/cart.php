@@ -71,7 +71,7 @@
                             <span class="text-white fw-bold" id="total">$0</span>
                         </div>
 
-                        <button class="btn btn-light w-100 fw-bold py-3 text-uppercase">PROCEED TO CHECKOUT</button>
+                        <a href="checkout.php" class="btn btn-light w-100 fw-bold py-3 text-uppercase text-decoration-none">PROCEED TO CHECKOUT</a>
                         <p class="text-center text-secondary small mt-3" style="letter-spacing: 0.05rem;">SECURE CHECKOUT WITH ENCRYPTED PROTECTION</p>
                     </div>
                 </div>

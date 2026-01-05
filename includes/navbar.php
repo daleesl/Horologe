@@ -37,7 +37,7 @@
         </div>
 
         <a class="navbar-brand position-absolute top-50 start-50 translate-middle d-none d-lg-block" href="index.php">
-            <span class="text-white">HOROLOGE</span>
+            <span class="text-white display-6">HOROLOGE</span>
         </a>
     </div>
 </nav>

@@ -128,7 +128,6 @@
     <script src="../assets/js/sample-products.js"></script>
     <script src="../assets/js/cart.js"></script>
     <script>
-
         const urlParams = new URLSearchParams(window.location.search);
         const productId = parseInt(urlParams.get('id'));
         const currentProduct = products.find(p => p.id === productId);
@@ -145,7 +144,7 @@
             // Populate related products (other products)
             const relatedProducts = products.filter(p => p.id !== productId);
             const relatedProductsRow = document.querySelector('#relatedProductsRow .row');
-            
+
             relatedProducts.forEach(product => {
                 relatedProductsRow.innerHTML += `
                     <div class="col-12 col-sm-6 col-lg-3">
@@ -166,7 +165,7 @@
                 `;
             });
 
-        
+
             const quantityInput = document.getElementById('quantityInput');
             const increaseBtn = document.getElementById('increaseQty');
             const decreaseBtn = document.getElementById('decreaseQty');
@@ -186,12 +185,12 @@
 
             addToCartBtn.addEventListener('click', function() {
                 const quantity = parseInt(quantityInput.value);
-                
+
                 addToCart(currentProduct, quantity);
-                
+
                 addToCartBtn.textContent = 'ADDED!';
                 addToCartBtn.classList.add('disabled');
-                
+
                 setTimeout(() => {
                     addToCartBtn.textContent = 'ADD TO COLLECTION';
                     addToCartBtn.classList.remove('disabled');
