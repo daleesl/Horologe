@@ -32,4 +32,15 @@
     letter-spacing: 0.30rem;
 }
 
+/* Product Card Hover Effects */
+.product-card {
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
 
+.product-card:hover {
+    background-color: #2a2a2a !important;
+    border: 2px solid #444444;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
