@@ -73,23 +73,65 @@
         crossorigin="anonymous"></script>
     
     <script src="../assets/js/sample-products.js"></script>
+    <script src="../assets/js/cart.js"></script>
     <script>
-        var productsRow = document.getElementById('productsRow');
-
-        for (var i = 0; i < products.length; i++) {
-          productsRow.innerHTML += `
-           <div class="col-12 col-sm-6 col-lg-3">
-                    <div class="text-center border border-secondary rounded-3 p-3">
-                        <div class="mb-3 overflow-hidden rounded ratio ratio-1x1">
-                            <img src="${products[i].image}" alt="${products[i].name}" class="w-100 h-100 object-fit-contain p-3">
+        // Render Products Grid
+        function renderProducts() {
+            const productsRow = document.getElementById('productsRow');
+            
+            products.forEach(product => {
+                productsRow.innerHTML += `
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="product-card text-center rounded-3 p-3 h-100 d-flex flex-column justify-content-between">
+                            <a href="viewProduct.php?id=${product.id}" class="text-decoration-none flex-grow-1">
+                                <div>
+                                    <div class="mb-3 overflow-hidden rounded ratio ratio-1x1">
+                                        <img src="${product.image}" alt="${product.name}" class="w-100 h-100 object-fit-contain p-3">
+                                    </div>
+                                    <p class="text-secondary small mb-2 fw-bold text-uppercase">${product.category}</p>
+                                    <h5 class="text-white mb-3 fw-normal">${product.name}</h5>
+                                    <p class="text-white fw-bold mb-3">${formatPrice(product.price)}</p>
+                                </div>
+                            </a>
+                            
+                            <div class="d-flex gap-2">
+                                <a href="viewProduct.php?id=${product.id}" class="btn btn-sm btn-outline-light flex-fill">VIEW</a>
+                                <button class="btn btn-sm btn-outline-light flex-fill add-to-cart-btn" type="button" data-product-id="${product.id}">ADD TO CART</button>
+                            </div>
                         </div>
-                        <p class="text-secondary small mb-2 fw-bold text-uppercase">${products[i].category}</p>
-                        <h5 class="text-white mb-3 fw-normal">${products[i].name}</h5>
-                        <p class="text-white fw-bold">$${products[i].price.toLocaleString()}</p>
-                        <button class="btn btn-sm btn-outline-light px-4 mb-3">ADD TO CART</button>
                     </div>
-                </div>`;
+                `;
+            });
+            
+            attachAddToCartListeners();
         }
+        
+        // Attach Add to Cart Event Listeners
+        function attachAddToCartListeners() {
+            const addToCartBtns = document.querySelectorAll('.add-to-cart-btn');
+            
+            addToCartBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const productId = parseInt(this.dataset.productId);
+                    const product = products.find(p => p.id === productId);
+                    
+                    if (product) {
+                        addToCart(product, 1);
+                        
+                        this.textContent = 'ADDED!';
+                        this.classList.add('disabled');
+                        
+                        setTimeout(() => {
+                            this.textContent = 'ADD TO CART';
+                            this.classList.remove('disabled');
+                        }, 2000);
+                    }
+                });
+            });
+        }
+        
+        renderProducts();
     </script>
 </body>
 
