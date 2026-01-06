@@ -1,3 +1,59 @@
+<?php
+include "../config/connect.php";
+include "sms.php";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    $user_id = uniqid("USR");
+    $fname = $_POST['first_name'];
+    $lname = $_POST['last_name'];
+    $email = $_POST['email'];
+    $phone = $_POST['phone'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $status = "active";
+
+    $stmt = $conn->prepare(
+        "INSERT INTO users 
+        (user_id, fname, lname, email, password, phone_number, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?)"
+    );
+
+    if (!$stmt) {
+        die("Prepare failed: " . $conn->error);
+    }
+
+    $stmt->bind_param(
+        "sssssss",
+        $user_id,
+        $fname,
+        $lname,
+        $email,
+        $password,
+        $phone,
+        $status
+    );
+
+    if ($stmt->execute()) {
+
+        $phoneFormatted = '+63' . substr($phone, 1);
+
+        $response = sendSMS(
+            $phoneFormatted,
+            "Hello $fname! Your Horologe account has been successfully registered."
+        );
+
+        header("Location: sign-in.php");
+        exit();
+
+    } else {
+        echo "Execute failed: " . $stmt->error;
+    }
+
+    $stmt->close();
+}
+?>
+
+
 <!doctype html>
 <html lang="en">
 
@@ -20,34 +76,46 @@
                 <span class="text-white">HOROLOGE</span>
             </div>
         </div>
-</nav>
+    </nav>
 
     <div class="d-flex align-items-center justify-content-center py-5 px-3 px-sm-0">
         <div class="w-100" style="max-width: 500px;">
-            <form class="border rounded border-secondary bg-dark p-3 p-sm-4">
+            <form action="register.php" method="POST" class="border rounded border-secondary bg-dark p-3 p-sm-4">
                 <h1 class="fs-3 fs-sm-2 fw-bold text-white mb-3 text-uppercase">Become a Member</h1>
                 <p class="fs-6 text-secondary text-uppercase mb-3">Create account to start your horological journey</p>
 
                 <div class="row g-3 mb-4 mb-md-3">
                     <div class="col-md-6 col-12">
                         <label for="firstName" class="form-label fs-6 text-secondary text-uppercase">First Name</label>
-                        <input type="text" class="form-control form-control-lg bg-dark border-secondary text-white" id="firstName" placeholder="" required>
+                        <input type="text" class="form-control form-control-lg bg-dark border-secondary text-white"
+                            id="firstName" name="first_name" placeholder="" required>
                     </div>
                     <div class="col-md-6 col-12">
                         <label for="lastName" class="form-label fs-6 text-secondary text-uppercase">Last Name</label>
-                        <input type="text" class="form-control form-control-lg bg-dark border-secondary text-white" id="lastName" placeholder="" required>
+                        <input type="text" class="form-control form-control-lg bg-dark border-secondary text-white"
+                            id="lastName" name="last_name" placeholder="" required>
                     </div>
                 </div>
 
                 <label for="email" class="form-label fs-6 text-secondary text-uppercase">Email Address</label>
-                <input type="email" class="form-control form-control-lg bg-dark border-secondary text-white mb-3 mb-sm-4" id="email" placeholder="" required>
+                <input type="email"
+                    class="form-control form-control-lg bg-dark border-secondary text-white mb-3 mb-sm-4" id="email"
+                    name="email" placeholder="" required>
+
+                <label for="phone" class="form-label fs-6 text-secondary text-uppercase">Mobile Number</label>
+                <input type="tel" class="form-control form-control-lg bg-dark border-secondary text-white mb-3 mb-sm-4"
+                    id="phone" name="phone" placeholder="09XXXXXXXXX" pattern="^09\d{9}$" required>
 
                 <label for="password" class="form-label fs-6 text-secondary text-uppercase">Password</label>
-                <input type="password" class="form-control form-control-lg bg-dark border-secondary text-white mb-4 mb-sm-5" id="password" placeholder="" required>
+                <input type="password"
+                    class="form-control form-control-lg bg-dark border-secondary text-white mb-4 mb-sm-5" id="password"
+                    name="password" placeholder="" required>
 
-                <button type="submit" class="btn btn-light w-100 fw-bold py-2 py-sm-3 text-uppercase mb-3 mb-sm-4">Create Profile</button>
+                <button type="submit"
+                    class="btn btn-light w-100 fw-bold py-2 py-sm-3 text-uppercase mb-3 mb-sm-4">Create Profile</button>
 
-                <p class="text-center fs-6 text-secondary text-uppercase">Already a member? <a href="sign-in.php" class="text-white text-decoration-none fw-bold">Sign In</a></p>
+                <p class="text-center fs-6 text-secondary text-uppercase">Already a member? <a href="sign-in.php"
+                        class="text-white text-decoration-none fw-bold">Sign In</a></p>
             </form>
         </div>
     </div>
