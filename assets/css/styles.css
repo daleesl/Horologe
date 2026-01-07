@@ -1,6 +1,37 @@
+@import url("https://use.typekit.net/ybn0axw.css");
+
 * {
-    font-family: 'EB Garamond', serif;
-  
+    font-family: "ivypresto-display", serif
+}
+
+
+.btn {
+    border-radius: 0 !important;
+}
+
+.font-primary {
+    font-family: "ivypresto-display", serif !important;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.font-primary em {
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0.02rem;
+}
+
+.text-secondary {
+    font-family: "degular", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.text-secondary-bold {
+    font-family: "degular-display", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    letter-spacing: 0.1rem;
 }
 
 /* Navigation */
@@ -15,7 +46,18 @@
 
 .icon-link:hover,
 .icon-link:focus {
+    color: #000000;
+}
+
+/* Ensure correct hover colors per navbar theme */
+.navbar-dark .icon-link:hover,
+.navbar-dark .icon-link:focus {
     color: #ffffff;
+}
+
+.navbar-light .icon-link:hover,
+.navbar-light .icon-link:focus {
+    color: #000000;
 }
 
 .navbar-toggler {
@@ -43,4 +85,29 @@
     border: 2px solid #444444;
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Footer */
+.site-footer {
+    background-color: #171717;
+}
+
+.site-footer .footer-brand {
+    font-size: 1.9rem;
+    letter-spacing: 0.25rem;
+}
+
+.site-footer .footer-heading {
+    font-size: 0.95rem;
+    letter-spacing: 0.2rem;
+    text-transform: uppercase;
+}
+
+.site-footer .footer-text,
+.site-footer .footer-link {
+    font-size: 0.95rem;
+}
+
+.site-footer .footer-link {
+    text-transform: capitalize;
 }
