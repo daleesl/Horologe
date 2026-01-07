@@ -17,19 +17,24 @@
     <?php include '../includes/navbar.php'; ?>
 
     <!-- HERO SECTION -->
-    <section class="text-white min-vh-100 d-flex align-items-center" style="background-color: #181818">
-        <div class="container-fluid p-3 p-md-5">
+    <section class="text-white min-vh-100 d-flex align-items-center position-relative overflow-hidden" style="background-color: #181818;">
+        <video autoplay muted loop playsinline class="position-absolute top-0 start-0 w-100 h-100 hero-video" style="object-fit: cover; z-index: 0;">
+            <source src="../assets/video/hero-vid.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0, 0, 0, 0.4); z-index: 1;"></div>
+        <div class="container-fluid px-3 px-md-5 position-relative" style="z-index: 2;">
             <div class="row align-items-center g-0 flex-column-reverse flex-lg-row">
                 <!-- Left Content -->
-                <div class="col-lg-6 py-5 ps-lg-4 ps-3">
-                    <div class="mb-5">
+                <div class="col-lg-6 py-2 ps-lg-4 ps-3">
+                    <div class="mb-4">
                         <span class="border border-white text-white px-3 px-md-5 py-2 d-inline-block small" style="letter-spacing: .2rem;">ESTABLISH 1924</span>
                     </div>
 
-                    <div class="mb-5">
-                        <h1 class="display-1 fw-normal text-white mb-md-5">Timeless</h1>
-                        <h1 class="display-1 fw-light text-white mb-md-5"><em>Excellence</em> on Your</h1>
-                        <h1 class="display-1 fw-normal text-white mb-md-5">Wrist.</h1>
+                    <div class="mb-3">
+                        <h1 class="display-1 fw-normal text-white header font-primary">Timeless</h1>
+                        <h1 class="display-1 fw-light text-white header font-primary"><em>Excellence</em> on Your</h1>
+                        <h1 class="display-1 fw-normal text-white header font-primary">Wrist.</h1>
                     </div>
 
                     <p class="text-secondary fs-5 mb-md-5 mb-3 pe-lg-5">
@@ -37,14 +42,9 @@
                     </p>
 
                     <div class="d-flex flex-wrap gap-3">
-                        <button class="btn btn-light text-dark px-4 py-2 fw-semibold">EXPLORE COLLECTIONS</button>
-                        <button class="btn btn-outline-light px-4 py-2">OUR HERITAGE</button>
+                        <button class="btn btn-light text-dark px-4 py-2 text-secondary">EXPLORE COLLECTIONS</button>
+                        <button class="btn btn-outline-light px-4 py-2 text-secondary">OUR HERITAGE</button>
                     </div>
-                </div>
-
-                <!-- Right Image -->
-                <div class="col-lg-6">
-                    <img src="../assets/images/hero-picture.png" alt="Luxury Watch" class="img-fluid w-100 h-100 object-fit-cover d-lg-block">
                 </div>
             </div>
         </div>
@@ -57,11 +57,11 @@
             <!-- Section Header -->
             <div class="row mb-5">
                 <div class="col-lg-8">
-                    <h2 class="display-3 fw-normal mb-3">The Featured Collection</h2>
+                    <h2 class="display-3 fw-normal mb-3 header font-primary">The Featured Collection</h2>
                     <p class="fs-5 text-secondary">A selection of our most sought-after timepieces, representing the pinnacle of precision and style.</p>
                 </div>
                 <div class="col-lg-4 d-flex align-items-end justify-content-lg-end">
-                    <a href="#" class="text-white text-decoration-none fs-6">VIEW ALL COLLECTIONS <span>→</span></a>
+                    <a href="#" class="text-white text-decoration-none fs-6 header font-primary">VIEW ALL COLLECTIONS <span>→</span></a>
                 </div>
             </div>
 
@@ -78,7 +78,7 @@
             <div class="row align-items-center g-4 flex-column-reverse flex-lg-row">
                 <!-- Left Content -->
                 <div class="col-lg-6">
-                    <h2 class="display-3 fw-normal text-white mb-4">A Century of Horological Mastery</h2>
+                    <h2 class="display-3 fw-normal text-white mb-4 header font-primary">A Century of Horological Mastery</h2>
 
                     <p class="fs-5 text-secondary mb-4">
                         Founded in the heart of the Swiss Alps, Horologe has been dedicated to the pursuit of perfection for over a hundred years. Each timepiece is a testament to our commitment to craftsmanship and innovation.
@@ -88,7 +88,7 @@
                         Our master watchmakers spend hundreds of hours on a single movement, ensuring that every tick is a synchronization of art and engineering.
                     </p>
 
-                    <a href="#" class="text-white text-decoration-none fs-6">LEARN MORE <span>→</span></a>
+                    <a href="#" class="text-white text-decoration-none fs-6 header font-primary">LEARN MORE <span>→</span></a>
                 </div>
 
                 <!-- Right Images -->
@@ -118,7 +118,7 @@
 
                     <!-- Quote -->
                     <blockquote class="mb-4">
-                        <p class="display-6 fw-normal text-white" style="font-style: italic;">
+                        <p class="display-6 fw-normal text-white" style="font-family: EB Garamond, serif;">
                             "Horologe doesn't just sell watches; they provide a legacy. The attention to detail in my Celestial Moonphase is unlike anything else in my collection."
                         </p>
                     </blockquote>
@@ -154,8 +154,8 @@
                                 <img src="${product.image}" alt="${product.name}" class="img-fluid w-100 object-fit-contain" style="max-height: 350px;">
                                 <div class="pt-3">
                                     <p class="small text-secondary mb-2 text-uppercase">${product.category}</p>
-                                    <h3 class="h5 fw-normal mb-2 text-white">${product.name}</h3>
-                                    <p class="text-white fw-semibold mb-3">${formatPrice(product.price)}</p>
+                                    <h3 class="h5 text-secondary-bold mb-2 text-white">${product.name}</h3>
+                                    <p class="text-white font-primary mb-3">${formatPrice(product.price)}</p>
                                 </div>
                             </a>
                             <div class="d-flex gap-2 mt-auto">
