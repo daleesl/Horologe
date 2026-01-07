@@ -33,22 +33,21 @@
                         <span class="text-secondary fw-bold small" style="letter-spacing: 0.1rem;">
                             <i class="bi bi-funnel"></i> FILTERS
                         </span>
-                        <button class="btn btn-sm btn-outline-secondary px-3">ALL</button>
-                        <button class="btn btn-sm btn-outline-secondary px-3">ROLEX</button>
-                        <button class="btn btn-sm btn-outline-secondary px-3">CARTIER</button>
-                        <button class="btn btn-sm btn-outline-secondary px-3">AUDEMARS PIGUET</button>
-                        <button class="btn btn-sm btn-outline-secondary px-3">PATEK PHILIPPE</button>
-
+                        <button class="btn btn-sm btn-outline-secondary text-secondary-bold px-3">ALL</button>
+                        <button class="btn btn-sm btn-outline-secondary text-secondary-bold px-3">ROLEX</button>
+                        <button class="btn btn-sm btn-outline-secondary text-secondary-bold px-3">CARTIER</button>
+                        <button class="btn btn-sm btn-outline-secondary text-secondary-bold px-3">MONTBLAC</button>
+                        <button class="btn btn-sm btn-outline-secondary text-secondary-bold px-3">PATEK PHILIPPE</button>
                     </div>
                 </div>
                 <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
                     <div class="d-flex justify-content-lg-end align-items-center gap-2">
                         <span class="text-secondary small fw-bold" style="letter-spacing: 0.05rem;">SORT BY</span>
                         <select class="form-select form-select-sm bg-black border-secondary text-white" style="width: auto;">
-                            <option selected>Featured</option>
-                            <option>Price: Low to High</option>
-                            <option>Price: High to Low</option>
-                            <option>Newest</option>
+                            <option selected class="text-secondary">Featured</option>
+                            <option class="text-secondary">Price: Low to High</option>
+                            <option class="text-secondary">Price: High to Low</option>
+                            <option class="text-secondary">Newest</option>
                         </select>
                     </div>
                 </div>
@@ -82,15 +81,15 @@
             products.forEach(product => {
                 productsRow.innerHTML += `
                     <div class="col-12 col-sm-6 col-lg-3">
-                        <div class="product-card text-center rounded-3 p-3 h-100 d-flex flex-column justify-content-between">
+                        <div class="product-card  rounded-3 p-3 h-100 d-flex flex-column justify-content-between">
                             <a href="viewProduct.php?id=${product.id}" class="text-decoration-none flex-grow-1">
                                 <div>
-                                    <div class="mb-3 overflow-hidden rounded ratio ratio-1x1">
+                                    <div class="mb-2 overflow-hidden rounded ratio ratio-1x1">
                                         <img src="${product.image}" alt="${product.name}" class="w-100 h-100 object-fit-contain p-3">
                                     </div>
-                                    <p class="text-secondary small mb-2 fw-bold text-uppercase">${product.category}</p>
-                                    <h5 class="text-white mb-3 fw-normal">${product.name}</h5>
-                                    <p class="text-white fw-bold mb-3">${formatPrice(product.price)}</p>
+                                    <p class="text-secondary small text-uppercase">${product.category}</p>
+                                    <h5 class="text-white text-secondary-bold">${product.name}</h5>
+                                    <p class="text-white mb-3">${formatPrice(product.price)}</p>
                                 </div>
                             </a>
                             
