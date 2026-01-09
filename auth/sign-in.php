@@ -1,53 +1,108 @@
+<?php
+session_start();
+include "../config/connect.php";
+
+$error = ""; // store error messages
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    $email = trim($_POST['email']);
+    $password = $_POST['password'];
+
+    // Get user by email
+    $stmt = $conn->prepare(
+        "SELECT user_id, fname, lname, password, status
+         FROM users
+         WHERE email = ?"
+    );
+
+    if (!$stmt) {
+        die("Prepare failed: " . $conn->error);
+    }
+
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Check if user exists
+    if ($result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+
+        // Verify password
+        if (password_verify($password, $user['password'])) {
+
+            // Check account status
+            if ($user['status'] !== 'active') {
+                $error = "Your account is inactive. Contact admin.";
+            } else {
+                // Store session data
+                session_regenerate_id(true);
+                $_SESSION['user_id'] = $user['user_id'];
+                $_SESSION['fname']   = $user['fname'];
+                $_SESSION['lname']   = $user['lname'];
+
+                // Redirect on success
+                header("Location: ../public/index.php");
+                exit();
+            }
+
+        } else {
+            $error = "Invalid email or password.";
+        }
+
+    } else {
+        $error = "Invalid email or password.";
+    }
+
+    $stmt->close();
+}
+?>
+
 <!doctype html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sign In - Horologe</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/styles.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-
 <body class="bg-black">
-
     <nav class="navbar navbar-dark bg-black border-bottom border-secondary">
         <div class="container-fluid d-flex justify-content-center py-2 py-md-3">
-            <div class="navbar-brand text-center">
-                <span class="text-white">HOROLOGE</span>
-            </div>
+            <div class="navbar-brand text-center text-white">HOROLOGE</div>
         </div>
     </nav>
 
     <div class="d-flex align-items-center justify-content-center py-5 px-3 px-sm-0">
         <div class="w-100" style="max-width: 500px;">
-            <form class="border rounded border-secondary bg-dark p-3 p-sm-4">
+            <form method="POST" action="" class="border rounded border-secondary bg-dark p-3 p-sm-4">
                 <h1 class="fs-3 fs-sm-2 fw-bold text-white mb-3 text-uppercase">Sign In</h1>
                 <p class="fs-6 text-secondary text-uppercase mb-4">Enter your credentials to access your account</p>
 
+                <?php if (!empty($error)) : ?>
+                    <div class="alert alert-danger" role="alert">
+                        <?php echo htmlspecialchars($error); ?>
+                    </div>
+                <?php endif; ?>
+
                 <label for="email" class="form-label fs-6 text-secondary text-uppercase">Email Address</label>
-                <input type="email" class="form-control form-control-lg bg-dark border-secondary text-white mb-3 mb-sm-4" id="email" placeholder="sample@account@gmail.com" required>
+                <input type="email" name="email" id="email" class="form-control form-control-lg bg-dark border-secondary text-white mb-3 mb-sm-4" placeholder="sample@account@gmail.com" required>
 
                 <label for="password" class="form-label fs-6 text-secondary text-uppercase">Password</label>
-                <input type="password" class="form-control form-control-lg bg-dark border-secondary text-white mb-4 mb-sm-5" id="password" placeholder="" required>
+                <input type="password" name="password" id="password" class="form-control form-control-lg bg-dark border-secondary text-white mb-4 mb-sm-5" required>
 
                 <button type="submit" class="btn btn-light w-100 fw-bold py-2 py-sm-3 text-uppercase mb-3 mb-sm-4">Sign In</button>
 
-                <div class="text-center mb-3 mb-sm-4">
-                    <span class="text-secondary fs-6 text-uppercase">Or</span>
-                </div>
-
-                <p class="text-center fs-6 text-secondary text-uppercase">Don't have an account? <a href="register.php" class="text-white text-decoration-none fw-bold">Become a Member</a></p>
+                <div class="text-center mb-3 mb-sm-4"><span class="text-secondary fs-6 text-uppercase">Or</span></div>
+                <p class="text-center fs-6 text-secondary text-uppercase">
+                    Don't have an account? 
+                    <a href="register.php" class="text-white text-decoration-none fw-bold">Become a Member</a>
+                </p>
             </form>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

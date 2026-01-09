@@ -135,17 +135,19 @@
 
     <?php include '../includes/footer.php'; ?>
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
 
+    <!-- Custom JS -->
     <script src="../assets/js/sample-products.js"></script>
     <script src="../assets/js/cart.js"></script>
+
     <script>
         // Render Featured Products
         function renderFeaturedProducts() {
             const productsRow = document.getElementById('productsRow');
-
             products.forEach(product => {
                 productsRow.innerHTML += `
                     <div class="col-lg-3 col-md-6 col-sm-6">
@@ -166,26 +168,21 @@
                     </div>
                 `;
             });
-
             attachAddToCartListeners();
         }
 
         // Attach Add to Cart Event Listeners
         function attachAddToCartListeners() {
             const addToCartBtns = document.querySelectorAll('.add-to-cart-btn');
-
             addToCartBtns.forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     const productId = parseInt(this.dataset.productId);
                     const product = products.find(p => p.id === productId);
-
                     if (product) {
                         addToCart(product, 1);
-
                         this.textContent = 'ADDED!';
                         this.classList.add('disabled');
-
                         setTimeout(() => {
                             this.textContent = 'ADD TO CART';
                             this.classList.remove('disabled');

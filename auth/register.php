@@ -1,128 +1,147 @@
 <?php
+session_start();
 include "../config/connect.php";
 include "sms.php";
+include "../helpers/id_generator.php";
+
+$error = ""; 
+$fname = $lname = $email = $phone = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $user_id = uniqid("USR");
-    $fname = $_POST['first_name'];
-    $lname = $_POST['last_name'];
-    $email = $_POST['email'];
-    $phone = $_POST['phone'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $status = "active";
+    $fname = trim($_POST['first_name']);
+    $lname = trim($_POST['last_name']);
+    $email = trim($_POST['email']);
+    $phone = trim($_POST['phone']);
+    $password_input = $_POST['password'];
+    $confirm_password_input = $_POST['confirm_password'] ?? '';
 
-    $stmt = $conn->prepare(
-        "INSERT INTO users 
-        (user_id, fname, lname, email, password, phone_number, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?)"
-    );
-
-    if (!$stmt) {
-        die("Prepare failed: " . $conn->error);
-    }
-
-    $stmt->bind_param(
-        "sssssss",
-        $user_id,
-        $fname,
-        $lname,
-        $email,
-        $password,
-        $phone,
-        $status
-    );
-
-    if ($stmt->execute()) {
-
-        $phoneFormatted = '+63' . substr($phone, 1);
-
-        $response = sendSMS(
-            $phoneFormatted,
-            "Hello $fname! Your Horologe account has been successfully registered."
-        );
-
-        header("Location: sign-in.php");
-        exit();
-
+    // Validation
+    if ($password_input !== $confirm_password_input) {
+        $error = "Passwords do not match.";
+    } elseif (empty($fname) || empty($lname) || empty($email) || empty($password_input)) {
+        $error = "Please fill in all required fields.";
     } else {
-        echo "Execute failed: " . $stmt->error;
-    }
 
-    $stmt->close();
+        $user_id = generateId($conn, 'users', 'user_id', 'USR');
+        $password = password_hash($password_input, PASSWORD_DEFAULT);
+        $status = "active";
+
+        try {
+            $stmt = $conn->prepare(
+                "INSERT INTO users 
+                (user_id, fname, lname, email, password, phone_number, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)"
+            );
+
+            if (!$stmt) throw new Exception("Prepare failed: " . $conn->error);
+
+            $stmt->bind_param(
+                "sssssss",
+                $user_id,
+                $fname,
+                $lname,
+                $email,
+                $password,
+                $phone,
+                $status
+            );
+
+            $stmt->execute();
+
+            // Optional SMS notification
+            if (!empty($phone)) {
+                $phoneFormatted = '+63' . substr($phone, 1);
+                sendSMS(
+                    $phoneFormatted,
+                    "Hello $fname! Your Horologe account has been successfully registered."
+                );
+            }
+
+            // AUTO-LOGIN
+            session_regenerate_id(true);
+            $_SESSION['user_id'] = $user_id;
+            $_SESSION['fname']   = $fname;
+            $_SESSION['lname']   = $lname;
+
+            // Redirect to index
+            header("Location: ../public/index.php");
+            exit();
+
+        } catch (mysqli_sql_exception $e) {
+            if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                $error = "Email already exists. Try another email.";
+            } else {
+                $error = "Database error: " . $e->getMessage();
+            }
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+        }
+
+        if (isset($stmt)) $stmt->close();
+    }
 }
 ?>
 
-
 <!doctype html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sign Up - Horologe</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <title>Register - Horologe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/styles.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-
 <body class="bg-black">
-
-    <nav class="navbar navbar-expand-lg navbar-dark bg-black border-bottom border-secondary">
+    <nav class="navbar navbar-dark bg-black border-bottom border-secondary">
         <div class="container-fluid d-flex justify-content-center py-2 py-md-3">
-            <div class="navbar-brand text-center">
-                <span class="text-white">HOROLOGE</span>
-            </div>
+            <div class="navbar-brand text-center text-white">HOROLOGE</div>
         </div>
     </nav>
 
     <div class="d-flex align-items-center justify-content-center py-5 px-3 px-sm-0">
         <div class="w-100" style="max-width: 500px;">
-            <form action="register.php" method="POST" class="border rounded border-secondary bg-dark p-3 p-sm-4">
-                <h1 class="fs-3 fs-sm-2 fw-bold text-white mb-3 text-uppercase">Become a Member</h1>
-                <p class="fs-6 text-secondary text-uppercase mb-3">Create account to start your horological journey</p>
+            <form method="POST" action="" class="border rounded border-secondary bg-dark p-3 p-sm-4">
+                <h1 class="fs-3 fs-sm-2 fw-bold text-white mb-3 text-uppercase">Register</h1>
+                <p class="fs-6 text-secondary text-uppercase mb-4">Create your account to start shopping</p>
 
-                <div class="row g-3 mb-4 mb-md-3">
-                    <div class="col-md-6 col-12">
-                        <label for="firstName" class="form-label fs-6 text-secondary text-uppercase">First Name</label>
-                        <input type="text" class="form-control form-control-lg bg-dark border-secondary text-white"
-                            id="firstName" name="first_name" placeholder="" required>
-                    </div>
-                    <div class="col-md-6 col-12">
-                        <label for="lastName" class="form-label fs-6 text-secondary text-uppercase">Last Name</label>
-                        <input type="text" class="form-control form-control-lg bg-dark border-secondary text-white"
-                            id="lastName" name="last_name" placeholder="" required>
-                    </div>
-                </div>
+                <?php if (!empty($error)) : ?>
+                    <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
+                <?php endif; ?>
+
+                <?php if (!empty($success)) : ?>
+                    <div class="alert alert-success"><?php echo $success; ?></div>
+                <?php endif; ?>
+
+                <label for="first_name" class="form-label fs-6 text-secondary text-uppercase">First Name</label>
+                <input type="text" name="first_name" id="first_name" class="form-control form-control-lg bg-dark border-secondary text-white mb-3 mb-sm-4" value="<?php echo htmlspecialchars($fname); ?>" required>
+
+                <label for="last_name" class="form-label fs-6 text-secondary text-uppercase">Last Name</label>
+                <input type="text" name="last_name" id="last_name" class="form-control form-control-lg bg-dark border-secondary text-white mb-3 mb-sm-4" value="<?php echo htmlspecialchars($lname); ?>" required>
 
                 <label for="email" class="form-label fs-6 text-secondary text-uppercase">Email Address</label>
-                <input type="email"
-                    class="form-control form-control-lg bg-dark border-secondary text-white mb-3 mb-sm-4" id="email"
-                    name="email" placeholder="" required>
+                <input type="email" name="email" id="email" class="form-control form-control-lg bg-dark border-secondary text-white mb-3 mb-sm-4" value="<?php echo htmlspecialchars($email); ?>" required>
 
-                <label for="phone" class="form-label fs-6 text-secondary text-uppercase">Mobile Number</label>
-                <input type="tel" class="form-control form-control-lg bg-dark border-secondary text-white mb-3 mb-sm-4"
-                    id="phone" name="phone" placeholder="09XXXXXXXXX" pattern="^09\d{9}$" required>
+                <label for="phone" class="form-label fs-6 text-secondary text-uppercase">Phone Number</label>
+                <input type="text" name="phone" id="phone" class="form-control form-control-lg bg-dark border-secondary text-white mb-3 mb-sm-4" value="<?php echo htmlspecialchars($phone); ?>">
 
                 <label for="password" class="form-label fs-6 text-secondary text-uppercase">Password</label>
-                <input type="password"
-                    class="form-control form-control-lg bg-dark border-secondary text-white mb-4 mb-sm-5" id="password"
-                    name="password" placeholder="" required>
+                <input type="password" name="password" id="password" class="form-control form-control-lg bg-dark border-secondary text-white mb-4 mb-sm-5" required>
 
-                <button type="submit"
-                    class="btn btn-light w-100 fw-bold py-2 py-sm-3 text-uppercase mb-3 mb-sm-4">Create Profile</button>
+                <label for="confirm_password" class="form-label fs-6 text-secondary text-uppercase">Confirm Password</label>
+                <input type="password" name="confirm_password" id="confirm_password" class="form-control form-control-lg bg-dark border-secondary text-white mb-4 mb-sm-5" required>
 
-                <p class="text-center fs-6 text-secondary text-uppercase">Already a member? <a href="sign-in.php"
-                        class="text-white text-decoration-none fw-bold">Sign In</a></p>
+                <button type="submit" class="btn btn-light w-100 fw-bold py-2 py-sm-3 text-uppercase mb-3 mb-sm-4">Register</button>
+
+                <div class="text-center mb-3 mb-sm-4"><span class="text-secondary fs-6 text-uppercase">Or</span></div>
+                <p class="text-center fs-6 text-secondary text-uppercase">
+                    Already have an account? 
+                    <a href="sign-in.php" class="text-white text-decoration-none fw-bold">Sign In</a>
+                </p>
             </form>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
