@@ -112,6 +112,21 @@
                 <p class="text-secondary mb-0">Manage customer accounts and permissions</p>
             </div>
 
+            <?php
+            require_once __DIR__ . '/../config/connect.php';
+            $userStats = [
+                'total' => 0,
+                'active' => 0,
+                'suspended' => 0,
+            ];
+            $res = $conn->query("SELECT COUNT(*) AS total, SUM(status = 'active') AS active, SUM(status = 'inactive') AS suspended FROM users");
+            if ($res) {
+                $row = $res->fetch_assoc();
+                $userStats['total'] = (int)($row['total'] ?? 0);
+                $userStats['active'] = (int)($row['active'] ?? 0);
+                $userStats['suspended'] = (int)($row['suspended'] ?? 0);
+            }
+            ?>
             <!-- Stats Cards -->
             <div class="row g-3 mb-4">
                 <!-- Total Users -->
@@ -120,7 +135,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <p class="text-secondary small mb-1">Total Users</p>
-                                <h2 class="display-6 fw-normal mb-0">8</h2>
+                                <h2 class="display-6 fw-normal mb-0"><?= htmlspecialchars($userStats['total']); ?></h2>
                             </div>
                             <div class="stat-icon icon-white">
                                 <i class="bi bi-people fs-4 text-white"></i>
@@ -135,7 +150,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <p class="text-secondary small mb-1">Active Users</p>
-                                <h2 class="display-6 fw-normal mb-0 text-success">6</h2>
+                                <h2 class="display-6 fw-normal mb-0 text-success"><?= htmlspecialchars($userStats['active']); ?></h2>
                             </div>
                             <div class="stat-icon icon-green">
                                 <i class="bi bi-person-check fs-4 text-success"></i>
@@ -150,7 +165,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <p class="text-secondary small mb-1">Suspended</p>
-                                <h2 class="display-6 fw-normal mb-0 text-danger">2</h2>
+                                <h2 class="display-6 fw-normal mb-0 text-danger"><?= htmlspecialchars($userStats['suspended']); ?></h2>
                             </div>
                             <div class="stat-icon icon-red">
                                 <i class="bi bi-person-x fs-4 text-danger"></i>
@@ -162,18 +177,27 @@
 
             <!-- Filter Tabs -->
             <div class="d-flex gap-2 mb-4">
-                <button class="filter-tab active">All Users <span class="ms-1">8</span></button>
-                <button class="filter-tab">Active <span class="ms-1">6</span></button>
-                <button class="filter-tab">Suspended <span class="ms-1">2</span></button>
-            </div>
-
-            <!-- Search Bar -->
-            <div class="mb-4 position-relative">
-                <i class="bi bi-search position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #999;"></i>
-                <input type="text" class="form-control search-input w-100" placeholder="Search by name or email...">
+                <button class="filter-tab active">All Users <span class="ms-1"><?= htmlspecialchars($userStats['total']); ?></span></button>
+                <button class="filter-tab">Active <span class="ms-1"><?= htmlspecialchars($userStats['active']); ?></span></button>
+                <button class="filter-tab">Suspended <span class="ms-1"><?= htmlspecialchars($userStats['suspended']); ?></span></button>
             </div>
 
             <!-- Users Table -->
+            <?php
+            $users = [];
+            $sql = "SELECT u.user_id, u.fname, u.lname, u.email, u.phone_number, u.status, u.created_at,
+                        (SELECT COUNT(*) FROM orders o WHERE o.user_id = u.user_id) AS order_count,
+                        (SELECT COALESCE(SUM(total_amount),0) FROM orders o WHERE o.user_id = u.user_id) AS total_spent
+                    FROM users u
+                    ORDER BY u.created_at DESC";
+            $res = $conn->query($sql);
+            if ($res) {
+                while ($row = $res->fetch_assoc()) {
+                    $users[] = $row;
+                }
+            }
+            function moneyFormat(float $value): string { return '$' . number_format($value, 2, '.', ','); }
+            ?>
             <div class="border border-secondary rounded overflow-hidden">
                 <div class="table-responsive">
                     <table class="table table-dark mb-0">
@@ -189,9 +213,39 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- User 1 -->
-                            <tr>
-                                <td class="text-white">USR-001</td>
+                            <?php if (!empty($users)) : ?>
+                                <?php foreach ($users as $user) : ?>
+                                    <?php
+                                    $initials = strtoupper(substr($user['fname'], 0, 1) . substr($user['lname'], 0, 1));
+                                    $statusClass = $user['status'] === 'active' ? 'status-active' : 'status-suspended';
+                                    $joinDate = $user['created_at'] ? date('n/j/Y', strtotime($user['created_at'])) : '--';
+                                    ?>
+                                    <tr>
+                                        <td class="text-white"><?= htmlspecialchars($user['user_id']); ?></td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="user-avatar text-white"><?= htmlspecialchars($initials); ?></div>
+                                                <div>
+                                                    <div class="text-white fw-semibold"><?= htmlspecialchars($user['fname'] . ' ' . $user['lname']); ?></div>
+                                                    <div class="text-secondary small"><?= (int)$user['order_count']; ?> orders</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-white small"><?= htmlspecialchars($user['email']); ?></div>
+                                            <div class="text-secondary small"><?= htmlspecialchars($user['phone_number']); ?></div>
+                                        </td>
+                                        <td class="<?= $statusClass; ?> fw-semibold"><?= htmlspecialchars(ucfirst($user['status'])); ?></td>
+                                        <td><?= htmlspecialchars($joinDate); ?></td>
+                                        <td><?= moneyFormat((float)$user['total_spent']); ?></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-light">View</button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else : ?>
+                                <tr><td colspan="7" class="text-center text-secondary">No users found.</td></tr>
+                            <?php endif; ?>
                                 <td>
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="user-avatar text-white">JS</div>

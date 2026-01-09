@@ -1,3 +1,22 @@
+<?php
+session_start();
+require_once __DIR__ . '/../config/connect.php';
+require_once __DIR__ . '/../classes/products/ProductRepository.php';
+require_once __DIR__ . '/../classes/products/ProductService.php';
+
+$productService = new ProductService(new ProductRepository($conn));
+$products = $productService->getAllProducts();
+
+// Group products by brand for sectioned display
+$grouped = [];
+foreach ($products as $p) {
+    $brandKey = strtoupper((string)($p['brand'] ?? 'UNCATEGORIZED'));
+    if (!isset($grouped[$brandKey])) {
+        $grouped[$brandKey] = [];
+    }
+    $grouped[$brandKey][] = $p;
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -10,33 +29,25 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'EB Garamond', serif;
-        }
-        .nav-link.active {
-            background-color: #495057 !important;
-        }
-        .product-card {
-            transition: transform 0.2s;
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-        }
+        body { font-family: 'EB Garamond', serif; }
+        .nav-link.active { background-color: #495057 !important; }
+        .product-card { transition: transform 0.2s; }
+        .product-card:hover { transform: translateY(-5px); }
+        .product-img { height: 250px; object-fit: contain; width: 100%; }
     </style>
 </head>
 
 <body class="bg-black text-white">
     <div class="d-flex flex-column flex-md-row">
-        <!-- Sidebar -->
         <?php include '../includes/adminSidebar.php'; ?>
 
-        <!-- Main Content -->
         <div class="flex-grow-1 w-100 p-3 p-sm-4">
             <div class="d-md-none mb-3">
                 <button class="btn btn-outline-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebarOffcanvas" aria-controls="adminSidebarOffcanvas">
                     <i class="bi bi-list"></i> Menu
                 </button>
             </div>
+
             <!-- Header -->
             <div class="mb-4">
                 <h1 class="display-5 fw-normal mb-2">PRODUCTS</h1>
@@ -44,185 +55,150 @@
             </div>
 
             <!-- Search and Add Button -->
-            <div class="row mb-4">
+            <div class="row mb-4 g-3 align-items-center">
                 <div class="col-lg-8">
                     <div class="input-group">
                         <span class="input-group-text bg-dark border-secondary text-white">
                             <i class="bi bi-search"></i>
                         </span>
-                        <input type="text" class="form-control bg-dark border-secondary text-white" placeholder="Search products...">
+                        <input type="text" id="productSearch" class="form-control bg-dark border-secondary text-white" placeholder="Search products...">
                     </div>
                 </div>
-                <div class="col-lg-4 text-end">
-                    <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                <div class="col-lg-4 text-lg-end">
+                    <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#productModal" data-mode="add">
                         <i class="bi bi-plus-circle me-2"></i>Add Product
                     </button>
                 </div>
             </div>
 
-            <!-- Products by Category -->
-            <div class="mb-5">
-                <h3 class="h5 text-uppercase mb-4 border-bottom border-secondary pb-2">ROLEX</h3>
-                <div class="row g-4">
-                    <!-- Product Card 1 -->
-                    <div class="col-lg-4 col-md-6">
-                        <div class="product-card border border-secondary bg-dark p-3 rounded">
-                            <img src="../assets/images/products/rolex/rolex-1.png" alt="Rolex Cosmograph" class="img-fluid mb-3" style="height: 250px; object-fit: contain; width: 100%;">
-                            <h5 class="text-white mb-2">Rolex Cosmograph</h5>
-                            <p class="text-white fw-bold mb-2">$12,400</p>
-                            <p class="text-secondary small mb-3">Stock: 5</p>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-outline-light flex-fill" data-bs-toggle="modal" data-bs-target="#editProductModal">
-                                    <i class="bi bi-pencil me-1"></i>Edit
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger flex-fill">
-                                    <i class="bi bi-trash me-1"></i>Delete
-                                </button>
-                            </div>
+            <?php if (empty($products)) : ?>
+                <div class="text-center text-secondary py-5 border border-secondary rounded">No products yet.</div>
+            <?php else : ?>
+                <?php foreach ($grouped as $brand => $items) : ?>
+                    <div class="mb-5">
+                        <h3 class="h5 text-uppercase mb-4 border-bottom border-secondary pb-2"><?= htmlspecialchars($brand, ENT_QUOTES) ?></h3>
+                        <div class="row g-4">
+                            <?php foreach ($items as $p) : ?>
+                                <div class="col-lg-4 col-md-6 product-tile" data-name="<?= htmlspecialchars(strtolower($p['name'] ?? ''), ENT_QUOTES) ?>" data-brand="<?= htmlspecialchars(strtolower($brand), ENT_QUOTES) ?>">
+                                    <div class="product-card border border-secondary bg-dark p-3 rounded h-100 d-flex flex-column">
+                                        <div class="mb-3 text-center">
+                                            <?php if (!empty($p['image'])) : ?>
+                                                <img src="<?= htmlspecialchars($p['image'], ENT_QUOTES) ?>" alt="<?= htmlspecialchars($p['name'], ENT_QUOTES) ?>" class="img-fluid product-img border border-secondary rounded">
+                                            <?php else : ?>
+                                                <div class="border border-secondary rounded d-flex align-items-center justify-content-center" style="height:250px;"> <span class="text-secondary small">No image</span> </div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="mb-2">
+                                            <h5 class="text-white mb-0" style="line-height:1.3; font-size: 1.05rem;">
+                                                <?= htmlspecialchars($p['model'], ENT_QUOTES) ?>
+                                            </h5>
+                                        </div>
+                                        <p class="text-secondary mb-3" style="font-size: 0.9rem; min-height: 48px;">
+                                            <?= htmlspecialchars($p['description'] ?: 'No description provided.', ENT_QUOTES) ?>
+                                        </p>
+                                        <div class="d-flex align-items-center gap-3 mb-3">
+                                            <div class="text-white fw-bold" style="font-size: 1.05rem;">$<?= number_format((float)$p['price'], 2) ?></div>
+                                            <div class="text-secondary small">Stock: <?= (int)($p['stock'] ?? 0) ?> units</div>
+                                        </div>
+                                        <div class="d-flex gap-2 mt-auto">
+                                            <button class="btn btn-sm btn-outline-light flex-fill edit-btn"
+                                                data-bs-toggle="modal" data-bs-target="#productModal"
+                                                data-mode="edit"
+                                                data-id="<?= htmlspecialchars($p['id'], ENT_QUOTES) ?>"
+                                                data-brand="<?= htmlspecialchars($p['brand'], ENT_QUOTES) ?>"
+                                                data-model="<?= htmlspecialchars($p['model'], ENT_QUOTES) ?>"
+                                                data-category="<?= htmlspecialchars($p['category'], ENT_QUOTES) ?>"
+                                                data-price="<?= htmlspecialchars($p['price'], ENT_QUOTES) ?>"
+                                                data-stock="<?= htmlspecialchars($p['stock'] ?? 0, ENT_QUOTES) ?>"
+                                                data-description="<?= htmlspecialchars($p['description'] ?? '', ENT_QUOTES) ?>"
+                                                data-image="<?= htmlspecialchars($p['image'] ?? '', ENT_QUOTES) ?>">
+                                                <i class="bi bi-pencil me-1"></i>Edit
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger flex-fill delete-btn"
+                                                data-id="<?= htmlspecialchars($p['id'], ENT_QUOTES) ?>"
+                                                data-name="<?= htmlspecialchars($p['name'], ENT_QUOTES) ?>">
+                                                <i class="bi bi-trash me-1"></i>Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </div>
 
-                    <!-- Product Card 2 -->
-                    <div class="col-lg-4 col-md-6">
-                        <div class="product-card border border-secondary bg-dark p-3 rounded">
-                            <img src="../assets/images/products/rolex/rolex-1.png" alt="Rolex Cosmograph" class="img-fluid mb-3" style="height: 250px; object-fit: contain; width: 100%;">
-                            <h5 class="text-white mb-2">Rolex Cosmograph</h5>
-                            <p class="text-white fw-bold mb-2">$12,400</p>
-                            <p class="text-secondary small mb-3">Stock: 5</p>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-outline-light flex-fill" data-bs-toggle="modal" data-bs-target="#editProductModal">
-                                    <i class="bi bi-pencil me-1"></i>Edit
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger flex-fill">
-                                    <i class="bi bi-trash me-1"></i>Delete
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product Card 3 -->
-                    <div class="col-lg-4 col-md-6">
-                        <div class="product-card border border-secondary bg-dark p-3 rounded">
-                            <img src="../assets/images/products/rolex/rolex-1.png" alt="Rolex Cosmograph" class="img-fluid mb-3" style="height: 250px; object-fit: contain; width: 100%;">
-                            <h5 class="text-white mb-2">Rolex Cosmograph</h5>
-                            <p class="text-white fw-bold mb-2">$12,400</p>
-                            <p class="text-secondary small mb-3">Stock: 5</p>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-outline-light flex-fill" data-bs-toggle="modal" data-bs-target="#editProductModal">
-                                    <i class="bi bi-pencil me-1"></i>Edit
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger flex-fill">
-                                    <i class="bi bi-trash me-1"></i>Delete
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Add/Edit Product Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="productModalLabel">Add Product</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            </div>
-
-            <!-- CARTIER Category -->
-            <div class="mb-5">
-                <h3 class="h5 text-uppercase mb-4 border-bottom border-secondary pb-2">CARTIER</h3>
-                <div class="row g-4">
-                    <!-- Add more product cards here -->
-                </div>
+                <form id="productForm" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <input type="hidden" name="watch_id" id="watchId">
+                        <input type="hidden" name="current_image" id="currentImage">
+                        <div class="mb-3">
+                            <label for="brand" class="form-label">Brand</label>
+                            <select class="form-select bg-dark border-secondary text-white" id="brand" name="brand" required>
+                                <option value="" disabled selected>Select brand</option>
+                                <option value="Rolex">Rolex</option>
+                                <option value="Cartier">Cartier</option>
+                                <option value="MontBlac">MontBlac</option>
+                                <option value="Patek Philippe">Patek Philippe</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="model" class="form-label">Model / Name</label>
+                            <input type="text" class="form-control bg-dark border-secondary text-white" id="model" name="model" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Price</label>
+                            <input type="number" step="0.01" min="0" class="form-control bg-dark border-secondary text-white" id="price" name="price" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="stock" class="form-label">Stock Quantity</label>
+                            <input type="number" min="0" class="form-control bg-dark border-secondary text-white" id="stock" name="stock_quantity" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control bg-dark border-secondary text-white" id="description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Product Image</label>
+                            <input type="file" class="form-control bg-dark border-secondary text-white" id="image" name="image" accept="image/*">
+                            <small class="text-secondary">Upload JPG or PNG. Leave empty to keep current image.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-light" id="saveBtn">Save</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- Add Product Modal -->
-    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-white border-secondary">
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title" id="addProductModalLabel">Add New Product</h5>
+                    <h5 class="modal-title">Delete Product</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label for="productName" class="form-label">Product Name</label>
-                            <input type="text" class="form-control bg-dark border-secondary text-white" id="productName">
-                        </div>
-                        <div class="mb-3">
-                            <label for="productCategory" class="form-label">Category</label>
-                            <select class="form-select bg-dark border-secondary text-white" id="productCategory">
-                                <option>ROLEX</option>
-                                <option>CARTIER</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="productPrice" class="form-label">Price</label>
-                            <input type="number" class="form-control bg-dark border-secondary text-white" id="productPrice">
-                        </div>
-                        <div class="mb-3">
-                            <label for="productStock" class="form-label">Stock</label>
-                            <input type="number" class="form-control bg-dark border-secondary text-white" id="productStock">
-                        </div>
-                        <div class="mb-3">
-                            <label for="productImage" class="form-label">Product Image</label>
-                            <input type="file" class="form-control bg-dark border-secondary text-white" id="productImage" accept="image/*">
-                            <small class="text-secondary">Upload the product image (JPG, PNG).</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="productDescription" class="form-label">Description</label>
-                            <textarea class="form-control bg-dark border-secondary text-white" id="productDescription" rows="3"></textarea>
-                        </div>
-                    </form>
+                    <p class="mb-0">Are you sure you want to delete <span id="deleteProductName" class="fw-semibold"></span>?</p>
                 </div>
                 <div class="modal-footer border-secondary">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-light">Add Product</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Product Modal -->
-    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-white border-secondary">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <input type="hidden" id="editProductId">
-                        <div class="mb-3">
-                            <label for="editProductName" class="form-label">Product Name</label>
-                            <input type="text" class="form-control bg-dark border-secondary text-white" id="editProductName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editProductCategory" class="form-label">Category</label>
-                            <select class="form-select bg-dark border-secondary text-white" id="editProductCategory" required>
-                                <option value="">Select category</option>
-                                <option>ROLEX</option>
-                                <option>CARTIER</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editProductPrice" class="form-label">Price</label>
-                            <input type="number" class="form-control bg-dark border-secondary text-white" id="editProductPrice" min="0" step="0.01" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editProductStock" class="form-label">Stock</label>
-                            <input type="number" class="form-control bg-dark border-secondary text-white" id="editProductStock" min="0" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editProductImage" class="form-label">Product Image</label>
-                            <input type="file" class="form-control bg-dark border-secondary text-white" id="editProductImage" accept="image/*">
-                            <small class="text-secondary">Upload the product image (JPG, PNG).</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editProductDescription" class="form-label">Description</label>
-                            <textarea class="form-control bg-dark border-secondary text-white" id="editProductDescription" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-light">Save Changes</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </button>
                 </div>
             </div>
         </div>
@@ -231,6 +207,101 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+    <script>
+        const productModal = document.getElementById('productModal');
+        const productForm = document.getElementById('productForm');
+        const modalTitle = document.getElementById('productModalLabel');
+        const saveBtn = document.getElementById('saveBtn');
+
+        productModal.addEventListener('show.bs.modal', (event) => {
+            const button = event.relatedTarget;
+            const mode = button.getAttribute('data-mode');
+            modalTitle.textContent = mode === 'edit' ? 'Edit Product' : 'Add Product';
+            saveBtn.textContent = mode === 'edit' ? 'Save Changes' : 'Add Product';
+
+            document.getElementById('watchId').value = mode === 'edit' ? (button.getAttribute('data-id') || '') : '';
+            document.getElementById('brand').value = mode === 'edit' ? (button.getAttribute('data-brand') || '') : '';
+            document.getElementById('model').value = mode === 'edit' ? (button.getAttribute('data-model') || '') : '';
+            document.getElementById('price').value = mode === 'edit' ? (button.getAttribute('data-price') || '') : '';
+            document.getElementById('stock').value = mode === 'edit' ? (button.getAttribute('data-stock') || '') : '';
+            document.getElementById('description').value = mode === 'edit' ? (button.getAttribute('data-description') || '') : '';
+            document.getElementById('currentImage').value = mode === 'edit' ? (button.getAttribute('data-image') || '') : '';
+            document.getElementById('image').value = '';
+        });
+
+        productForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(productForm);
+            try {
+                const res = await fetch('../actions/admin/save_product.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (!res.ok || !data || data.error) {
+                    alert(data && data.error ? data.error : 'Save failed');
+                    return;
+                }
+                window.location.reload();
+            } catch (err) {
+                console.error(err);
+                alert('Unable to save product right now.');
+            }
+        });
+
+        // Simple client-side search filter by name/brand
+        const searchInput = document.getElementById('productSearch');
+        const tiles = document.querySelectorAll('.product-tile');
+        searchInput.addEventListener('input', () => {
+            const term = searchInput.value.trim().toLowerCase();
+            tiles.forEach(tile => {
+                const name = tile.getAttribute('data-name') || '';
+                const brand = tile.getAttribute('data-brand') || '';
+                const match = name.includes(term) || brand.includes(term);
+                tile.classList.toggle('d-none', term && !match);
+            });
+        });
+
+        // Delete handler via modal
+        const deleteModalEl = document.getElementById('deleteModal');
+        const deleteModal = new bootstrap.Modal(deleteModalEl);
+        const deleteNameEl = document.getElementById('deleteProductName');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        let pendingDeleteId = null;
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                pendingDeleteId = btn.getAttribute('data-id');
+                const name = btn.getAttribute('data-name') || 'this product';
+                deleteNameEl.textContent = name;
+                deleteModal.show();
+            });
+        });
+
+        confirmDeleteBtn.addEventListener('click', async () => {
+            if (!pendingDeleteId) {
+                deleteModal.hide();
+                return;
+            }
+            try {
+                const res = await fetch('../actions/admin/delete_product.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ watch_id: pendingDeleteId })
+                });
+                const data = await res.json();
+                if (!res.ok || !data || data.error) {
+                    alert(data && data.error ? data.error : 'Delete failed');
+                    return;
+                }
+                window.location.reload();
+            } catch (err) {
+                console.error(err);
+                alert('Unable to delete product right now.');
+            }
+        });
+    </script>
 </body>
 
 </html>

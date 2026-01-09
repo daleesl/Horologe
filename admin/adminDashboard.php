@@ -1,3 +1,90 @@
+<?php
+require_once __DIR__ . '/../config/connect.php';
+
+$overview = [
+    'revenue' => 0.0,
+    'orders' => 0,
+    'avg_order' => 0.0,
+    'customers' => 0,
+    'active_customers' => 0,
+    'stock' => 0,
+    'low_stock' => 0,
+    'completed' => 0,
+    'pending' => 0,
+];
+
+// Revenue, total orders, average order value
+$resOrders = $conn->query('SELECT COALESCE(SUM(total_amount),0) AS revenue, COUNT(*) AS orders, COALESCE(AVG(total_amount),0) AS avg_order FROM orders');
+if ($resOrders) {
+    $row = $resOrders->fetch_assoc();
+    $overview['revenue'] = (float)($row['revenue'] ?? 0);
+    $overview['orders'] = (int)($row['orders'] ?? 0);
+    $overview['avg_order'] = (float)($row['avg_order'] ?? 0);
+}
+
+// Customers
+$resUsers = $conn->query("SELECT COUNT(*) AS total, SUM(status = 'active') AS active FROM users");
+if ($resUsers) {
+    $row = $resUsers->fetch_assoc();
+    $overview['customers'] = (int)($row['total'] ?? 0);
+    $overview['active_customers'] = (int)($row['active'] ?? 0);
+}
+
+// Inventory
+$resStock = $conn->query('SELECT COALESCE(SUM(stock_quantity),0) AS total_stock, SUM(stock_quantity <= 5) AS low_stock FROM watch');
+if ($resStock) {
+    $row = $resStock->fetch_assoc();
+    $overview['stock'] = (int)($row['total_stock'] ?? 0);
+    $overview['low_stock'] = (int)($row['low_stock'] ?? 0);
+}
+
+// Payment status counts
+$resPayments = $conn->query('SELECT LOWER(payment_status) AS status, COUNT(*) AS cnt FROM payment GROUP BY LOWER(payment_status)');
+if ($resPayments) {
+    while ($row = $resPayments->fetch_assoc()) {
+        $status = $row['status'] ?? '';
+        $count = (int)($row['cnt'] ?? 0);
+        if ($status === 'completed' || $status === 'paid') {
+            $overview['completed'] += $count;
+        } elseif ($status === 'pending') {
+            $overview['pending'] += $count;
+        }
+    }
+}
+
+// Recent orders
+$recentOrders = [];
+$sqlRecent = "SELECT o.order_id, o.user_name, o.user_email, o.product_name, o.total_amount, o.order_date, p.payment_status
+              FROM orders o
+              LEFT JOIN payment p ON p.order_id = o.order_id
+              ORDER BY o.order_date DESC
+              LIMIT 5";
+$resRecent = $conn->query($sqlRecent);
+if ($resRecent) {
+    while ($row = $resRecent->fetch_assoc()) {
+        $recentOrders[] = $row;
+    }
+}
+
+// Top selling products
+$topProducts = [];
+$sqlTop = "SELECT o.product_name, o.watch_id, SUM(o.quantity) AS units_sold, SUM(o.total_amount) AS revenue
+           FROM orders o
+           GROUP BY o.watch_id, o.product_name
+           ORDER BY units_sold DESC, revenue DESC
+           LIMIT 3";
+$resTop = $conn->query($sqlTop);
+if ($resTop) {
+    while ($row = $resTop->fetch_assoc()) {
+        $topProducts[] = $row;
+    }
+}
+
+function moneyFormat(float $value): string
+{
+    return '$' . number_format($value, 2, '.', ',');
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,10 +126,8 @@
                         <p class="text-secondary text-uppercase small mb-3 d-flex align-items-center gap-2">
                             <i class="bi bi-cash-coin"></i> Total Revenue
                         </p>
-                        <h2 class="display-6 fw-bold text-white">$125,450</h2>
-                        <p class="text-success small mt-2">
-                            <i class="bi bi-arrow-up"></i> +12% from last month
-                        </p>
+                        <h2 class="display-6 fw-bold text-white"><?= moneyFormat($overview['revenue']); ?></h2>
+                        <p class="text-secondary small mt-2">Based on recorded orders</p>
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 col-lg-3">
@@ -50,9 +135,9 @@
                         <p class="text-secondary text-uppercase small mb-3 d-flex align-items-center gap-2">
                             <i class="bi bi-bag-check"></i> Total Orders
                         </p>
-                        <h2 class="display-6 fw-bold text-white">247</h2>
+                        <h2 class="display-6 fw-bold text-white"><?= htmlspecialchars($overview['orders']); ?></h2>
                         <p class="text-info small mt-2">
-                            <i class="bi bi-clock"></i> 12 pending
+                            <i class="bi bi-clock"></i> <?= htmlspecialchars($overview['pending']); ?> pending payments
                         </p>
                     </div>
                 </div>
@@ -61,9 +146,9 @@
                         <p class="text-secondary text-uppercase small mb-3 d-flex align-items-center gap-2">
                             <i class="bi bi-people"></i> Total Customers
                         </p>
-                        <h2 class="display-6 fw-bold text-white">184</h2>
+                        <h2 class="display-6 fw-bold text-white"><?= htmlspecialchars($overview['customers']); ?></h2>
                         <p class="text-success small mt-2">
-                            <i class="bi bi-person-plus"></i> 8 new this month
+                            <i class="bi bi-person-plus"></i> <?= htmlspecialchars($overview['active_customers']); ?> active
                         </p>
                     </div>
                 </div>
@@ -72,9 +157,9 @@
                         <p class="text-secondary text-uppercase small mb-3 d-flex align-items-center gap-2">
                             <i class="bi bi-box-seam"></i> In Stock
                         </p>
-                        <h2 class="display-6 fw-bold text-white">156</h2>
+                        <h2 class="display-6 fw-bold text-white"><?= htmlspecialchars($overview['stock']); ?></h2>
                         <p class="text-warning small mt-2">
-                            <i class="bi bi-exclamation-circle"></i> 5 low stock
+                            <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($overview['low_stock']); ?> low stock
                         </p>
                     </div>
                 </div>
@@ -87,25 +172,25 @@
                     <div class="col-12 col-sm-6 col-lg-3">
                         <div class="border border-secondary p-4 text-center">
                             <p class="text-secondary text-uppercase small mb-3">All Orders</p>
-                            <h2 class="display-5 fw-bold text-white">247</h2>
+                            <h2 class="display-5 fw-bold text-white"><?= htmlspecialchars($overview['orders']); ?></h2>
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 col-lg-3">
                         <div class="border border-secondary p-4 text-center">
                             <p class="text-secondary text-uppercase small mb-3">Completed</p>
-                            <h2 class="display-5 fw-bold text-white">235</h2>
+                            <h2 class="display-5 fw-bold text-white"><?= htmlspecialchars($overview['completed']); ?></h2>
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 col-lg-3">
                         <div class="border border-secondary p-4 text-center">
                             <p class="text-secondary text-uppercase small mb-3">Pending</p>
-                            <h2 class="display-5 fw-bold text-white">12</h2>
+                            <h2 class="display-5 fw-bold text-white"><?= htmlspecialchars($overview['pending']); ?></h2>
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 col-lg-3">
                         <div class="border border-secondary p-4 text-center">
                             <p class="text-secondary text-uppercase small mb-3">Avg Order Value</p>
-                            <h2 class="display-5 fw-bold text-white">$507</h2>
+                            <h2 class="display-5 fw-bold text-white"><?= moneyFormat($overview['avg_order']); ?></h2>
                         </div>
                     </div>
                 </div>
@@ -128,71 +213,40 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="border-bottom border-secondary">
-                                <td class="text-white fw-semibold py-4">ORD-001</td>
-                                <td class="py-4">
-                                    <div class="text-white fw-semibold">John Smith</div>
-                                    <div class="text-secondary small">john@email.com</div>
-                                </td>
-                                <td class="text-white py-4">Submariner</td>
-                                <td class="text-white fw-semibold py-4">$45,200</td>
-                                <td class="text-white py-4">1/5/2025</td>
-                                <td class="py-4">
-                                    <span class="badge bg-success">Completed</span>
-                                </td>
-                            </tr>
-                            <tr class="border-bottom border-secondary">
-                                <td class="text-white fw-semibold py-4">ORD-002</td>
-                                <td class="py-4">
-                                    <div class="text-white fw-semibold">Emma Johnson</div>
-                                    <div class="text-secondary small">emma@email.com</div>
-                                </td>
-                                <td class="text-white py-4">Daytona</td>
-                                <td class="text-white fw-semibold py-4">$62,300</td>
-                                <td class="text-white py-4">1/4/2025</td>
-                                <td class="py-4">
-                                    <span class="badge bg-success">Completed</span>
-                                </td>
-                            </tr>
-                            <tr class="border-bottom border-secondary">
-                                <td class="text-white fw-semibold py-4">ORD-003</td>
-                                <td class="py-4">
-                                    <div class="text-white fw-semibold">Michael Brown</div>
-                                    <div class="text-secondary small">michael@email.com</div>
-                                </td>
-                                <td class="text-white py-4">Yacht-Master</td>
-                                <td class="text-white fw-semibold py-4">$38,500</td>
-                                <td class="text-white py-4">1/4/2025</td>
-                                <td class="py-4">
-                                    <span class="badge bg-warning text-dark">Pending</span>
-                                </td>
-                            </tr>
-                            <tr class="border-bottom border-secondary">
-                                <td class="text-white fw-semibold py-4">ORD-004</td>
-                                <td class="py-4">
-                                    <div class="text-white fw-semibold">Sarah Davis</div>
-                                    <div class="text-secondary small">sarah@email.com</div>
-                                </td>
-                                <td class="text-white py-4">Perpetual Calendar</td>
-                                <td class="text-white fw-semibold py-4">$72,500</td>
-                                <td class="text-white py-4">1/3/2025</td>
-                                <td class="py-4">
-                                    <span class="badge bg-success">Completed</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-white fw-semibold py-4">ORD-005</td>
-                                <td class="py-4">
-                                    <div class="text-white fw-semibold">Robert Wilson</div>
-                                    <div class="text-secondary small">robert@email.com</div>
-                                </td>
-                                <td class="text-white py-4">Tourbillon Skeleton</td>
-                                <td class="text-white fw-semibold py-4">$95,000</td>
-                                <td class="text-white py-4">1/2/2025</td>
-                                <td class="py-4">
-                                    <span class="badge bg-success">Completed</span>
-                                </td>
-                            </tr>
+                            <?php if (!empty($recentOrders)) : ?>
+                                <?php foreach ($recentOrders as $order) : ?>
+                                    <?php
+                                    $status = strtolower($order['payment_status'] ?? '');
+                                    $badgeClass = 'bg-secondary';
+                                    if ($status === 'completed' || $status === 'paid') {
+                                        $badgeClass = 'bg-success';
+                                    } elseif ($status === 'pending') {
+                                        $badgeClass = 'bg-warning text-dark';
+                                    }
+                                    $orderDate = $order['order_date'] ?? '';
+                                    $dateFormatted = $orderDate ? date('n/j/Y', strtotime($orderDate)) : '--';
+                                    ?>
+                                    <tr class="border-bottom border-secondary">
+                                        <td class="text-white fw-semibold py-4"><?= htmlspecialchars($order['order_id']); ?></td>
+                                        <td class="py-4">
+                                            <div class="text-white fw-semibold"><?= htmlspecialchars($order['user_name']); ?></div>
+                                            <div class="text-secondary small"><?= htmlspecialchars($order['user_email']); ?></div>
+                                        </td>
+                                        <td class="text-white py-4"><?= htmlspecialchars($order['product_name']); ?></td>
+                                        <td class="text-white fw-semibold py-4"><?= moneyFormat((float)($order['total_amount'] ?? 0)); ?></td>
+                                        <td class="text-white py-4"><?= htmlspecialchars($dateFormatted); ?></td>
+                                        <td class="py-4">
+                                            <span class="badge <?= $badgeClass; ?>">
+                                                <?= $status ? htmlspecialchars(ucfirst($status)) : 'Unpaid'; ?>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else : ?>
+                                <tr>
+                                    <td colspan="6" class="text-center text-secondary py-4">No orders yet.</td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -202,36 +256,25 @@
             <div class="mb-5">
                 <h3 class="text-white text-uppercase fw-bold mb-4">Top Selling Products</h3>
                 <div class="row g-4">
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="border border-secondary p-4">
-                            <p class="text-secondary text-uppercase small mb-2">1st Place</p>
-                            <h4 class="text-white fw-bold mb-2">Submariner Classic</h4>
-                            <p class="text-white mb-3">45 units sold</p>
-                            <p class="text-success">
-                                <i class="bi bi-arrow-up"></i> Revenue: $2,034,000
-                            </p>
+                    <?php if (!empty($topProducts)) : ?>
+                        <?php $rank = 1; foreach ($topProducts as $product) : ?>
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <div class="border border-secondary p-4">
+                                    <p class="text-secondary text-uppercase small mb-2"><?= htmlspecialchars($rank); ?><?= $rank === 1 ? 'st' : ($rank === 2 ? 'nd' : 'rd'); ?> Place</p>
+                                    <h4 class="text-white fw-bold mb-2"><?= htmlspecialchars($product['product_name']); ?></h4>
+                                    <p class="text-white mb-3"><?= (int)($product['units_sold'] ?? 0); ?> units sold</p>
+                                    <p class="text-success">
+                                        <i class="bi bi-arrow-up"></i> Revenue: <?= moneyFormat((float)($product['revenue'] ?? 0)); ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <?php $rank++; ?>
+                        <?php endforeach; ?>
+                    <?php else : ?>
+                        <div class="col-12">
+                            <div class="border border-secondary p-4 text-center text-secondary">No sales data yet.</div>
                         </div>
-                    </div>
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="border border-secondary p-4">
-                            <p class="text-secondary text-uppercase small mb-2">2nd Place</p>
-                            <h4 class="text-white fw-bold mb-2">Daytona Limited</h4>
-                            <p class="text-white mb-3">38 units sold</p>
-                            <p class="text-success">
-                                <i class="bi bi-arrow-up"></i> Revenue: $2,356,600
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="border border-secondary p-4">
-                            <p class="text-secondary text-uppercase small mb-2">3rd Place</p>
-                            <h4 class="text-white fw-bold mb-2">Perpetual Calendar</h4>
-                            <p class="text-white mb-3">32 units sold</p>
-                            <p class="text-success">
-                                <i class="bi bi-arrow-up"></i> Revenue: $2,320,000
-                            </p>
-                        </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

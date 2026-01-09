@@ -1,3 +1,15 @@
+<?php
+require_once __DIR__ . '/../config/connect.php';
+require_once __DIR__ . '/../classes/products/ProductService.php';
+
+$productService = new ProductService(new ProductRepository($conn));
+$products = $productService->getAllProducts();
+
+function formatPrice($value)
+{
+    return '$' . number_format((float)$value, 0, '.', ',');
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -29,25 +41,25 @@
             <!-- Filters & Sort -->
             <div class="row mb-5 align-items-center border-bottom border-secondary pb-4">
                 <div class="col-lg-8">
-                    <div class="d-flex flex-wrap gap-3 align-items-center">
+                    <div class="d-flex flex-wrap gap-3 align-items-center" id="filterButtons">
                         <span class="text-secondary fw-bold small" style="letter-spacing: 0.1rem;">
                             <i class="bi bi-funnel"></i> FILTERS
                         </span>
-                        <button class="btn btn-sm btn-outline-secondary text-secondary-bold px-3">ALL</button>
-                        <button class="btn btn-sm btn-outline-secondary text-secondary-bold px-3">ROLEX</button>
-                        <button class="btn btn-sm btn-outline-secondary text-secondary-bold px-3">CARTIER</button>
-                        <button class="btn btn-sm btn-outline-secondary text-secondary-bold px-3">MONTBLAC</button>
-                        <button class="btn btn-sm btn-outline-secondary text-secondary-bold px-3">PATEK PHILIPPE</button>
+                        <button class="btn btn-sm btn-outline-secondary text-secondary-bold px-3 active" data-filter="all">ALL</button>
+                        <button class="btn btn-sm btn-outline-secondary text-secondary-bold px-3" data-filter="rolex">ROLEX</button>
+                        <button class="btn btn-sm btn-outline-secondary text-secondary-bold px-3" data-filter="cartier">CARTIER</button>
+                        <button class="btn btn-sm btn-outline-secondary text-secondary-bold px-3" data-filter="montblac">MONTBLAC</button>
+                        <button class="btn btn-sm btn-outline-secondary text-secondary-bold px-3" data-filter="patek philippe">PATEK PHILIPPE</button>
                     </div>
                 </div>
                 <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
                     <div class="d-flex justify-content-lg-end align-items-center gap-2">
                         <span class="text-secondary small fw-bold" style="letter-spacing: 0.05rem;">SORT BY</span>
-                        <select class="form-select form-select-sm bg-black border-secondary text-white" style="width: auto;">
-                            <option selected class="text-secondary">Featured</option>
-                            <option class="text-secondary">Price: Low to High</option>
-                            <option class="text-secondary">Price: High to Low</option>
-                            <option class="text-secondary">Newest</option>
+                        <select id="sortSelect" class="form-select form-select-sm bg-black border-secondary text-white" style="width: auto;">
+                            <option value="featured" selected class="text-secondary">Featured</option>
+                            <option value="price-asc" class="text-secondary">Price: Low to High</option>
+                            <option value="price-desc" class="text-secondary">Price: High to Low</option>
+                            <option value="newest" class="text-secondary">Newest</option>
                         </select>
                     </div>
                 </div>
@@ -59,7 +71,46 @@
         <!-- Products Grid -->
         <div class="container">
             <div id="productsRow" class="row g-3 g-lg-5">
-                <!-- Products will be loaded dynamically -->
+                <?php if (!empty($products)) : ?>
+                    <?php $i = 0; foreach ($products as $product) : ?>
+                        <?php $i++; ?>
+                        <div class="col-12 col-sm-6 col-lg-3 product-item" data-category="<?= htmlspecialchars(strtolower($product['category'] ?? ''), ENT_QUOTES) ?>" data-price="<?= htmlspecialchars($product['price'], ENT_QUOTES) ?>" data-index="<?= $i ?>">
+                            <div class="product-card  rounded-3 p-3 h-100 d-flex flex-column justify-content-between">
+                                <a href="viewProduct.php?id=<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>" class="text-decoration-none flex-grow-1">
+                                    <div>
+                                        <div class="mb-2 overflow-hidden rounded ratio ratio-1x1">
+                                            <img src="<?= htmlspecialchars($product['image'], ENT_QUOTES) ?>" alt="<?= htmlspecialchars($product['name'], ENT_QUOTES) ?>" class="w-100 h-100 object-fit-contain p-3">
+                                        </div>
+                                        <p class="text-secondary small text-uppercase"><?= htmlspecialchars($product['category'], ENT_QUOTES) ?></p>
+                                        <h5 class="text-white text-secondary-bold"><?= htmlspecialchars($product['name'], ENT_QUOTES) ?></h5>
+                                        <p class="text-white mb-1"><?= formatPrice($product['price']) ?></p>
+                                        <p class="text-secondary small mb-1">Stock: <?= (int)($product['stock'] ?? 0) ?></p>
+                               
+                                    </div>
+                                </a>
+                                
+                                <div class="d-flex gap-2">
+                                    <a href="viewProduct.php?id=<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>" class="btn btn-sm btn-outline-light flex-fill">VIEW</a>
+                                    <?php $inStock = (int)($product['stock'] ?? 0) > 0; ?>
+                                    <button class="btn btn-sm btn-outline-light flex-fill add-to-cart-btn" type="button"
+                                        data-product-id="<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>"
+                                        data-product-name="<?= htmlspecialchars($product['name'], ENT_QUOTES) ?>"
+                                        data-product-price="<?= htmlspecialchars($product['price'], ENT_QUOTES) ?>"
+                                        data-product-image="<?= htmlspecialchars($product['image'], ENT_QUOTES) ?>"
+                                        data-product-category="<?= htmlspecialchars($product['category'], ENT_QUOTES) ?>"
+                                        data-restore-label="ADD TO CART"
+                                        <?= $inStock ? '' : 'disabled' ?>>
+                                        <?= $inStock ? 'ADD TO CART' : 'OUT OF STOCK' ?>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else : ?>
+                    <div class="col-12 text-center">
+                        <p class="text-secondary">Products coming soon.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -71,67 +122,49 @@
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
 
-    <script src="../assets/js/sample-products.js"></script>
-    <script src="../assets/js/cart.js"></script>
     <script>
-        // Render Products Grid
-        function renderProducts() {
+        document.addEventListener('DOMContentLoaded', () => {
+            const filterButtons = document.querySelectorAll('#filterButtons button[data-filter]');
+            const productItems = Array.from(document.querySelectorAll('.product-item'));
             const productsRow = document.getElementById('productsRow');
+            const sortSelect = document.getElementById('sortSelect');
+            let currentFilter = 'all';
 
-            products.forEach(product => {
-                productsRow.innerHTML += `
-                    <div class="col-12 col-sm-6 col-lg-3">
-                        <div class="product-card  rounded-3 p-3 h-100 d-flex flex-column justify-content-between">
-                            <a href="viewProduct.php?id=${product.id}" class="text-decoration-none flex-grow-1">
-                                <div>
-                                    <div class="mb-2 overflow-hidden rounded ratio ratio-1x1">
-                                        <img src="${product.image}" alt="${product.name}" class="w-100 h-100 object-fit-contain p-3">
-                                    </div>
-                                    <p class="text-secondary small text-uppercase">${product.category}</p>
-                                    <h5 class="text-white text-secondary-bold">${product.name}</h5>
-                                    <p class="text-white mb-3">${formatPrice(product.price)}</p>
-                                </div>
-                            </a>
-                            
-                            <div class="d-flex gap-2">
-                                <a href="viewProduct.php?id=${product.id}" class="btn btn-sm btn-outline-light flex-fill">VIEW</a>
-                                <button class="btn btn-sm btn-outline-light flex-fill add-to-cart-btn" type="button" data-product-id="${product.id}">ADD TO CART</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            attachAddToCartListeners();
-        }
-
-        // Attach Add to Cart Event Listeners
-        function attachAddToCartListeners() {
-            const addToCartBtns = document.querySelectorAll('.add-to-cart-btn');
-
-            addToCartBtns.forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const productId = parseInt(this.dataset.productId);
-                    const product = products.find(p => p.id === productId);
-
-                    if (product) {
-                        addToCart(product, 1);
-
-                        this.textContent = 'ADDED!';
-                        this.classList.add('disabled');
-
-                        setTimeout(() => {
-                            this.textContent = 'ADD TO CART';
-                            this.classList.remove('disabled');
-                        }, 2000);
-                    }
+            const applyFilter = (filter) => {
+                currentFilter = filter;
+                filterButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.filter === filter));
+                productItems.forEach(item => {
+                    const matches = filter === 'all' || (item.dataset.category || '').toLowerCase() === filter;
+                    item.classList.toggle('d-none', !matches);
                 });
-            });
-        }
+            };
 
-        renderProducts();
+            const applySort = (mode) => {
+                const sorted = [...productItems];
+                if (mode === 'price-asc') {
+                    sorted.sort((a, b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price));
+                } else if (mode === 'price-desc') {
+                    sorted.sort((a, b) => parseFloat(b.dataset.price) - parseFloat(a.dataset.price));
+                } else if (mode === 'newest') {
+                    sorted.sort((a, b) => parseInt(b.dataset.index, 10) - parseInt(a.dataset.index, 10));
+                } else {
+                    sorted.sort((a, b) => parseInt(a.dataset.index, 10) - parseInt(b.dataset.index, 10));
+                }
+                sorted.forEach(node => productsRow.appendChild(node));
+                applyFilter(currentFilter);
+            };
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => applyFilter(button.dataset.filter));
+            });
+
+            sortSelect.addEventListener('change', () => applySort(sortSelect.value));
+
+            applyFilter(currentFilter);
+        });
     </script>
+
+    <script src="../assets/js/cart.js"></script>
 </body>
 
 </html>
