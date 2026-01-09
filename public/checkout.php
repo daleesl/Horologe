@@ -1,3 +1,37 @@
+<?php
+require_once __DIR__ . '/../config/connect.php';
+require_once __DIR__ . '/../classes/cart/CartService.php';
+
+$cartService = new CartService();
+$cartItems = $cartService->getItems();
+
+// If the cart page stored a subset for checkout, filter items here.
+if (isset($_SESSION['checkout_selected_ids']) && is_array($_SESSION['checkout_selected_ids'])) {
+    $selectedMap = array_flip($_SESSION['checkout_selected_ids']);
+    $cartItems = array_values(array_filter($cartItems, function ($item) use ($selectedMap) {
+        return isset($selectedMap[(string)($item['id'] ?? '')]);
+    }));
+}
+
+// Recompute summary based on filtered items.
+$cartSummary = [
+    'items' => 0,
+    'unique' => count($cartItems),
+    'subtotal' => 0,
+];
+
+foreach ($cartItems as $ci) {
+    $qty = (int) ($ci['quantity'] ?? 0);
+    $price = (float) ($ci['price'] ?? 0);
+    $cartSummary['items'] += $qty;
+    $cartSummary['subtotal'] += ($qty * $price);
+}
+
+function formatPrice($value)
+{
+    return '$' . number_format((float)$value, 0, '.', ',');
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -131,7 +165,27 @@
 
                         <!-- Products in Order -->
                         <div id="orderItemsContainer" class="mb-4">
-                            <p class="text-secondary small">Loading products...</p>
+                            <?php if (empty($cartItems)) : ?>
+                                <div class="text-center py-4"><p class="text-secondary">No items in your order</p><a href="collections.php" class="text-white text-decoration-none">Continue Shopping</a></div>
+                            <?php else : ?>
+                                <?php foreach ($cartItems as $item) : ?>
+                                    <div class="mb-4 pb-4 border-bottom border-secondary">
+                                        <div class="d-flex gap-3">
+                                            <div style="width: 100px; flex-shrink: 0;">
+                                                <img src="<?= htmlspecialchars($item['image'], ENT_QUOTES) ?>" alt="<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>" class="w-100" style="height: 80px; object-fit: contain;">
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <p class="text-secondary small mb-1"><?= htmlspecialchars($item['category'], ENT_QUOTES) ?></p>
+                                                <p class="text-white fw-semibold mb-2"><?= htmlspecialchars($item['name'], ENT_QUOTES) ?></p>
+                                                <p class="text-secondary small">QTY: <?= htmlspecialchars($item['quantity'], ENT_QUOTES) ?></p>
+                                            </div>
+                                            <div class="text-white fw-semibold text-end">
+                                                <?= formatPrice($item['price'] * $item['quantity']) ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </div>
 
                         <hr class="border-secondary my-4">
@@ -140,7 +194,7 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-secondary">SUBTOTAL</span>
-                                <span class="text-white fw-semibold" id="subtotal">$0</span>
+                                <span class="text-white fw-semibold" id="subtotal"><?= formatPrice($cartSummary['subtotal']) ?></span>
                             </div>
                             <div class="d-flex justify-content-between mb-4">
                                 <span class="text-secondary">SHIPPING</span>
@@ -150,7 +204,7 @@
 
                         <div class="d-flex justify-content-between border-top border-secondary pt-3">
                             <span class="text-white fw-bold text-uppercase">TOTAL</span>
-                            <span class="text-white fw-bold fs-5" id="total">$0</span>
+                            <span class="text-white fw-bold fs-5" id="total"><?= formatPrice($cartSummary['subtotal']) ?></span>
                         </div>
 
                         <p class="text-center text-secondary small mt-4" style="letter-spacing: 0.05rem;">SECURE CHECKOUT WITH ENCRYPTED PROTECTION</p>
@@ -164,51 +218,10 @@
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
 
-    <script src="../assets/js/sample-products.js"></script>
-
+    <script src="../assets/js/cart.js"></script>
     <script>
-        // Load cart and display products
-        function loadOrderItems() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const checkedProducts = cart.filter(p => p.checked);
-
-            if (checkedProducts.length === 0) {
-                document.getElementById('orderItemsContainer').innerHTML =
-                    '<div class="text-center py-4"><p class="text-secondary">No items in your order</p><a href="collections.php" class="text-white text-decoration-none">Continue Shopping</a></div>';
-                return;
-            }
-
-            // Calculate totals
-            const subtotal = checkedProducts.reduce((sum, p) => sum + (p.price * p.quantity), 0);
-
-            // Render products
-            const productsHTML = checkedProducts.map(product => `
-                <div class="mb-4 pb-4 border-bottom border-secondary">
-                    <div class="d-flex gap-3">
-                        <div style="width: 100px; flex-shrink: 0;">
-                            <img src="${product.image}" alt="${product.name}" class="w-100" style="height: 80px; object-fit: contain;">
-                        </div>
-                        <div class="flex-grow-1">
-                            <p class="text-secondary small mb-1">${product.category}</p>
-                            <p class="text-white fw-semibold mb-2">${product.name}</p>
-                            <p class="text-secondary small">QTY: ${product.quantity}</p>
-                        </div>
-                        <div class="text-white fw-semibold text-end">
-                            $${(product.price * product.quantity).toLocaleString()}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-
-            document.getElementById('orderItemsContainer').innerHTML = productsHTML;
-
-            // Update summary
-            document.getElementById('subtotal').textContent = '$' + subtotal.toLocaleString();
-            document.getElementById('total').textContent = '$' + subtotal.toLocaleString();
-        }
-
-        // Handle form submission
-        document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        // Keep storing checkout info locally for order confirmation page display (non-product data only)
+        document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const formData = {
@@ -222,15 +235,33 @@
                 paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value
             };
 
-            // Store checkout info
             localStorage.setItem('checkoutInfo', JSON.stringify(formData));
-
-            // Redirect to order confirmation
-            window.location.href = 'orderConfirmation.php';
+            try {
+                const res = await fetch('../actions/order/create.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        payment_method: formData.paymentMethod,
+                        firstName: formData.firstName,
+                        lastName: formData.lastName,
+                        address: formData.address,
+                        city: formData.city,
+                        postalCode: formData.postalCode,
+                        country: formData.country,
+                        email: formData.email
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok || !data || data.error) {
+                    alert(data && data.error ? data.error : 'Could not place order.');
+                    return;
+                }
+                window.location.href = 'orderConfirmation.php?order_id=' + encodeURIComponent(data.order_id);
+            } catch (err) {
+                console.error('Failed to create order', err);
+                alert('Could not place order right now.');
+            }
         });
-
-        // Load order on page load
-        loadOrderItems();
     </script>
 </body>
 

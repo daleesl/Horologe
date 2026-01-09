@@ -24,7 +24,7 @@
                     <span id="cartCount">0</span>
                 </span>
             </a>
-            <a href="#" class="text-decoration-none icon-link px-3" aria-label="Account">
+            <a href="account.php" class="text-decoration-none icon-link px-3" aria-label="Account">
                 <i class="bi bi-person text-white"></i>
             </a>
         </div>
