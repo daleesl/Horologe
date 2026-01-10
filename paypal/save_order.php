@@ -115,6 +115,8 @@ function sendReceiptEmail($toEmail, $name, $orderID, $cart, $total) {
         $mail->Subject = "Horologe Receipt – Order #$orderID";
 
         // Build email body
+        $emailBody = file_get_contents(__DIR__ . 'receipt_email.html');
+
         $itemsTable = '';
         foreach ($cart as $item) {
             $itemTotal = $item['price'] * $item['quantity'];
