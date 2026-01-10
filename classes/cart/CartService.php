@@ -72,13 +72,12 @@ class CartService
                 $this->repo->removeCartItem($this->cartId, $productId);
                 return;
             }
-            // Get price for subtotal update
-            // (Assume price is fetched elsewhere for brevity)
-            // You may want to pass price as param or fetch from product table
-            // For now, just update quantity (subtotal can be recalculated on checkout)
-            $this->repo->removeCartItem($this->cartId, $productId);
-            // Re-add with new quantity (for simplicity)
-            // In production, use an UPDATE statement
+            // Fetch product price for subtotal
+            $productRepo = new \ProductRepository($GLOBALS['conn']);
+            $product = $productRepo->getById($productId);
+            $price = isset($product['price']) ? (float)$product['price'] : 0.0;
+            $subtotal = $price * $quantity;
+            $this->repo->updateCartItemQuantity($this->cartId, $productId, $quantity, $subtotal);
         } else {
             if ($quantity <= 0) {
                 unset($_SESSION['cart'][$productId]);

@@ -1,6 +1,15 @@
 <?php
 // CartRepository: Handles DB operations for persistent user carts
 class CartRepository {
+    // ...existing code...
+
+    // Update the quantity and subtotal for a cart item
+    public function updateCartItemQuantity($cartId, $watchId, $quantity, $subtotal) {
+        $stmt = $this->conn->prepare('UPDATE cartitems SET quantity = ?, subtotal = ? WHERE cart_id = ? AND watch_id = ?');
+        $stmt->bind_param('idss', $quantity, $subtotal, $cartId, $watchId);
+        $stmt->execute();
+        $stmt->close();
+    }
     private $conn;
     public function __construct($conn) {
         $this->conn = $conn;
