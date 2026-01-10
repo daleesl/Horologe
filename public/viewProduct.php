@@ -205,23 +205,10 @@ function formatPrice($value)
         }
 
         if (addToCartBtn && quantityInput) {
+            // Only set the quantity as a data attribute for cart.js to use
             addToCartBtn.addEventListener('click', function() {
                 const quantity = parseInt(quantityInput.value, 10) || 1;
                 addToCartBtn.dataset.productQuantity = quantity;
-                addToCartBtn.dataset.restoreLabel = 'ADD TO COLLECTION';
-                const product = typeof buildProductFromDataset === 'function' ? buildProductFromDataset(addToCartBtn) : null;
-                if (!product || !product.id) {
-                    return;
-                }
-                addToCart(product, quantity);
-
-                addToCartBtn.textContent = 'ADDED!';
-                addToCartBtn.classList.add('disabled');
-
-                setTimeout(() => {
-                    addToCartBtn.textContent = 'ADD TO COLLECTION';
-                    addToCartBtn.classList.remove('disabled');
-                }, 2000);
             });
         }
     </script>
