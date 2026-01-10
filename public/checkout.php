@@ -29,7 +29,7 @@ foreach ($cartItems as $ci) {
 
 function formatPrice($value)
 {
-    return '$' . number_format((float)$value, 0, '.', ',');
+    return '₱' . number_format((float)$value, 0, '.', ',');
 }
 ?>
 <!doctype html>

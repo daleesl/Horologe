@@ -30,7 +30,7 @@ if (isset($_SESSION['pending_clear_ids']) && is_array($_SESSION['pending_clear_i
 
 function formatPrice($value)
 {
-    return '$' . number_format((float)$value, 0, '.', ',');
+    return '₱' . number_format((float)$value, 0, '.', ',');
 }
 ?>
 <!doctype html>
