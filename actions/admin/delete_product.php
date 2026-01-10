@@ -70,7 +70,7 @@ if (!empty($orderIds)) {
     }
 }
 
-// Finally, delete the watch
+
 $stmt = $conn->prepare('DELETE FROM watch WHERE watch_id = ?');
 if (!$stmt) {
     http_response_code(500);

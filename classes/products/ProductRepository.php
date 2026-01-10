@@ -1,5 +1,5 @@
 <?php
-// Data access for products. Queries are intentionally minimal to align with the existing schema.
+// Data access for products
 class ProductRepository
 {
     private mysqli $conn;
@@ -9,21 +9,16 @@ class ProductRepository
         $this->conn = $conn;
     }
 
-    /**
-     * Fetch all products from watch table.
-     * @return array<int, array<string, mixed>>
-     */
+
     public function getAll(): array
     {
         $sql = "SELECT watch_id AS id, brand, model, CONCAT(brand, ' ', model) AS name, brand AS category, price, image_file AS image, description, stock_quantity AS stock FROM watch ORDER BY watch_id DESC";
         return $this->normalizeList($this->fetchAll($sql));
     }
 
-    /**
-     * Fetch a limited set for featured display.
-     * @param int $limit
-     * @return array<int, array<string, mixed>>
-     */
+
+    // Fetch a limited set for featured display.
+   
     public function getFeatured(int $limit = 4): array
     {
         $sql = "SELECT watch_id AS id, brand, model, CONCAT(brand, ' ', model) AS name, brand AS category, price, image_file AS image, description, stock_quantity AS stock FROM watch ORDER BY watch_id DESC LIMIT ?";
@@ -39,9 +34,9 @@ class ProductRepository
         return $this->normalizeList($result ? $result->fetch_all(MYSQLI_ASSOC) : []);
     }
 
-    /**
-     * Fetch a single product by id.
-     */
+  
+     //Fetch a single product by id.
+    
     public function getById(string $id): ?array
     {
         $sql = "SELECT watch_id AS id, brand, model, CONCAT(brand, ' ', model) AS name, brand AS category, price, image_file AS image, description, stock_quantity AS stock FROM watch WHERE watch_id = ? LIMIT 1";
@@ -58,10 +53,9 @@ class ProductRepository
         return $row ? $this->normalizeRow($row) : null;
     }
 
-    /**
-     * Fetch related products by brand, excluding the current one.
-     * @return array<int, array<string, mixed>>
-     */
+  
+     // Fetch related products by brand, excluding the current one.
+ 
     public function getRelated(string $brand, string $excludeId, int $limit = 4): array
     {
         $sql = "SELECT watch_id AS id, brand, model, CONCAT(brand, ' ', model) AS name, brand AS category, price, image_file AS image, description, stock_quantity AS stock FROM watch WHERE brand = ? AND watch_id != ? ORDER BY watch_id DESC LIMIT ?";
@@ -77,11 +71,9 @@ class ProductRepository
         return $this->normalizeList($result ? $result->fetch_all(MYSQLI_ASSOC) : []);
     }
 
-    /**
-     * Helper to run a simple query without parameters.
-     * @param string $sql
-     * @return array<int, array<string, mixed>>
-     */
+ 
+     // Helper to run a simple query without parameters.
+
     private function fetchAll(string $sql): array
     {
         $result = $this->conn->query($sql);
@@ -91,11 +83,8 @@ class ProductRepository
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    /**
-     * Normalize a list of product rows (image paths, stock types)
-     * @param array<int,array<string,mixed>> $rows
-     * @return array<int,array<string,mixed>>
-     */
+     // Normalize a list of product rows (image paths, stock types)
+
     private function normalizeList(array $rows): array
     {
         return array_map(function ($row) {
@@ -103,11 +92,7 @@ class ProductRepository
         }, $rows);
     }
 
-    /**
-     * Normalize a single row
-     * @param array<string,mixed> $row
-     * @return array<string,mixed>
-     */
+
     private function normalizeRow(array $row): array
     {
         // Ensure stock is integer

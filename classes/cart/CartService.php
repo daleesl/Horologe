@@ -1,14 +1,33 @@
 <?php
 // Session-based cart manager. Keeps data sourced from the database via ProductService.
+require_once __DIR__ . '/CartRepository.php';
+require_once __DIR__ . '/../../config/connect.php';
+
 class CartService
 {
+    private $repo;
+    private $userId;
+    private $cartId;
+    private $useDb = false;
+
     public function __construct()
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
-        if (!isset($_SESSION['cart'])) {
-            $_SESSION['cart'] = [];
+        $this->userId = $_SESSION['user_id'] ?? null;
+        $this->repo = new CartRepository($GLOBALS['conn']);
+        if ($this->userId) {
+            $this->useDb = true;
+            $this->cartId = $this->repo->getCartIdByUserId($this->userId);
+            if (!$this->cartId) {
+                $this->cartId = uniqid('cart_');
+                $this->repo->createCart($this->userId, $this->cartId);
+            }
+        } else {
+            if (!isset($_SESSION['cart'])) {
+                $_SESSION['cart'] = [];
+            }
         }
     }
 
@@ -22,19 +41,22 @@ class CartService
         if ($id === '' || $quantity <= 0) {
             return;
         }
-
-        if (!isset($_SESSION['cart'][$id])) {
-            $_SESSION['cart'][$id] = [
-                'id' => $id,
-                'name' => (string) ($product['name'] ?? ''),
-                'category' => (string) ($product['category'] ?? ''),
-                'price' => (float) ($product['price'] ?? 0),
-                'image' => (string) ($product['image'] ?? ''),
-                'quantity' => 0,
-            ];
+        if ($this->useDb) {
+            $subtotal = ((float)($product['price'] ?? 0)) * $quantity;
+            $this->repo->addOrUpdateCartItem($this->cartId, $id, $quantity, $subtotal);
+        } else {
+            if (!isset($_SESSION['cart'][$id])) {
+                $_SESSION['cart'][$id] = [
+                    'id' => $id,
+                    'name' => (string) ($product['name'] ?? ''),
+                    'category' => (string) ($product['category'] ?? ''),
+                    'price' => (float) ($product['price'] ?? 0),
+                    'image' => (string) ($product['image'] ?? ''),
+                    'quantity' => 0,
+                ];
+            }
+            $_SESSION['cart'][$id]['quantity'] += $quantity;
         }
-
-        $_SESSION['cart'][$id]['quantity'] += $quantity;
     }
 
     /**
@@ -45,25 +67,44 @@ class CartService
         if ($productId === '') {
             return;
         }
-
-        if ($quantity <= 0) {
-            unset($_SESSION['cart'][$productId]);
-            return;
-        }
-
-        if (isset($_SESSION['cart'][$productId])) {
-            $_SESSION['cart'][$productId]['quantity'] = $quantity;
+        if ($this->useDb) {
+            if ($quantity <= 0) {
+                $this->repo->removeCartItem($this->cartId, $productId);
+                return;
+            }
+            // Fetch product price for subtotal
+            $productRepo = new \ProductRepository($GLOBALS['conn']);
+            $product = $productRepo->getById($productId);
+            $price = isset($product['price']) ? (float)$product['price'] : 0.0;
+            $subtotal = $price * $quantity;
+            $this->repo->updateCartItemQuantity($this->cartId, $productId, $quantity, $subtotal);
+        } else {
+            if ($quantity <= 0) {
+                unset($_SESSION['cart'][$productId]);
+                return;
+            }
+            if (isset($_SESSION['cart'][$productId])) {
+                $_SESSION['cart'][$productId]['quantity'] = $quantity;
+            }
         }
     }
 
     public function remove(string $productId): void
     {
-        unset($_SESSION['cart'][$productId]);
+        if ($this->useDb) {
+            $this->repo->removeCartItem($this->cartId, $productId);
+        } else {
+            unset($_SESSION['cart'][$productId]);
+        }
     }
 
     public function clear(): void
     {
-        $_SESSION['cart'] = [];
+        if ($this->useDb) {
+            $this->repo->clearCart($this->cartId);
+        } else {
+            $_SESSION['cart'] = [];
+        }
     }
 
     /**
@@ -71,7 +112,13 @@ class CartService
      */
     public function getItems(): array
     {
-        return array_values($_SESSION['cart']);
+        if ($this->useDb) {
+            $items = $this->repo->getCartItems($this->cartId);
+            // Optionally, join with product table for details
+            return $items;
+        } else {
+            return array_values($_SESSION['cart']);
+        }
     }
 
     /**

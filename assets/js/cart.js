@@ -113,7 +113,7 @@ async function updateCartCountDisplay() {
 // Format price to USD currency
 
 function formatPrice(price) {
-    return '$' + parseFloat(price).toLocaleString('en-US', {
+    return '₱' + parseFloat(price).toLocaleString('en-PH', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
     });
