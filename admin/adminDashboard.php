@@ -82,11 +82,12 @@ if ($resTop) {
 
 function moneyFormat(float $value): string
 {
-    return '$' . number_format($value, 2, '.', ',');
+    return '₱' . number_format($value, 2, '.', ',');
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -95,12 +96,93 @@ function moneyFormat(float $value): string
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body {
-            background-color: #000;
-            color: #fff;
+            background: #101014;
+            color: #f5f5f7;
             font-family: 'EB Garamond', serif;
+        }
+
+        .dashboard-card {
+            background: linear-gradient(135deg, #181824 80%, #23233a 100%);
+            border: 1px solid #23233a;
+            border-radius: 1.25rem;
+            box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.12);
+            padding: 1.5rem 1.2rem;
+            min-height: 120px;
+            transition: box-shadow 0.2s, border 0.2s;
+        }
+
+        .dashboard-card:hover {
+            box-shadow: 0 6px 32px 0 rgba(0, 198, 255, 0.10);
+            border-color: #d1d3d4;
+        }
+
+        .dashboard-label {
+            color: #c9c9d3;
+            font-size: 0.95rem;
+            letter-spacing: 0.08em;
+            font-weight: 500;
+        }
+
+        .dashboard-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #cdd1d2;
+        }
+
+        .dashboard-section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 1.2rem;
+            letter-spacing: 0.08em;
+        }
+
+        .dashboard-table th,
+        .dashboard-table td {
+            background: transparent !important;
+            color: #f5f5f7;
+            font-size: 1rem;
+        }
+
+        .dashboard-table th {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .dashboard-table tr {
+            border-bottom: 1px solid #23233a;
+        }
+
+        .dashboard-badge {
+            border-radius: 1rem;
+            font-size: 0.95rem;
+            padding: 0.4em 1.1em;
+        }
+
+        .dashboard-card .bi {
+            font-size: 1.1rem;
+            vertical-align: -0.2em;
+        }
+
+        .display-5,
+        .display-6,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5 {
+            font-size: 1.25rem !important;
+            font-weight: 600 !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .dashboard-value,
+        .dashboard-label {
+            margin-bottom: 0.2rem;
         }
     </style>
 </head>
+
 <body>
     <div class="d-flex flex-column flex-md-row">
         <!-- Sidebar -->
@@ -121,76 +203,43 @@ function moneyFormat(float $value): string
 
             <!-- Key Metrics Section -->
             <div class="row g-4 mb-5">
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <div class="border border-secondary p-4">
-                        <p class="text-secondary text-uppercase small mb-3 d-flex align-items-center gap-2">
-                            <i class="bi bi-cash-coin"></i> Total Revenue
-                        </p>
-                        <h2 class="display-6 fw-bold text-white"><?= moneyFormat($overview['revenue']); ?></h2>
-                        <p class="text-secondary small mt-2">Based on recorded orders</p>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="dashboard-card h-100">
+                        <div class="dashboard-label mb-2"><i class="bi bi-cash-coin me-2"></i>TOTAL REVENUE</div>
+                        <div class="dashboard-value mb-1"><?= moneyFormat($overview['revenue']); ?></div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <div class="border border-secondary p-4">
-                        <p class="text-secondary text-uppercase small mb-3 d-flex align-items-center gap-2">
-                            <i class="bi bi-bag-check"></i> Total Orders
-                        </p>
-                        <h2 class="display-6 fw-bold text-white"><?= htmlspecialchars($overview['orders']); ?></h2>
-                        <p class="text-info small mt-2">
-                            <i class="bi bi-clock"></i> <?= htmlspecialchars($overview['pending']); ?> pending payments
-                        </p>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="dashboard-card h-100">
+                        <div class="dashboard-label mb-2"><i class="bi bi-bag-check me-2"></i>TOTAL ORDERS</div>
+                        <div class="dashboard-value mb-1"><?= htmlspecialchars($overview['orders']); ?></div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <div class="border border-secondary p-4">
-                        <p class="text-secondary text-uppercase small mb-3 d-flex align-items-center gap-2">
-                            <i class="bi bi-people"></i> Total Customers
-                        </p>
-                        <h2 class="display-6 fw-bold text-white"><?= htmlspecialchars($overview['customers']); ?></h2>
-                        <p class="text-success small mt-2">
-                            <i class="bi bi-person-plus"></i> <?= htmlspecialchars($overview['active_customers']); ?> active
-                        </p>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="dashboard-card h-100">
+                        <div class="dashboard-label mb-2"><i class="bi bi-people me-2"></i>TOTAL CUSTOMERS</div>
+                        <div class="dashboard-value mb-1"><?= htmlspecialchars($overview['customers']); ?></div>
+
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <div class="border border-secondary p-4">
-                        <p class="text-secondary text-uppercase small mb-3 d-flex align-items-center gap-2">
-                            <i class="bi bi-box-seam"></i> In Stock
-                        </p>
-                        <h2 class="display-6 fw-bold text-white"><?= htmlspecialchars($overview['stock']); ?></h2>
-                        <p class="text-warning small mt-2">
-                            <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($overview['low_stock']); ?> low stock
-                        </p>
-                    </div>
-                </div>
+
             </div>
 
             <!-- Orders Section -->
             <div class="mb-5">
                 <h3 class="text-white text-uppercase fw-bold mb-4">Order Overview</h3>
-                <div class="row g-4">
+                <div class="row g-4 d-flex justify-content-start">
                     <div class="col-12 col-sm-6 col-lg-3">
-                        <div class="border border-secondary p-4 text-center">
-                            <p class="text-secondary text-uppercase small mb-3">All Orders</p>
-                            <h2 class="display-5 fw-bold text-white"><?= htmlspecialchars($overview['orders']); ?></h2>
+                        <div class="dashboard-card h-100 text-center">
+                            <p class="dashboard-label text-uppercase small mb-3">All Orders</p>
+                            <h2 class="dashboard-value fw-bold text-white mb-0"><?= htmlspecialchars($overview['orders']); ?></h2>
                         </div>
                     </div>
+
                     <div class="col-12 col-sm-6 col-lg-3">
-                        <div class="border border-secondary p-4 text-center">
-                            <p class="text-secondary text-uppercase small mb-3">Completed</p>
-                            <h2 class="display-5 fw-bold text-white"><?= htmlspecialchars($overview['completed']); ?></h2>
-                        </div>
-                    </div>
-                    <div class="col-12 col-sm-6 col-lg-3">
-                        <div class="border border-secondary p-4 text-center">
-                            <p class="text-secondary text-uppercase small mb-3">Pending</p>
-                            <h2 class="display-5 fw-bold text-white"><?= htmlspecialchars($overview['pending']); ?></h2>
-                        </div>
-                    </div>
-                    <div class="col-12 col-sm-6 col-lg-3">
-                        <div class="border border-secondary p-4 text-center">
-                            <p class="text-secondary text-uppercase small mb-3">Avg Order Value</p>
-                            <h2 class="display-5 fw-bold text-white"><?= moneyFormat($overview['avg_order']); ?></h2>
+                        <div class="dashboard-card h-100 text-center">
+                            <p class="dashboard-label text-uppercase small mb-3">Avg Order Value</p>
+                            <h2 class="dashboard-value fw-bold text-white mb-0"><?= moneyFormat($overview['avg_order']); ?></h2>
                         </div>
                     </div>
                 </div>
@@ -200,55 +249,55 @@ function moneyFormat(float $value): string
             <!-- Recent Orders -->
             <div class="mb-5">
                 <h3 class="text-white text-uppercase fw-bold mb-4">Recent Orders</h3>
-                <div class="table-responsive">
-                    <table class="table table-dark table-hover align-middle">
-                        <thead>
-                            <tr class="border-bottom border-secondary">
-                                <th class="text-white py-3">Order ID</th>
-                                <th class="text-white py-3">Customer</th>
-                                <th class="text-white py-3">Product</th>
-                                <th class="text-white py-3">Total</th>
-                                <th class="text-white py-3">Date</th>
-                                <th class="text-white py-3">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (!empty($recentOrders)) : ?>
-                                <?php foreach ($recentOrders as $order) : ?>
-                                    <?php
-                                    $status = strtolower($order['payment_status'] ?? '');
-                                    $badgeClass = 'bg-secondary';
-                                    if ($status === 'completed' || $status === 'paid') {
-                                        $badgeClass = 'bg-success';
-                                    } elseif ($status === 'pending') {
-                                        $badgeClass = 'bg-warning text-dark';
-                                    }
-                                    $orderDate = $order['order_date'] ?? '';
-                                    $dateFormatted = $orderDate ? date('n/j/Y', strtotime($orderDate)) : '--';
-                                    ?>
+                <div class="card bg-dark border-0 shadow rounded-4">
+                    <div class="card-body p-0 border border-secondary rounded overflow-hidden">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover align-middle mb-0 rounded-4 overflow-hidden">
+                                <thead>
                                     <tr class="border-bottom border-secondary">
-                                        <td class="text-white fw-semibold py-4"><?= htmlspecialchars($order['order_id']); ?></td>
-                                        <td class="py-4">
-                                            <div class="text-white fw-semibold"><?= htmlspecialchars($order['user_name']); ?></div>
-                                            <div class="text-secondary small"><?= htmlspecialchars($order['user_email']); ?></div>
-                                        </td>
-                                        <td class="text-white py-4"><?= htmlspecialchars($order['product_name']); ?></td>
-                                        <td class="text-white fw-semibold py-4"><?= moneyFormat((float)($order['total_amount'] ?? 0)); ?></td>
-                                        <td class="text-white py-4"><?= htmlspecialchars($dateFormatted); ?></td>
-                                        <td class="py-4">
-                                            <span class="badge <?= $badgeClass; ?>">
-                                                <?= $status ? htmlspecialchars(ucfirst($status)) : 'Unpaid'; ?>
-                                            </span>
-                                        </td>
+                                        <th class="text-white py-3">Order ID</th>
+                                        <th class="text-white py-3">Customer</th>
+                                        <th class="text-white py-3">Product</th>
+                                        <th class="text-white py-3">Total</th>
+                                        <th class="text-white py-3">Date</th>
+                             
                                     </tr>
-                                <?php endforeach; ?>
-                            <?php else : ?>
-                                <tr>
-                                    <td colspan="6" class="text-center text-secondary py-4">No orders yet.</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+                                </thead>
+                                <tbody>
+                                    <?php if (!empty($recentOrders)) : ?>
+                                        <?php foreach ($recentOrders as $order) : ?>
+                                            <?php
+                                            $status = strtolower($order['payment_status'] ?? '');
+                                            $badgeClass = 'bg-secondary';
+                                            if ($status === 'completed' || $status === 'paid') {
+                                                $badgeClass = 'bg-success';
+                                            } elseif ($status === 'pending') {
+                                                $badgeClass = 'bg-warning text-dark';
+                                            }
+                                            $orderDate = $order['order_date'] ?? '';
+                                            $dateFormatted = $orderDate ? date('n/j/Y', strtotime($orderDate)) : '--';
+                                            ?>
+                                            <tr class="border-bottom border-secondary">
+                                                <td class="text-white fw-semibold py-4"><?= htmlspecialchars($order['order_id']); ?></td>
+                                                <td class="py-4">
+                                                    <div class="text-white fw-semibold"><?= htmlspecialchars($order['user_name']); ?></div>
+                                                    <div class="text-secondary small"><?= htmlspecialchars($order['user_email']); ?></div>
+                                                </td>
+                                                <td class="text-white py-4"><?= htmlspecialchars($order['product_name']); ?></td>
+                                                <td class="text-white fw-semibold py-4"><?= moneyFormat((float)($order['total_amount'] ?? 0)); ?></td>
+                                                <td class="text-white py-4"><?= htmlspecialchars($dateFormatted); ?></td>        
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else : ?>
+                                        <tr>
+                                            <td colspan="6" class="text-center text-secondary py-4">No orders yet.</td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -257,13 +306,13 @@ function moneyFormat(float $value): string
                 <h3 class="text-white text-uppercase fw-bold mb-4">Top Selling Products</h3>
                 <div class="row g-4">
                     <?php if (!empty($topProducts)) : ?>
-                        <?php $rank = 1; foreach ($topProducts as $product) : ?>
+                        <?php $rank = 1;
+                        foreach ($topProducts as $product) : ?>
                             <div class="col-12 col-md-6 col-lg-4">
-                                <div class="border border-secondary p-4">
-                                    <p class="text-secondary text-uppercase small mb-2"><?= htmlspecialchars($rank); ?><?= $rank === 1 ? 'st' : ($rank === 2 ? 'nd' : 'rd'); ?> Place</p>
-                                    <h4 class="text-white fw-bold mb-2"><?= htmlspecialchars($product['product_name']); ?></h4>
-                                    <p class="text-white mb-3"><?= (int)($product['units_sold'] ?? 0); ?> units sold</p>
-                                    <p class="text-success">
+                                <div class="dashboard-card h-100 d-flex flex-column align-items-center text-center p-4">
+                                    <h4 class="text-white fw-bold mb-2 w-100 mt-2"><?= htmlspecialchars($product['product_name']); ?></h4>
+                                    <p class="text-white mb-2">Units Sold: <span class="fw-bold"><?= (int)($product['units_sold'] ?? 0); ?></span></p>
+                                    <p class="text-success mb-0 fw-semibold">
                                         <i class="bi bi-arrow-up"></i> Revenue: <?= moneyFormat((float)($product['revenue'] ?? 0)); ?>
                                     </p>
                                 </div>
@@ -272,7 +321,7 @@ function moneyFormat(float $value): string
                         <?php endforeach; ?>
                     <?php else : ?>
                         <div class="col-12">
-                            <div class="border border-secondary p-4 text-center text-secondary">No sales data yet.</div>
+                            <div class="card bg-dark border-0 shadow rounded-4 p-4 text-center text-secondary">No sales data yet.</div>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -282,4 +331,5 @@ function moneyFormat(float $value): string
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

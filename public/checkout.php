@@ -1,6 +1,39 @@
 <?php
 require_once __DIR__ . '/../config/connect.php';
+require_once __DIR__ . '/../paypal/paypal_config.php';
 require_once __DIR__ . '/../classes/cart/CartService.php';
+
+session_start();
+
+// Initialize user info
+$userID = $_SESSION['userID'] ?? $_SESSION['user_id'] ?? null;
+$userEmail = $_SESSION['email'] ?? null;
+$user = [
+    'username' => '',
+    'contact' => '',
+    'address' => ''
+];
+
+if ($userID) {
+    $stmt = $conn->prepare("SELECT fname, lname, phone_number, email FROM users WHERE user_id = ?");
+    if ($stmt) {
+        $stmt->bind_param("s", $userID);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $fetchedUser = $result->fetch_assoc();
+        if ($fetchedUser !== null) {
+            $user = [
+                'username' => ($fetchedUser['fname'] ?? '') . ' ' . ($fetchedUser['lname'] ?? ''),
+                'contact' => $fetchedUser['phone_number'] ?? '',
+                'address' => ''
+            ];
+            if (isset($fetchedUser['email'])) {
+                $userEmail = $fetchedUser['email'];
+            }
+        }
+        $stmt->close();
+    }
+}
 
 $cartService = new CartService();
 $cartItems = $cartService->getItems();
@@ -39,6 +72,7 @@ function formatPrice($value)
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Checkout - Horologe</title>
+    <script src="https://www.paypal.com/sdk/js?client-id=<?php echo PAYPAL_CLIENT_ID; ?>&currency=USD"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
@@ -94,7 +128,7 @@ function formatPrice($value)
                                     <label for="firstName" class="form-label text-secondary small text-uppercase">FIRST NAME</label>
                                     <input type="text" class="form-control" id="firstName" placeholder="John" required>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-6"> 
                                     <label for="lastName" class="form-label text-secondary small text-uppercase">LAST NAME</label>
                                     <input type="text" class="form-control" id="lastName" placeholder="Doe" required>
                                 </div>
@@ -126,34 +160,6 @@ function formatPrice($value)
                                     <input type="email" class="form-control" id="email" placeholder="john@example.com" required>
                                 </div>
                             </div>
-
-                            <!-- Payment Method -->
-                            <div>
-                                <h3 class="h5 text-white text-uppercase mb-4 pb-3 border-bottom border-secondary">PAYMENT METHOD</h3>
-
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="radio" name="paymentMethod" id="paypal" value="PAYPAL" checked>
-                                    <label class="form-check-label text-secondary" for="paypal">
-                                        PAYPAL
-                                    </label>
-                                </div>
-
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="CREDIT CARD">
-                                    <label class="form-check-label text-secondary" for="creditCard">
-                                        CREDIT CARD
-                                    </label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="paymentMethod" id="bankTransfer" value="BANK TRANSFER">
-                                    <label class="form-check-label text-secondary" for="bankTransfer">
-                                        BANK TRANSFER
-                                    </label>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn btn-light w-100 fw-bold py-3 text-uppercase mt-5">COMPLETE ORDER</button>
                         </form>
                     </div>
                 </div>
@@ -213,6 +219,12 @@ function formatPrice($value)
                             <span class="text-white fw-bold fs-5" id="total"><?= formatPrice($cartSummary['subtotal']) ?></span>
                         </div>
 
+                        <div class="payment-pill mt-4 mb-4 p-3 bg-secondary bg-opacity-25 rounded text-center text-secondary" id="paymentNotice" style="letter-spacing: 0.05rem;">
+                            Mode of Payment: PayPal
+                        </div>
+
+                        <div id="paypal-button-container" class="mt-3"></div>
+
                         <p class="text-center text-secondary small mt-4" style="letter-spacing: 0.05rem;">SECURE CHECKOUT WITH ENCRYPTED PROTECTION</p>
                     </div>
                 </div>
@@ -224,50 +236,204 @@ function formatPrice($value)
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
 
+    <!-- Toast Notifications -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080">
+        <!-- Success Toast -->
+        <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    ✅ Order placed successfully!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+        <!-- Error Toast -->
+        <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    ❌ Something went wrong. Please try again.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
     <script src="../assets/js/cart.js"></script>
     <script>
-        // Keep storing checkout info locally for order confirmation page display (non-product data only)
+        // Get cart items and total from the page
+        const cartItemsData = <?php echo json_encode($cartItems); ?>;
+        const userEmailData = <?php echo json_encode($userEmail ?? null); ?>;
+        let formDataSubmitted = null;
+
+        // COMPLETE ORDER button now just validates form
         document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
-            const formData = {
-                firstName: document.getElementById('firstName').value,
-                lastName: document.getElementById('lastName').value,
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                postalCode: document.getElementById('postalCode').value,
-                country: document.getElementById('country').value,
-                email: document.getElementById('email').value,
-                paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value
-            };
-
-            localStorage.setItem('checkoutInfo', JSON.stringify(formData));
-            try {
-                const res = await fetch('../actions/order/create.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        payment_method: formData.paymentMethod,
-                        firstName: formData.firstName,
-                        lastName: formData.lastName,
-                        address: formData.address,
-                        city: formData.city,
-                        postalCode: formData.postalCode,
-                        country: formData.country,
-                        email: formData.email
-                    })
-                });
-                const data = await res.json();
-                if (!res.ok || !data || data.error) {
-                    alert(data && data.error ? data.error : 'Could not place order.');
-                    return;
-                }
-                window.location.href = 'orderConfirmation.php?order_id=' + encodeURIComponent(data.order_id);
-            } catch (err) {
-                console.error('Failed to create order', err);
-                alert('Could not place order right now.');
+            // Form validation happens here, PayPal works independently
+            const firstName = document.getElementById('firstName').value.trim();
+            if (firstName) {
+                showToast('successToast', '✅ Form validated. Click PayPal button to pay.');
             }
         });
+
+        // Function to collect and validate form data when PayPal needs it
+        function collectFormData() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const postalCode = document.getElementById('postalCode').value.trim();
+            const country = document.getElementById('country').value.trim();
+            const email = document.getElementById('email').value.trim();
+
+            // Validate all required fields
+            if (!firstName || !lastName || !address || !city || !postalCode || !country || !email) {
+                showToast('errorToast', '❌ Please fill in all required fields before paying.');
+                throw new Error('Missing required checkout data');
+            }
+
+            return {
+                firstName, lastName, address, city, postalCode, country, email,
+                paymentMethod: 'PAYPAL'
+            };
+        }
+
+        // Utility function
+        function showToast(id, message = null) {
+            const toastEl = document.getElementById(id);
+            if (!toastEl) {
+                console.error(`Toast element #${id} not found`);
+                return;
+            }
+            if (message) {
+                const body = toastEl.querySelector('.toast-body');
+                if (body) body.textContent = message;
+            }
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+
+        // Initialize PayPal Buttons
+        paypal.Buttons({
+            style: {
+                layout: 'vertical',
+                color: 'gold',
+                shape: 'rect',
+                tagline: false
+            },
+
+            createOrder: function(data, actions) {
+                // Calculate total from cart items
+                let totalAmount = 0;
+                cartItemsData.forEach(item => {
+                    totalAmount += (item.price * item.quantity);
+                });
+
+                return fetch('../paypal/create_order.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: totalAmount.toFixed(2)
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error('Create order response error:', data);
+                        throw new Error(data.error || 'Failed to create order');
+                    }
+                    if (!data.id) {
+                        console.error('Create order unexpected response:', data);
+                        throw new Error('Failed to create order: no id returned');
+                    }
+                    return data.id;
+                });
+            },
+
+            onApprove: function(data, actions) {
+                // Collect and validate form data before capturing payment
+                try {
+                    formDataSubmitted = collectFormData();
+                } catch (e) {
+                    return Promise.reject(e);
+                }
+
+                // Capture the PayPal order first
+                return fetch('../paypal/capture_order.php?orderID=' + data.orderID, {
+                    method: 'POST'
+                })
+                .then(res => res.json())
+                .then(details => {
+                    if (details.error) {
+                        showToast('errorToast', "Payment failed. Check console.");
+                        console.error(details.error);
+                        return;
+                    }
+
+                    const total = cartItemsData.reduce((s, i) => s + (i.price * i.quantity), 0);
+
+                    // Save order to DB
+                    return fetch('../paypal/save_order.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            paymentID: data.orderID,
+                            cart: cartItemsData,
+                            total: total.toFixed(2),
+                            firstName: formDataSubmitted.firstName,
+                            lastName: formDataSubmitted.lastName,
+                            address: formDataSubmitted.address,
+                            city: formDataSubmitted.city,
+                            postalCode: formDataSubmitted.postalCode,
+                            country: formDataSubmitted.country,
+                            email: formDataSubmitted.email,
+                            paymentMethod: formDataSubmitted.paymentMethod
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(r => {
+                        if (r.success) {
+                            // Store info and show success
+                            localStorage.setItem('checkoutInfo', JSON.stringify(formDataSubmitted));
+                            // Refresh cart display (calls actions/cart/summary.php) so UI reflects empty cart
+                            // Also clear any client-side cart storage for completeness
+                            try {
+                                localStorage.removeItem('cart');
+                                sessionStorage.removeItem('cart');
+                            } catch (e) {
+                                /* ignore */
+                            }
+                            if (typeof updateCartCountDisplay === 'function') {
+                                updateCartCountDisplay();
+                            }
+                            showToast('successToast');
+                            setTimeout(() => {
+                                window.location.href = 'orderConfirmation.php?order_id=' + encodeURIComponent(r.order_id);
+                            }, 2000);
+                        } else {
+                            console.error("Order save failed:", r);
+                            showToast('errorToast', r.error || "Order saving failed.");
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Error saving order:", err);
+                        showToast('errorToast', "An error occurred while saving your order: " + err.message);
+                    });
+                })
+                .catch(err => {
+                    console.error("PayPal capture error:", err);
+                    showToast('errorToast', "Payment capture failed. Check console.");
+                });
+            },
+
+            onError: function(err) {
+                console.error("PayPal error:", err);
+                showToast('errorToast', "An error occurred with PayPal. Check console.");
+            }
+        }).render('#paypal-button-container');
     </script>
 </body>
 

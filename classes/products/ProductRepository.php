@@ -110,4 +110,14 @@ class ProductRepository
         }
         return $row;
     }
+
+        public function updateStock(string $id, int $newStock): bool
+    {
+        $stmt = $this->conn->prepare('UPDATE watch SET stock_quantity = ? WHERE watch_id = ?');
+        if (!$stmt) return false;
+        $stmt->bind_param('is', $newStock, $id);
+        $result = $stmt->execute();
+        $stmt->close();
+        return $result;
+    }
 }

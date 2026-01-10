@@ -129,20 +129,6 @@
             ?>
             <!-- Stats Cards -->
             <div class="row g-3 mb-4">
-                <!-- Total Users -->
-                <div class="col-lg-4">
-                    <div class="border border-secondary rounded p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="text-secondary small mb-1">Total Users</p>
-                                <h2 class="display-6 fw-normal mb-0"><?= htmlspecialchars($userStats['total']); ?></h2>
-                            </div>
-                            <div class="stat-icon icon-white">
-                                <i class="bi bi-people fs-4 text-white"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Active Users -->
                 <div class="col-lg-4">
@@ -159,28 +145,8 @@
                     </div>
                 </div>
 
-                <!-- Suspended -->
-                <div class="col-lg-4">
-                    <div class="border border-secondary rounded p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="text-secondary small mb-1">Suspended</p>
-                                <h2 class="display-6 fw-normal mb-0 text-danger"><?= htmlspecialchars($userStats['suspended']); ?></h2>
-                            </div>
-                            <div class="stat-icon icon-red">
-                                <i class="bi bi-person-x fs-4 text-danger"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <!-- Filter Tabs -->
-            <div class="d-flex gap-2 mb-4">
-                <button class="filter-tab active">All Users <span class="ms-1"><?= htmlspecialchars($userStats['total']); ?></span></button>
-                <button class="filter-tab">Active <span class="ms-1"><?= htmlspecialchars($userStats['active']); ?></span></button>
-                <button class="filter-tab">Suspended <span class="ms-1"><?= htmlspecialchars($userStats['suspended']); ?></span></button>
-            </div>
 
             <!-- Users Table -->
             <?php
@@ -209,7 +175,7 @@
                                 <th scope="col" class="text-secondary fw-normal">Status</th>
                                 <th scope="col" class="text-secondary fw-normal">Join Date</th>
                                 <th scope="col" class="text-secondary fw-normal">Total Spent</th>
-                                <th scope="col" class="text-secondary fw-normal">Actions</th>
+           
                             </tr>
                         </thead>
                         <tbody>
@@ -238,80 +204,11 @@
                                         <td class="<?= $statusClass; ?> fw-semibold"><?= htmlspecialchars(ucfirst($user['status'])); ?></td>
                                         <td><?= htmlspecialchars($joinDate); ?></td>
                                         <td><?= moneyFormat((float)$user['total_spent']); ?></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-light">View</button>
-                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else : ?>
                                 <tr><td colspan="7" class="text-center text-secondary">No users found.</td></tr>
                             <?php endif; ?>
-                                <td>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="user-avatar text-white">JS</div>
-                                        <div>
-                                            <div class="text-white fw-semibold">John Smith</div>
-                                            <div class="text-secondary small">3 orders</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="text-white">
-                                        <div class="mb-1"><i class="bi bi-envelope me-2"></i>john.smith@email.com</div>
-                                        <div class="text-secondary small"><i class="bi bi-telephone me-2"></i>+1 (555) 123-4567</div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="status-active">Active</span>
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" checked>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-white">1/15/2024</td>
-                                <td class="text-white">$128,000</td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-light">
-                                        <i class="bi bi-eye me-1"></i>View
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <!-- User 2 -->
-                            <tr>
-                                <td class="text-white">USR-002</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="user-avatar text-white">EJ</div>
-                                        <div>
-                                            <div class="text-white fw-semibold">Emma Johnson</div>
-                                            <div class="text-secondary small">2 orders</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="text-white">
-                                        <div class="mb-1"><i class="bi bi-envelope me-2"></i>emma.j@email.com</div>
-                                        <div class="text-secondary small"><i class="bi bi-telephone me-2"></i>+1 (555) 234-5678</div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="status-active">Active</span>
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" checked>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-white">5/22/2024</td>
-                                <td class="text-white">$104,000</td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-light">
-                                        <i class="bi bi-eye me-1"></i>View
-                                    </button>
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
