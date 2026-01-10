@@ -16,4 +16,7 @@
     $conn = $GLOBALS['conn'];
     return mysqli_query($conn, $query);
   }
+
+  // Load currency helper functions
+  require_once __DIR__ . '/../helpers/currency.php';
 ?>

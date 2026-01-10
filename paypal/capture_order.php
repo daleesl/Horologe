@@ -1,67 +1,109 @@
 <?php
 header('Content-Type: application/json');
-include '../config/connect.php';
+require_once __DIR__ . '/../config/connect.php';
+require_once 'paypal_config.php';
 
 $orderID = $_GET['orderID'] ?? '';
 if (!$orderID) {
+    http_response_code(400);
     echo json_encode(['error' => 'Missing orderID']);
     exit;
 }
 
-function getAccessToken() {
-    $client = "YOUR_CLIENT_ID";
-    $secret = "YOUR_SECRET";
-
+function getAccessToken()
+{
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, "https://api-m.sandbox.paypal.com/v1/oauth2/token");
-    curl_setopt($ch, CURLOPT_USERPWD, $client . ":" . $secret);
+    curl_setopt($ch, CURLOPT_URL, PAYPAL_API . "/v1/oauth2/token");
+    curl_setopt($ch, CURLOPT_USERPWD, PAYPAL_CLIENT_ID . ":" . PAYPAL_SECRET);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "grant_type=client_credentials");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     $result = curl_exec($ch);
-    if (!$result) {
-        die(json_encode(['error' => curl_error($ch)]));
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    if (curl_errno($ch)) {
+        curl_close($ch);
+        http_response_code(500);
+        echo json_encode(['error' => 'cURL Error: ' . curl_error($ch)]);
+        exit;
     }
 
     curl_close($ch);
-    return json_decode($result, true)['access_token'];
+
+    if ($httpCode >= 400) {
+        http_response_code($httpCode);
+        $tokenData = json_decode($result, true);
+        echo json_encode(['error' => 'PayPal auth failed (HTTP ' . $httpCode . ')', 'details' => $tokenData]);
+        exit;
+    }
+
+    $tokenData = json_decode($result, true);
+    if (!isset($tokenData['access_token'])) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to retrieve access token', 'details' => $tokenData]);
+        exit;
+    }
+
+    return $tokenData['access_token'];
 }
 
 $token = getAccessToken();
 
-/* ---- Capture Order ---- */
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, "https://api-m.sandbox.paypal.com/v2/checkout/orders/$orderID/capture");
+curl_setopt($ch, CURLOPT_URL, PAYPAL_API . "/v2/checkout/orders/" . urlencode($orderID) . "/capture");
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    "Content-Type: application/json",
-    "Authorization: Bearer $token"
+    'Content-Type: application/json',
+    'Authorization: Bearer ' . $token
 ]);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
 $response = curl_exec($ch);
-curl_close($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-if (!$response) {
-    echo json_encode(["error" => "PayPal capture failed"]);
+if (curl_errno($ch)) {
+    curl_close($ch);
+    http_response_code(502);
+    echo json_encode(['error' => 'cURL Error: ' . curl_error($ch)]);
     exit;
 }
 
-$captureData = json_decode($response, true);
+curl_close($ch);
+
+if ($httpCode >= 400) {
+    http_response_code($httpCode);
+    $responseData = json_decode($response, true);
+    if ($responseData) {
+        echo json_encode($responseData);
+    } else {
+        echo json_encode(['error' => 'PayPal API error (HTTP ' . $httpCode . ')', 'raw' => substr($response, 0, 200)]);
+    }
+    exit;
+}
+
+$responseData = json_decode($response, true);
+if (!$responseData) {
+    http_response_code(502);
+    echo json_encode(['error' => 'Invalid JSON from PayPal', 'raw' => substr($response, 0, 200)]);
+    exit;
+}
 
 /* ---- Validate PayPal Success ---- */
-if (($captureData['status'] ?? '') !== 'COMPLETED') {
+if (($responseData['status'] ?? '') !== 'COMPLETED') {
     echo json_encode([
         "error" => "Payment not completed",
-        "paypal_status" => $captureData['status'] ?? 'UNKNOWN'
+        "paypal_status" => $responseData['status'] ?? 'UNKNOWN'
     ]);
     exit;
 }
 
 /* ---- SECURE payment_id FROM PAYPAL ---- */
 $payment_id =
-    $captureData['purchase_units'][0]['payments']['captures'][0]['custom_id']
-    ?? $captureData['purchase_units'][0]['custom_id']
+    $responseData['purchase_units'][0]['payments']['captures'][0]['custom_id']
+    ?? $responseData['purchase_units'][0]['custom_id']
     ?? '';
 
 if (!$payment_id) {
@@ -83,8 +125,8 @@ try {
     $stmt->execute();
 
     // Insert PayPal payment record
-    $paypal_transaction_id = $captureData['id'] ?? $orderID;
-    $payer_email = $captureData['payer']['email_address'] ?? '';
+    $paypal_transaction_id = $responseData['id'] ?? $orderID;
+    $payer_email = $responseData['payer']['email_address'] ?? '';
 
     $stmt = $conn->prepare("
         INSERT INTO paypalpayment 
@@ -100,10 +142,12 @@ try {
     $_SESSION['payment_id'] = $payment_id;
     $_SESSION['paypal_order_id'] = $paypal_transaction_id;
 
+    // Return success response with PayPal data
+    echo json_encode($responseData);
+
 } catch (Exception $e) {
     $conn->rollback();
-    echo json_encode(["error" => "Database error"]);
+    http_response_code(500);
+    echo json_encode(["error" => "Database error: " . $e->getMessage()]);
     exit;
 }
-
-echo $response;
