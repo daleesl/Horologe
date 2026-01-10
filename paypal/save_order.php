@@ -27,6 +27,7 @@ ini_set('error_log', __DIR__ . '/../logs/paypal_error.log');
 // ==================================================
 session_start();
 require_once __DIR__ . '/../config/connect.php';
+require_once __DIR__ . '/../helpers/id_generator.php';
 
 if (!isset($conn) || !$conn) {
     ob_end_clean();
@@ -83,9 +84,71 @@ foreach ($cart as $item) {
 }
 
 // ==================================================
+// EMAIL FUNCTION
+// ==================================================
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require_once __DIR__ . '/../PHPMailer/src/Exception.php';
+require_once __DIR__ . '/../PHPMailer/src/PHPMailer.php';
+require_once __DIR__ . '/../PHPMailer/src/SMTP.php';
+
+function sendReceiptEmail($toEmail, $name, $orderID, $cart, $total) {
+    try {
+        $mail = new PHPMailer(true);
+        
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'horologe@gmail.com';
+        $mail->Password   = 'wpvy vpbe elfe fgkc';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        // Recipients
+        $mail->setFrom('horologe@gmail.com', 'Horologe');
+        $mail->addAddress($toEmail, $name);
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = "Horologe Receipt – Order #$orderID";
+
+        // Build email body
+        $itemsTable = '';
+        foreach ($cart as $item) {
+            $itemTotal = $item['price'] * $item['quantity'];
+            $itemsTable .= "
+                <tr>
+                    <td>{$item['quantity']}</td>
+                    <td>{$item['name']}</td>
+                    <td>\$" . number_format($itemTotal, 2) . "</td>
+                </tr>";
+        }
+
+        $mail->Body = "
+            <h2>Order Receipt</h2>
+            <p>Thank you for your order, $name!</p>
+            <p><strong>Order #:</strong> $orderID</p>
+            <table border='1' cellpadding='10'>
+                <tr><th>Qty</th><th>Item</th><th>Total</th></tr>
+                $itemsTable
+            </table>
+            <p><strong>Total: \$" . number_format($total, 2) . "</strong></p>
+        ";
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        error_log("Email error: " . $e->getMessage());
+        return false;
+    }
+}
+
+// ==================================================
 // SAVE ORDER
 // ==================================================
-$order_id = uniqid('ORD');
+$order_id = generateId($conn, 'orders', 'order_id', 'ORD', 6);
 $fullName = $firstName . ' ' . $lastName;
 
 try {
@@ -186,15 +249,57 @@ try {
     $itemStmt->close();
     $stockStmt->close();
 
+    // Clear the user's cart as part of the same transaction so purchased items are removed
+    // Use the application's CartService which handles both session and DB carts
+    require_once __DIR__ . '/../classes/cart/CartService.php';
+    try {
+        $cartService = new CartService();
+        // clear() will delete DB cartitems when user is logged in or clear session cart
+        $cartService->clear();
+
+        // Additionally remove the cart header row to match normal checkout behavior
+        $delCart = $conn->prepare('DELETE FROM cart WHERE user_id = ?');
+        if ($delCart) {
+            $delCart->bind_param('s', $userID);
+            $delCart->execute();
+            $delCart->close();
+        }
+
+        // Clear any server-side session cart as safety
+        if (isset($_SESSION['cart'])) {
+            unset($_SESSION['cart']);
+        }
+    } catch (Throwable $ce) {
+        // If cart clearing fails, roll back and surface the error
+        $conn->rollback();
+        ob_end_clean();
+        error_log('Cart clear failed: ' . $ce->getMessage());
+        echo json_encode(['success' => false, 'error' => 'Failed to clear cart after purchase']);
+        exit;
+    }
+
     $conn->commit();
+
+    // Send email receipt after successful order
+    $emailSent = false;
+    if ($email) {
+        $emailSent = sendReceiptEmail($email, $fullName, $order_id, $cart, $total);
+    }
 
     ob_end_clean();
     echo json_encode([
         'success'   => true,
         'order_id'  => $order_id,
         'total'     => $total,
-        'emailSent'=> $emailSent
+        'emailSent' => $emailSent
     ]);
+    // Store order details in session so orderConfirmation.php can display them
+    $_SESSION['last_order'] = [
+        'order_id' => $order_id,
+        'items' => $cart,
+        'total' => $total
+    ];
+    
     exit;
 
 } catch (Throwable $e) {

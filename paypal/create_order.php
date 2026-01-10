@@ -1,5 +1,8 @@
 <?php
 header('Content-Type: application/json');
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/../logs/paypal_error.log');
+
 require_once __DIR__ . '/../config/connect.php';
 require_once 'paypal_config.php';
 
@@ -48,6 +51,7 @@ function getAccessToken()
     if ($httpCode >= 400) {
         http_response_code($httpCode);
         $result = json_decode($response, true);
+        error_log("PayPal Auth Failed: HTTP $httpCode, Response: " . print_r($result, true));
         echo json_encode(['error' => 'PayPal auth failed (HTTP ' . $httpCode . ')', 'details' => $result]);
         exit;
     }
@@ -71,6 +75,8 @@ $orderData = [
         'custom_id' => $payment_id
     ]]
 ];
+
+error_log("PayPal Order Data: " . json_encode($orderData));
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, PAYPAL_API . "/v2/checkout/orders");
@@ -96,10 +102,13 @@ if (curl_errno($ch)) {
 
 curl_close($ch);
 
+error_log("PayPal Response (HTTP $httpCode): " . substr($response, 0, 500));
+
 if ($httpCode >= 400) {
     http_response_code($httpCode);
     $responseData = json_decode($response, true);
     if ($responseData) {
+        error_log("PayPal Error Details: " . json_encode($responseData));
         echo json_encode($responseData);
     } else {
         echo json_encode(['error' => 'PayPal API error (HTTP ' . $httpCode . ')', 'raw' => substr($response, 0, 200)]);

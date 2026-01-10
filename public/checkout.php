@@ -62,7 +62,7 @@ foreach ($cartItems as $ci) {
 
 function formatPrice($value)
 {
-    return '₱' . number_format((float)$value, 0, '.', ',');
+    return '$' . number_format((float)$value, 0, '.', ',');
 }
 ?>
 <!doctype html>
@@ -160,20 +160,6 @@ function formatPrice($value)
                                     <input type="email" class="form-control" id="email" placeholder="john@example.com" required>
                                 </div>
                             </div>
-
-                            <!-- Payment Method -->
-                            <div>
-                                <h3 class="h5 text-white text-uppercase mb-4 pb-3 border-bottom border-secondary">PAYMENT METHOD</h3>
-
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="radio" name="paymentMethod" id="paypal" value="PAYPAL" checked>
-                                    <label class="form-check-label text-secondary" for="paypal">
-                                        PAYPAL
-                                    </label>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn btn-light w-100 fw-bold py-3 text-uppercase mt-5">COMPLETE ORDER</button>
                         </form>
                     </div>
                 </div>
@@ -237,7 +223,7 @@ function formatPrice($value)
                             Mode of Payment: PayPal
                         </div>
 
-                        <div id="paypal-button-container" class="d-none mt-3"></div>
+                        <div id="paypal-button-container" class="mt-3"></div>
 
                         <p class="text-center text-secondary small mt-4" style="letter-spacing: 0.05rem;">SECURE CHECKOUT WITH ENCRYPTED PROTECTION</p>
                     </div>
@@ -279,56 +265,37 @@ function formatPrice($value)
         const userEmailData = <?php echo json_encode($userEmail ?? null); ?>;
         let formDataSubmitted = null;
 
-        // Show PayPal button when clicking COMPLETE ORDER
+        // COMPLETE ORDER button now just validates form
         document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
-            formDataSubmitted = {
-                firstName: document.getElementById('firstName').value,
-                lastName: document.getElementById('lastName').value,
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                postalCode: document.getElementById('postalCode').value,
-                country: document.getElementById('country').value,
-                email: document.getElementById('email').value,
-                paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value
-            };
-
-            // Check if PayPal is selected
-            if (formDataSubmitted.paymentMethod === 'PAYPAL') {
-                // Show PayPal button and scroll to it
-                document.getElementById('paypal-button-container').classList.remove('d-none');
-                document.getElementById('paypal-button-container').scrollIntoView({ behavior: 'smooth' });
-            } else {
-                // Handle other payment methods
-                localStorage.setItem('checkoutInfo', JSON.stringify(formDataSubmitted));
-                try {
-                    const res = await fetch('../actions/order/create.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: new URLSearchParams({
-                            payment_method: formDataSubmitted.paymentMethod,
-                            firstName: formDataSubmitted.firstName,
-                            lastName: formDataSubmitted.lastName,
-                            address: formDataSubmitted.address,
-                            city: formDataSubmitted.city,
-                            postalCode: formDataSubmitted.postalCode,
-                            country: formDataSubmitted.country,
-                            email: formDataSubmitted.email
-                        })
-                    });
-                    const data = await res.json();
-                    if (!res.ok || !data || data.error) {
-                        alert(data && data.error ? data.error : 'Could not place order.');
-                        return;
-                    }
-                    window.location.href = 'orderConfirmation.php?order_id=' + encodeURIComponent(data.order_id);
-                } catch (err) {
-                    console.error('Failed to create order', err);
-                    alert('Could not place order right now.');
-                }
+            // Form validation happens here, PayPal works independently
+            const firstName = document.getElementById('firstName').value.trim();
+            if (firstName) {
+                showToast('successToast', '✅ Form validated. Click PayPal button to pay.');
             }
         });
+
+        // Function to collect and validate form data when PayPal needs it
+        function collectFormData() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const postalCode = document.getElementById('postalCode').value.trim();
+            const country = document.getElementById('country').value.trim();
+            const email = document.getElementById('email').value.trim();
+
+            // Validate all required fields
+            if (!firstName || !lastName || !address || !city || !postalCode || !country || !email) {
+                showToast('errorToast', '❌ Please fill in all required fields before paying.');
+                throw new Error('Missing required checkout data');
+            }
+
+            return {
+                firstName, lastName, address, city, postalCode, country, email,
+                paymentMethod: 'PAYPAL'
+            };
+        }
 
         // Utility function
         function showToast(id, message = null) {
@@ -385,6 +352,13 @@ function formatPrice($value)
             },
 
             onApprove: function(data, actions) {
+                // Collect and validate form data before capturing payment
+                try {
+                    formDataSubmitted = collectFormData();
+                } catch (e) {
+                    return Promise.reject(e);
+                }
+
                 // Capture the PayPal order first
                 return fetch('../paypal/capture_order.php?orderID=' + data.orderID, {
                     method: 'POST'
@@ -398,20 +372,6 @@ function formatPrice($value)
                     }
 
                     const total = cartItemsData.reduce((s, i) => s + (i.price * i.quantity), 0);
-
-                    // Ensure formDataSubmitted has data - if not, gather from form
-                    if (!formDataSubmitted) {
-                        formDataSubmitted = {
-                            firstName: document.getElementById('firstName').value,
-                            lastName: document.getElementById('lastName').value,
-                            address: document.getElementById('address').value,
-                            city: document.getElementById('city').value,
-                            postalCode: document.getElementById('postalCode').value,
-                            country: document.getElementById('country').value,
-                            email: document.getElementById('email').value,
-                            paymentMethod: 'PAYPAL'
-                        };
-                    }
 
                     // Save order to DB
                     return fetch('../paypal/save_order.php', {
@@ -438,6 +398,17 @@ function formatPrice($value)
                         if (r.success) {
                             // Store info and show success
                             localStorage.setItem('checkoutInfo', JSON.stringify(formDataSubmitted));
+                            // Refresh cart display (calls actions/cart/summary.php) so UI reflects empty cart
+                            // Also clear any client-side cart storage for completeness
+                            try {
+                                localStorage.removeItem('cart');
+                                sessionStorage.removeItem('cart');
+                            } catch (e) {
+                                /* ignore */
+                            }
+                            if (typeof updateCartCountDisplay === 'function') {
+                                updateCartCountDisplay();
+                            }
                             showToast('successToast');
                             setTimeout(() => {
                                 window.location.href = 'orderConfirmation.php?order_id=' + encodeURIComponent(r.order_id);
