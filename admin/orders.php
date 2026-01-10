@@ -38,6 +38,21 @@
                 </div>
             </div>
 
+            <?php
+            require_once __DIR__ . '/../config/connect.php';
+            $orders = [];
+            $sql = "SELECT o.order_id, o.user_name, o.user_email, o.product_name, o.total_amount, o.order_date, p.payment_status
+                    FROM orders o
+                    LEFT JOIN payment p ON p.order_id = o.order_id
+                    ORDER BY o.order_date DESC";
+            $res = $conn->query($sql);
+            if ($res) {
+                while ($row = $res->fetch_assoc()) {
+                    $orders[] = $row;
+                }
+            }
+            function moneyFormat(float $value): string { return '$' . number_format($value, 2, '.', ','); }
+            ?>
             <!-- Orders Table -->
             <div class="border border-secondary rounded overflow-hidden">
                 <div class="table-responsive">
@@ -46,105 +61,51 @@
                             <tr>
                                 <th scope="col" class="text-secondary fw-normal py-3">Order ID</th>
                                 <th scope="col" class="text-secondary fw-normal py-3">Customer</th>
-                                <th scope="col" class="text-secondary fw-normal py-3">Products</th>
+                                <th scope="col" class="text-secondary fw-normal py-3">Product</th>
                                 <th scope="col" class="text-secondary fw-normal py-3">Total</th>
                                 <th scope="col" class="text-secondary fw-normal py-3">Date</th>
+                                <th scope="col" class="text-secondary fw-normal py-3">Status</th>
                                 <th scope="col" class="text-secondary fw-normal py-3">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Order 1 -->
-                            <tr class="border-bottom border-secondary">
-                                <td class="text-white fw-semibold py-4">ORD-001</td>
-                                <td class="py-4">
-                                    <div class="text-white fw-semibold mb-1">John Smith</div>
-                                    <div class="text-secondary small">john.smith@email.com</div>
-                                </td>
-                                <td class="text-white py-4">Royal Oak Chronograph</td>
-                                <td class="text-white fw-semibold py-4">$45,000</td>
-                                <td class="text-white py-4">1/2/2025</td>
-                                <td class="py-4">
-                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center gap-1">
-                                        <i class="bi bi-eye"></i>
-                                        <span>View</span>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <!-- Order 2 -->
-                            <tr class="border-bottom border-secondary">
-                                <td class="text-white fw-semibold py-4">ORD-002</td>
-                                <td class="py-4">
-                                    <div class="text-white fw-semibold mb-1">Emma Johnson</div>
-                                    <div class="text-secondary small">emma.j@email.com</div>
-                                </td>
-                                <td class="text-white py-4">Nautilus Moon Phase</td>
-                                <td class="text-white fw-semibold py-4">$52,000</td>
-                                <td class="text-white py-4">1/3/2025</td>
-                                <td class="py-4">
-                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center gap-1">
-                                        <i class="bi bi-eye"></i>
-                                        <span>View</span>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <!-- Order 3 -->
-                            <tr class="border-bottom border-secondary">
-                                <td class="text-white fw-semibold py-4">ORD-003</td>
-                                <td class="py-4">
-                                    <div class="text-white fw-semibold mb-1">Michael Brown</div>
-                                    <div class="text-secondary small">m.brown@email.com</div>
-                                </td>
-                                <td class="text-white py-4">Submariner GMT</td>
-                                <td class="text-white fw-semibold py-4">$38,000</td>
-                                <td class="text-white py-4">1/3/2025</td>
-                                <td class="py-4">
-                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center gap-1">
-                                        <i class="bi bi-eye"></i>
-                                        <span>View</span>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <!-- Order 4 -->
-                            <tr class="border-bottom border-secondary">
-                                <td class="text-white fw-semibold py-4">ORD-004</td>
-                                <td class="py-4">
-                                    <div class="text-white fw-semibold mb-1">Sarah Davis</div>
-                                    <div class="text-secondary small">sarah.davis@email.com</div>
-                                </td>
-                                <td class="py-4">
-                                    <div class="text-white">Perpetual Calendar</div>
-                                    <div class="text-secondary small">+1 more</div>
-                                </td>
-                                <td class="text-white fw-semibold py-4">$72,500</td>
-                                <td class="text-white py-4">1/4/2025</td>
-                                <td class="py-4">
-                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center gap-1">
-                                        <i class="bi bi-eye"></i>
-                                        <span>View</span>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <!-- Order 5 -->
-                            <tr class="border-bottom border-secondary">
-                                <td class="text-white fw-semibold py-4">ORD-005</td>
-                                <td class="py-4">
-                                    <div class="text-white fw-semibold mb-1">Robert Wilson</div>
-                                    <div class="text-secondary small">r.wilson@email.com</div>
-                                </td>
-                                <td class="text-white py-4">Tourbillon Skeleton</td>
-                                <td class="text-white fw-semibold py-4">$95,000</td>
-                                <td class="text-white py-4">1/4/2025</td>
-                                <td class="py-4">
-                                    <button class="btn btn-sm btn-outline-light d-flex align-items-center gap-1">
-                                        <i class="bi bi-eye"></i>
-                                        <span>View</span>
-                                    </button>
-                                </td>
-                            </tr>
+                            <?php if (!empty($orders)) : ?>
+                                <?php foreach ($orders as $order) : ?>
+                                    <?php
+                                    $orderDate = $order['order_date'] ? date('n/j/Y', strtotime($order['order_date'])) : '--';
+                                    $status = strtolower($order['payment_status'] ?? '');
+                                    $badgeClass = 'bg-secondary';
+                                    if ($status === 'completed' || $status === 'paid') {
+                                        $badgeClass = 'bg-success';
+                                    } elseif ($status === 'pending') {
+                                        $badgeClass = 'bg-warning text-dark';
+                                    }
+                                    ?>
+                                    <tr class="border-bottom border-secondary">
+                                        <td class="text-white fw-semibold py-4"><?= htmlspecialchars($order['order_id']); ?></td>
+                                        <td class="py-4">
+                                            <div class="text-white fw-semibold mb-1"><?= htmlspecialchars($order['user_name']); ?></div>
+                                            <div class="text-secondary small"><?= htmlspecialchars($order['user_email']); ?></div>
+                                        </td>
+                                        <td class="text-white py-4"><?= htmlspecialchars($order['product_name']); ?></td>
+                                        <td class="text-white fw-semibold py-4"><?= moneyFormat((float)$order['total_amount']); ?></td>
+                                        <td class="text-white py-4"><?= htmlspecialchars($orderDate); ?></td>
+                                        <td class="py-4">
+                                            <span class="badge <?= $badgeClass; ?>">
+                                                <?= $status ? htmlspecialchars(ucfirst($status)) : 'Unpaid'; ?>
+                                            </span>
+                                        </td>
+                                        <td class="py-4">
+                                            <button class="btn btn-sm btn-outline-light d-flex align-items-center gap-1">
+                                                <i class="bi bi-eye"></i>
+                                                <span>View</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else : ?>
+                                <tr><td colspan="7" class="text-center text-secondary py-4">No orders found.</td></tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>

@@ -1,3 +1,38 @@
+<?php
+session_start();
+require_once __DIR__ . '/../config/connect.php';
+require_once __DIR__ . '/../classes/cart/CartService.php';
+
+$cartItems = [];
+$cartSummary = ['subtotal' => 0, 'items' => 0];
+
+if (isset($_SESSION['last_order']) && is_array($_SESSION['last_order'])) {
+    $last = $_SESSION['last_order'];
+    $cartItems = $last['items'] ?? [];
+    $cartSummary['subtotal'] = (float) ($last['total'] ?? 0);
+    foreach ($cartItems as $ci) {
+        $cartSummary['items'] += (int) ($ci['quantity'] ?? 0);
+    }
+} else {
+    $cartService = new CartService();
+    $cartItems = $cartService->getItems();
+    $cartSummary = $cartService->getSummary();
+}
+
+// After we have the data to render, clear purchased items once per confirmation load
+if (isset($_SESSION['pending_clear_ids']) && is_array($_SESSION['pending_clear_ids'])) {
+    $cartService = new CartService();
+    foreach ($_SESSION['pending_clear_ids'] as $cid) {
+        $cartService->remove((string) $cid);
+    }
+    unset($_SESSION['pending_clear_ids']);
+}
+
+function formatPrice($value)
+{
+    return '$' . number_format((float)$value, 0, '.', ',');
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -52,11 +87,11 @@
                             <div class="row">
                                 <div class="col-6">
                                     <p class="text-secondary small text-uppercase mb-1">ORDER ID</p>
-                                    <p class="text-white fw-semibold" id="orderId">#HR-5829-2026</p>
+                                    <p class="text-white fw-semibold" id="orderId">ORDER PENDING</p>
                                 </div>
                                 <div class="col-6">
                                     <p class="text-secondary small text-uppercase mb-1">DATE</p>
-                                    <p class="text-white fw-semibold" id="orderDate">January 5, 2026</p>
+                                    <p class="text-white fw-semibold" id="orderDate">--</p>
                                 </div>
                             </div>
                         </div>
@@ -67,13 +102,35 @@
                         </div>
 
                         <!-- Products Ordered -->
-                        <div id="orderedProductsContainer"></div>
+                        <div id="orderedProductsContainer">
+                            <?php if (empty($cartItems)) : ?>
+                                <p class="text-secondary">No products in this order</p>
+                            <?php else : ?>
+                                <?php foreach ($cartItems as $item) : ?>
+                                    <div class="mb-4 pb-4 border-bottom border-secondary">
+                                        <div class="d-flex gap-3">
+                                            <div style="width: 100px; flex-shrink: 0;">
+                                                <img src="<?= htmlspecialchars($item['image'], ENT_QUOTES) ?>" alt="<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>" class="w-100" style="height: 80px; object-fit: contain;">
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <p class="text-secondary small mb-1"><?= htmlspecialchars($item['category'], ENT_QUOTES) ?></p>
+                                                <p class="text-white fw-semibold mb-2"><?= htmlspecialchars($item['name'], ENT_QUOTES) ?></p>
+                                                <p class="text-secondary small">QTY: <?= htmlspecialchars($item['quantity'], ENT_QUOTES) ?></p>
+                                            </div>
+                                            <div class="text-white fw-semibold">
+                                                <?= formatPrice($item['price'] * $item['quantity']) ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
 
                         <hr class="border-secondary my-4">
 
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="text-white fw-bold text-uppercase">Total Amount</span>
-                            <span class="text-white fw-bold fs-5" id="totalAmount">$0</span>
+                            <span class="text-white fw-bold fs-5" id="totalAmount"><?= formatPrice($cartSummary['subtotal']) ?></span>
                         </div>
                     </div>
                 </div>
@@ -121,40 +178,19 @@
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
 
-    <script src="../assets/js/sample-products.js"></script>
-
+    <script src="../assets/js/cart.js"></script>
     <script>
-        // Get order data from localStorage
-        function loadOrderConfirmation() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const checkoutInfo = JSON.parse(localStorage.getItem('checkoutInfo')) || {};
-            const checkedProducts = cart.filter(p => p.checked);
-
-            if (checkedProducts.length === 0) {
-                document.getElementById('orderedProductsContainer').innerHTML =
-                    '<p class="text-secondary">No products in this order</p>';
-                return;
+        function hydrateFromSession() {
+            const params = new URLSearchParams(window.location.search);
+            const orderId = params.get('order_id');
+            if (orderId) {
+                document.getElementById('orderId').textContent = orderId;
             }
 
-            // Generate Order ID
-            const orderId = '#HR-' + Math.random().toString().slice(2, 6) + '-' + new Date().getFullYear();
-            document.getElementById('orderId').textContent = orderId;
-
-            // Set Order Date
-            const options = {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            };
-            const orderDate = new Date().toLocaleDateString('en-US', options).toUpperCase();
-            document.getElementById('orderDate').textContent = orderDate;
-
-            // Set Payment Method
+            const checkoutInfo = JSON.parse(localStorage.getItem('checkoutInfo')) || {};
             if (checkoutInfo.paymentMethod) {
                 document.getElementById('paymentMethod').textContent = checkoutInfo.paymentMethod;
             }
-
-            // Set Customer Information
             if (checkoutInfo.firstName && checkoutInfo.lastName) {
                 document.getElementById('customerName').textContent = (checkoutInfo.firstName + ' ' + checkoutInfo.lastName).toUpperCase();
             }
@@ -171,34 +207,11 @@
                 document.getElementById('customerEmail').textContent = checkoutInfo.email;
             }
 
-            // Calculate Total
-            const totalAmount = checkedProducts.reduce((sum, p) => sum + (p.price * p.quantity), 0);
-            document.getElementById('totalAmount').textContent = '$' + totalAmount.toLocaleString();
-
-            // Render Products
-            const productsHTML = checkedProducts.map(product => `
-                <div class="mb-4 pb-4 border-bottom border-secondary">
-                    <div class="d-flex gap-3">
-                        <div style="width: 100px; flex-shrink: 0;">
-                            <img src="${product.image}" alt="${product.name}" class="w-100" style="height: 80px; object-fit: contain;">
-                        </div>
-                        <div class="flex-grow-1">
-                            <p class="text-secondary small mb-1">${product.category}</p>
-                            <p class="text-white fw-semibold mb-2">${product.name}</p>
-                            <p class="text-secondary small">QTY: ${product.quantity}</p>
-                        </div>
-                        <div class="text-white fw-semibold">
-                            $${product.price.toLocaleString()}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-
-            document.getElementById('orderedProductsContainer').innerHTML = productsHTML;
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('orderDate').textContent = new Date().toLocaleDateString('en-US', options).toUpperCase();
         }
 
-        // Load order on page load
-        loadOrderConfirmation();
+        document.addEventListener('DOMContentLoaded', hydrateFromSession);
     </script>
 </body>
 

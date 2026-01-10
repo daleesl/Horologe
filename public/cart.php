@@ -1,3 +1,16 @@
+<?php
+require_once __DIR__ . '/../config/connect.php';
+require_once __DIR__ . '/../classes/cart/CartService.php';
+
+$cartService = new CartService();
+$cartItems = $cartService->getItems();
+$cartSummary = $cartService->getSummary();
+
+function formatPrice($value)
+{
+    return '$' . number_format((float)$value, 0, '.', ',');
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -45,9 +58,58 @@
                     </div>
 
                     <div id="productsContainer">
-                        <div class="text-center py-5 text-secondary">
-                            <p>No items in your collection yet</p>
-                        </div>
+                        <?php if (empty($cartItems)) : ?>
+                            <div class="text-center py-5 text-secondary">
+                                <p>No items in your collection yet</p>
+                            </div>
+                        <?php else : ?>
+                            <?php foreach ($cartItems as $item) : ?>
+                                <div class="pb-4 mb-4 border-bottom border-secondary cart-item" data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>" data-unit-price="<?= htmlspecialchars($item['price'], ENT_QUOTES) ?>">
+                                    <div class="row align-items-center g-4">
+                                        <!-- Checkbox -->
+                                        <div class="col-auto" style="width: 40px;">
+                                            <div class="form-check">
+                                                <input class="form-check-input select-item" type="checkbox" checked data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>">
+                                            </div>
+                                        </div>
+
+                                        <!-- Product Image -->
+                                        <div class="col-auto p-3" style="width: 175px;">
+                                            <img src="<?= htmlspecialchars($item['image'], ENT_QUOTES) ?>" alt="<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>" class="w-100" style="width: 100%; height: 150px; object-fit: contain;">
+                                        </div>
+
+                                        <!-- Product Details (Timepiece) -->
+                                        <div class="col flex-grow-1">
+                                            <p class="text-secondary small mb-1" style="letter-spacing: 0.05rem;">
+                                                <?= htmlspecialchars($item['category'], ENT_QUOTES) ?>
+                                            </p>
+                                            <h6 class="text-white mb-0" style="font-size: 1rem;">
+                                                <?= htmlspecialchars($item['name'], ENT_QUOTES) ?>
+                                            </h6>
+                                        </div>
+
+                                        <!-- Quantity Control -->
+                                        <div class="col-auto" style="width: 140px;">
+                                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                                <button class="btn btn-sm btn-outline-secondary px-2 py-1 btn-decrease" data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>">−</button>
+                                                <input type="number" value="<?= htmlspecialchars($item['quantity'], ENT_QUOTES) ?>" readonly class="form-control form-control-sm item-qty" style="width: 50px; text-align: center;">
+                                                <button class="btn btn-sm btn-outline-secondary px-2 py-1 btn-increase" data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>">+</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Price & Remove -->
+                                        <div class="col-auto" style="width: 100px;">
+                                            <div class="text-end">
+                                                <p class="text-white fw-semibold mb-2 item-price" data-raw-price="<?= htmlspecialchars($item['price'], ENT_QUOTES) ?>"><?= formatPrice($item['price']) ?></p>
+                                                <a href="#" class="text-secondary text-decoration-none small link-remove" data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>">
+                                                    <i class="bi bi-trash"></i> REMOVE
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -58,7 +120,7 @@
 
                         <div class="d-flex justify-content-between mb-3 fs-6">
                             <span class="text-secondary">SUBTOTAL</span>
-                            <span class="text-white" id="subtotal">$0</span>
+                            <span class="text-white" id="subtotal"><?= formatPrice($cartSummary['subtotal']) ?></span>
                         </div>
 
                         <div class="d-flex justify-content-between mb-4 fs-6">
@@ -68,10 +130,10 @@
 
                         <div class="d-flex justify-content-between border-top border-secondary pt-3 mb-4">
                             <span class="text-white fw-bold">TOTAL</span>
-                            <span class="text-white fw-bold" id="total">$0</span>
+                            <span class="text-white fw-bold" id="total"><?= formatPrice($cartSummary['subtotal']) ?></span>
                         </div>
 
-                        <a href="checkout.php" class="btn btn-light w-100 fw-bold py-3 text-uppercase text-decoration-none">PROCEED TO CHECKOUT</a>
+                        <button id="proceedCheckout" class="btn btn-light w-100 fw-bold py-3 text-uppercase">PROCEED TO CHECKOUT</button>
                         <p class="text-center text-secondary small mt-3" style="letter-spacing: 0.05rem;">SECURE CHECKOUT WITH ENCRYPTED PROTECTION</p>
                     </div>
                 </div>
@@ -85,131 +147,108 @@
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
 
-    <script src="../assets/js/sample-products.js"></script>
-
+    <script src="../assets/js/cart.js"></script>
     <script>
-        let cart = JSON.parse(localStorage.getItem('cart')) || products.map(p => ({
-            ...p,
-            quantity: 1,
-            checked: false
-        }));
-
-        // Format price
-        function formatPrice(price) {
-            return '$' + price.toLocaleString();
+        async function postForm(url, data) {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(data)
+            });
+            return res.json();
         }
 
-        // Render products
-        function renderProducts() {
-            const container = document.getElementById('productsContainer');
+        function collectSelectedIds() {
+            const ids = [];
+            document.querySelectorAll('.select-item').forEach(box => {
+                if (box.checked) {
+                    ids.push(box.dataset.productId);
+                }
+            });
+            return ids;
+        }
 
-            if (cart.length === 0) {
-                container.innerHTML = '<div class="text-center py-5 text-secondary"><p>No items in your collection yet</p></div>';
-                return;
+        function recalcSummary() {
+            let subtotal = 0;
+            document.querySelectorAll('.cart-item').forEach(item => {
+                const checkbox = item.querySelector('.select-item');
+                if (!checkbox || !checkbox.checked) {
+                    return;
+                }
+                const unit = parseFloat(item.dataset.unitPrice || '0');
+                const qtyInput = item.querySelector('.item-qty');
+                const qty = qtyInput ? parseInt(qtyInput.value, 10) || 0 : 0;
+                subtotal += unit * qty;
+            });
+
+            const subtotalEl = document.getElementById('subtotal');
+            const totalEl = document.getElementById('total');
+            if (subtotalEl) {
+                subtotalEl.textContent = formatPrice(subtotal);
             }
-
-            container.innerHTML = cart.map(product => `
-                <div class="pb-4 mb-4 border-bottom border-secondary">
-                    <div class="row align-items-center g-4">
-                        <!-- Checkbox -->
-                        <div class="col-auto" style="width: 40px;">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="product${product.id}" 
-                                    ${product.checked ? 'checked' : ''} 
-                                    onchange="toggleProduct(${product.id})">
-                            </div>
-                        </div>
-
-                        <!-- Product Image -->
-                        <div class="col-auto p-3" style="width: 175px;">
-                            <img src="${product.image}" alt="${product.name}" class="w-100" style="width: 100%; height: 150px; object-fit: contain;">
-                        </div>
-
-                        <!-- Product Details (Timepiece) -->
-                        <div class="col flex-grow-1">
-                            <p class="text-secondary small mb-1" style="letter-spacing: 0.05rem;">${product.category}</p>
-                            <h6 class="text-white mb-0" style="font-size: 1rem;">${product.name}</h6>
-                        </div>
-
-                        <!-- Quantity Control -->
-                        <div class="col-auto" style="width: 140px;">
-                            <div class="d-flex align-items-center justify-content-center gap-2">
-                                <button class="btn btn-sm btn-outline-secondary px-2 py-1" onclick="decreaseQuantity(${product.id})">−</button>
-                                <input type="number" value="${product.quantity}" readonly class="form-control form-control-sm" style="width: 50px; text-align: center;">
-                                <button class="btn btn-sm btn-outline-secondary px-2 py-1" onclick="increaseQuantity(${product.id})">+</button>
-                            </div>
-                        </div>
-
-                        <!-- Price & Remove -->
-                        <div class="col-auto" style="width: 100px;">
-                            <div class="text-end">
-                                <p class="text-white fw-semibold mb-2">${formatPrice(product.price)}</p>
-                                <a href="#" class="text-secondary text-decoration-none small" onclick="removeProduct(${product.id}); return false;">
-                                    <i class="bi bi-trash"></i> REMOVE
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-
-            updateSummary();
-        }
-
-        // Toggle product checkbox
-        function toggleProduct(id) {
-            const product = cart.find(p => p.id === id);
-            if (product) {
-                product.checked = !product.checked;
-                saveCart();
-                updateSummary();
+            if (totalEl) {
+                totalEl.textContent = formatPrice(subtotal);
             }
         }
 
-        // Increase quantity
-        function increaseQuantity(id) {
-            const product = cart.find(p => p.id === id);
-            if (product) {
-                product.quantity++;
-                saveCart();
-                renderProducts();
+        function attachQuantityHandlers() {
+            document.querySelectorAll('.btn-increase').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const id = btn.dataset.productId;
+                    const input = btn.parentElement.querySelector('input');
+                    const newQty = parseInt(input.value, 10) + 1;
+                    await postForm('../actions/cart/update.php', { product_id: id, quantity: newQty });
+                    window.location.reload();
+                });
+            });
+
+            document.querySelectorAll('.btn-decrease').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const id = btn.dataset.productId;
+                    const input = btn.parentElement.querySelector('input');
+                    const current = parseInt(input.value, 10);
+                    const newQty = Math.max(1, current - 1);
+                    await postForm('../actions/cart/update.php', { product_id: id, quantity: newQty });
+                    window.location.reload();
+                });
+            });
+        }
+
+        function attachRemoveHandlers() {
+            document.querySelectorAll('.link-remove').forEach(link => {
+                link.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const id = link.dataset.productId;
+                    await postForm('../actions/cart/remove.php', { product_id: id });
+                    window.location.reload();
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            attachQuantityHandlers();
+            attachRemoveHandlers();
+            document.querySelectorAll('.select-item').forEach(box => {
+                box.addEventListener('change', recalcSummary);
+            });
+            recalcSummary();
+
+            const checkoutBtn = document.getElementById('proceedCheckout');
+            if (checkoutBtn) {
+                checkoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const selectedIds = collectSelectedIds();
+                    if (selectedIds.length === 0) {
+                        alert('Select at least one item to checkout.');
+                        return;
+                    }
+                    await postForm('../actions/cart/select.php', { selected_ids: selectedIds.join(',') });
+                    window.location.href = 'checkout.php';
+                });
             }
-        }
-
-        // Decrease quantity
-        function decreaseQuantity(id) {
-            const product = cart.find(p => p.id === id);
-            if (product && product.quantity > 1) {
-                product.quantity--;
-                saveCart();
-                renderProducts();
-            }
-        }
-
-        // Remove product
-        function removeProduct(id) {
-            cart = cart.filter(p => p.id !== id);
-            saveCart();
-            renderProducts();
-        }
-
-        // Update summary
-        function updateSummary() {
-            const checkedProducts = cart.filter(p => p.checked);
-            const subtotal = checkedProducts.reduce((sum, p) => sum + (p.price * p.quantity), 0);
-
-            document.getElementById('cartCount').textContent = checkedProducts.length;
-            document.getElementById('subtotal').textContent = formatPrice(subtotal);
-            document.getElementById('total').textContent = formatPrice(subtotal);
-        }
-
-        // Save cart to localStorage
-        function saveCart() {
-            localStorage.setItem('cart', JSON.stringify(cart));
-        }
-
-        // Initial render
-        renderProducts();
+        });
     </script>
 </body>
 

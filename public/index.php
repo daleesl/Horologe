@@ -1,3 +1,15 @@
+<?php
+require_once __DIR__ . '/../config/connect.php';
+require_once __DIR__ . '/../classes/products/ProductService.php';
+
+$productService = new ProductService(new ProductRepository($conn));
+$featuredProducts = $productService->getFeaturedProducts(4);
+
+function formatPrice($value)
+{
+    return '$' . number_format((float)$value, 0, '.', ',');
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -67,7 +79,38 @@
 
             <!-- Products Grid -->
             <div id="productsRow" class="row g-3 g-md-4 justify-content-center">
-
+                <?php if (!empty($featuredProducts)) : ?>
+                    <?php foreach ($featuredProducts as $product) : ?>
+                        <div class="col-lg-3 col-md-6 col-sm-6">
+                            <div class="product-card h-100 d-flex flex-column p-3 rounded-3">
+                                <a href="viewProduct.php?id=<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>" class="text-decoration-none">
+                                    <img src="<?= htmlspecialchars($product['image'], ENT_QUOTES) ?>" alt="<?= htmlspecialchars($product['name'], ENT_QUOTES) ?>" class="img-fluid w-100 object-fit-contain" style="max-height: 350px;">
+                                    <div class="pt-3">
+                                        <p class="small text-secondary mb-2 text-uppercase"><?= htmlspecialchars($product['category'], ENT_QUOTES) ?></p>
+                                        <h3 class="h5 text-secondary-bold mb-2 text-white"><?= htmlspecialchars($product['name'], ENT_QUOTES) ?></h3>
+                                        <p class="text-white font-primary mb-3"><?= formatPrice($product['price']) ?></p>
+                                    </div>
+                                </a>
+                                <div class="d-flex gap-2 mt-auto">
+                                    <a href="viewProduct.php?id=<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>" class="btn btn-sm btn-outline-light flex-fill">VIEW</a>
+                                    <button class="btn btn-sm btn-outline-light flex-fill add-to-cart-btn" type="button"
+                                        data-product-id="<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>"
+                                        data-product-name="<?= htmlspecialchars($product['name'], ENT_QUOTES) ?>"
+                                        data-product-price="<?= htmlspecialchars($product['price'], ENT_QUOTES) ?>"
+                                        data-product-image="<?= htmlspecialchars($product['image'], ENT_QUOTES) ?>"
+                                        data-product-category="<?= htmlspecialchars($product['category'], ENT_QUOTES) ?>"
+                                        data-restore-label="ADD TO CART">
+                                        ADD TO CART
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else : ?>
+                    <div class="col-12 text-center">
+                        <p class="text-secondary">Products coming soon.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </section>
@@ -141,59 +184,7 @@
         crossorigin="anonymous"></script>
 
     <!-- Custom JS -->
-    <script src="../assets/js/sample-products.js"></script>
     <script src="../assets/js/cart.js"></script>
-
-    <script>
-        // Render Featured Products
-        function renderFeaturedProducts() {
-            const productsRow = document.getElementById('productsRow');
-            products.forEach(product => {
-                productsRow.innerHTML += `
-                    <div class="col-lg-3 col-md-6 col-sm-6">
-                        <div class="product-card h-100 d-flex flex-column p-3 rounded-3">
-                            <a href="viewProduct.php?id=${product.id}" class="text-decoration-none">
-                                <img src="${product.image}" alt="${product.name}" class="img-fluid w-100 object-fit-contain" style="max-height: 350px;">
-                                <div class="pt-3">
-                                    <p class="small text-secondary mb-2 text-uppercase">${product.category}</p>
-                                    <h3 class="h5 text-secondary-bold mb-2 text-white">${product.name}</h3>
-                                    <p class="text-white font-primary mb-3">${formatPrice(product.price)}</p>
-                                </div>
-                            </a>
-                            <div class="d-flex gap-2 mt-auto">
-                                <a href="viewProduct.php?id=${product.id}" class="btn btn-sm btn-outline-light flex-fill">VIEW</a>
-                                <button class="btn btn-sm btn-outline-light flex-fill add-to-cart-btn" type="button" data-product-id="${product.id}">ADD TO CART</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            attachAddToCartListeners();
-        }
-
-        // Attach Add to Cart Event Listeners
-        function attachAddToCartListeners() {
-            const addToCartBtns = document.querySelectorAll('.add-to-cart-btn');
-            addToCartBtns.forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const productId = parseInt(this.dataset.productId);
-                    const product = products.find(p => p.id === productId);
-                    if (product) {
-                        addToCart(product, 1);
-                        this.textContent = 'ADDED!';
-                        this.classList.add('disabled');
-                        setTimeout(() => {
-                            this.textContent = 'ADD TO CART';
-                            this.classList.remove('disabled');
-                        }, 2000);
-                    }
-                });
-            });
-        }
-
-        renderFeaturedProducts();
-    </script>
 </body>
 
 </html>
