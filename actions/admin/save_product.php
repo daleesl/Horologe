@@ -11,7 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Basic auth guard: ensure admin is logged in (reuse user session key if present)
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
     echo json_encode(['error' => 'Unauthorized']);
@@ -32,7 +31,7 @@ if ($brand === '' || $model === '' || $price < 0 || $stock < 0) {
     exit;
 }
 
-// Handle image upload
+
 $imagePath = $currentImage;
 if (isset($_FILES['image']) && is_uploaded_file($_FILES['image']['tmp_name'])) {
     $uploadDir = __DIR__ . '/../../assets/uploads';
@@ -47,12 +46,12 @@ if (isset($_FILES['image']) && is_uploaded_file($_FILES['image']['tmp_name'])) {
         echo json_encode(['error' => 'Failed to upload image']);
         exit;
     }
-    // Store relative path from web root; ProductRepository will prefix as needed for public/admin views
+  
     $imagePath = 'assets/uploads/' . $targetName;
 }
 
 if ($watchId === '') {
-    // Create new
+ 
     $watchId = generateId($conn, 'watch', 'watch_id', 'W', 3);
     $stmt = $conn->prepare("INSERT INTO watch (watch_id, brand, model, stock_quantity, price, description, image_file) VALUES (?, ?, ?, ?, ?, ?, ?)");
     if (!$stmt) {
@@ -69,7 +68,7 @@ if ($watchId === '') {
         exit;
     }
 } else {
-    // Update existing
+ 
     $stmt = $conn->prepare("UPDATE watch SET brand = ?, model = ?, stock_quantity = ?, price = ?, description = ?, image_file = ? WHERE watch_id = ?");
     if (!$stmt) {
         http_response_code(500);

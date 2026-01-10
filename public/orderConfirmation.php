@@ -30,7 +30,7 @@ if (isset($_SESSION['pending_clear_ids']) && is_array($_SESSION['pending_clear_i
 
 function formatPrice($value)
 {
-    return '$' . number_format((float)$value, 0, '.', ',');
+    return '₱' . number_format((float)$value, 0, '.', ',');
 }
 ?>
 <!doctype html>
@@ -110,7 +110,13 @@ function formatPrice($value)
                                     <div class="mb-4 pb-4 border-bottom border-secondary">
                                         <div class="d-flex gap-3">
                                             <div style="width: 100px; flex-shrink: 0;">
-                                                <img src="<?= htmlspecialchars($item['image'], ENT_QUOTES) ?>" alt="<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>" class="w-100" style="height: 80px; object-fit: contain;">
+                                                <?php
+                                                $imgPath = $item['image'];
+                                                if (strpos($imgPath, 'http') !== 0 && strpos($imgPath, '../') !== 0) {
+                                                    $imgPath = '../' . ltrim($imgPath, '/');
+                                                }
+                                                ?>
+                                                <img src="<?= htmlspecialchars($imgPath, ENT_QUOTES) ?>" alt="<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>" class="w-100" style="height: 80px; object-fit: contain;">
                                             </div>
                                             <div class="flex-grow-1">
                                                 <p class="text-secondary small mb-1"><?= htmlspecialchars($item['category'], ENT_QUOTES) ?></p>

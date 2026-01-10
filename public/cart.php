@@ -8,7 +8,7 @@ $cartSummary = $cartService->getSummary();
 
 function formatPrice($value)
 {
-    return '$' . number_format((float)$value, 0, '.', ',');
+    return '₱' . number_format((float)$value, 0, '.', ',');
 }
 ?>
 <!doctype html>
@@ -75,7 +75,14 @@ function formatPrice($value)
 
                                         <!-- Product Image -->
                                         <div class="col-auto p-3" style="width: 175px;">
-                                            <img src="<?= htmlspecialchars($item['image'], ENT_QUOTES) ?>" alt="<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>" class="w-100" style="width: 100%; height: 150px; object-fit: contain;">
+                                            <?php
+                                            $imgPath = $item['image'];
+                                            // If not an absolute URL and doesn't start with '../', prefix it
+                                            if (strpos($imgPath, 'http') !== 0 && strpos($imgPath, '../') !== 0) {
+                                                $imgPath = '../' . ltrim($imgPath, '/');
+                                            }
+                                            ?>
+                                            <img src="<?= htmlspecialchars($imgPath, ENT_QUOTES) ?>" alt="<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>" class="w-100" style="width: 100%; height: 150px; object-fit: contain;">
                                         </div>
 
                                         <!-- Product Details (Timepiece) -->

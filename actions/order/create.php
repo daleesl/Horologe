@@ -4,6 +4,7 @@ session_start();
 require_once __DIR__ . '/../../config/connect.php';
 require_once __DIR__ . '/../../helpers/id_generator.php';
 require_once __DIR__ . '/../../classes/cart/CartService.php';
+require_once __DIR__ . '/../../classes/products/ProductRepository.php';
 
 header('Content-Type: application/json');
 
@@ -63,6 +64,18 @@ foreach ($items as $item) {
     $price = (float) ($item['price'] ?? 0);
     $lineTotal = $qty * $price;
     $grandTotal += $lineTotal;
+
+        // Check and update stock
+    $productRepo = new ProductRepository($conn);
+    $product = $productRepo->getById($watchId);
+    $currentStock = isset($product['stock']) ? (int)$product['stock'] : 0;
+    if ($qty > $currentStock) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Not enough stock for product: ' . ($item['name'] ?? $watchId)]);
+        exit;
+    }
+    $newStock = $currentStock - $qty;
+    $productRepo->updateStock($watchId, $newStock);
 
     $orderId = generateId($conn, 'orders', 'order_id', 'ORD', 4);
     $orderIds[] = $orderId;
