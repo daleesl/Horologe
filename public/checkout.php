@@ -415,7 +415,7 @@ function formatPrice($value)
                             }, 2000);
                         } else {
                             console.error("Order save failed:", r);
-                            showToast('errorToast', r.error || add ."Order saving failed.");
+                            showToast('errorToast', r.error || "Order saving failed.");
                         }
                     })
                     .catch(err => {
