@@ -34,20 +34,25 @@ if ($brand === '' || $model === '' || $price < 0 || $stock < 0) {
 
 $imagePath = $currentImage;
 if (isset($_FILES['image']) && is_uploaded_file($_FILES['image']['tmp_name'])) {
-    $uploadDir = __DIR__ . '/../../assets/uploads';
+
+    $brandFolder = preg_replace('/[^a-zA-Z0-9]/', '_', strtolower($brand));
+    $uploadDir = __DIR__ . '/../../assets/images/products/' . $brandFolder . '/';
+
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0777, true);
     }
+
     $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', basename($_FILES['image']['name']));
     $targetName = uniqid('prod_', true) . '_' . $safeName;
-    $targetPath = $uploadDir . '/' . $targetName;
+    $targetPath = $uploadDir . $targetName;
+
     if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
         http_response_code(500);
         echo json_encode(['error' => 'Failed to upload image']);
         exit;
     }
-  
-    $imagePath = 'assets/uploads/' . $targetName;
+
+    $imagePath = 'assets/images/products/' . $brandFolder . '/' . $targetName;
 }
 
 if ($watchId === '') {

@@ -28,7 +28,6 @@ function formatPrice($value)
 
     <?php include '../includes/navbar.php'; ?>
 
-    <!-- HERO SECTION -->
     <section class="text-white min-vh-100 d-flex align-items-center position-relative overflow-hidden" style="background-color: #181818;">
         <video autoplay muted loop playsinline class="position-absolute top-0 start-0 w-100 h-100 hero-video" style="object-fit: cover; z-index: 0;">
             <source src="../assets/video/hero-vid.mp4" type="video/mp4">
@@ -37,7 +36,6 @@ function formatPrice($value)
         <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0, 0, 0, 0.4); z-index: 1;"></div>
         <div class="container-fluid px-3 px-md-5 position-relative" style="z-index: 2;">
             <div class="row align-items-center g-0 flex-column-reverse flex-lg-row">
-                <!-- Left Content -->
                 <div class="col-lg-6 py-2 ps-lg-4 ps-3">
                     <div class="mb-4">
                         <span class="border border-white text-white px-3 px-md-5 py-2 d-inline-block small" style="letter-spacing: .2rem;">ESTABLISH 1924</span>
@@ -62,22 +60,18 @@ function formatPrice($value)
         </div>
     </section>
 
-
-    <!-- FEATURED COLLECTION SECTION -->
     <section class="bg-black text-white ">
         <div class="container py-lg-5 py-md-3 py-2">
-            <!-- Section Header -->
             <div class="row mb-5">
                 <div class="col-lg-8">
                     <h2 class="display-3 fw-normal mb-3 header font-primary">The Featured Collection</h2>
                     <p class="fs-5 text-secondary">A selection of our most sought-after timepieces, representing the pinnacle of precision and style.</p>
                 </div>
                 <div class="col-lg-4 d-flex align-items-end justify-content-lg-end">
-                    <a href="#" class="text-white text-decoration-none fs-6 header font-primary">VIEW ALL COLLECTIONS <span>→</span></a>
+                    <a href="collections.php" class="text-white text-decoration-none fs-6 header font-primary">VIEW ALL COLLECTIONS <span>→</span></a>
                 </div>
             </div>
 
-            <!-- Products Grid -->
             <div id="productsRow" class="row g-3 g-md-4 justify-content-center">
                 <?php if (!empty($featuredProducts)) : ?>
                     <?php foreach ($featuredProducts as $product) : ?>
@@ -115,11 +109,9 @@ function formatPrice($value)
         </div>
     </section>
 
-    <!-- HOROLOGICAL MASTERY SECTION -->
     <section class="bg-black text-white" style="background-color: #181818">
         <div class="container-fluid p-5 p-md-5" style="background-color: #171717;">
             <div class="row align-items-center g-4 flex-column-reverse flex-lg-row">
-                <!-- Left Content -->
                 <div class="col-lg-6">
                     <h2 class="display-3 fw-normal text-white mb-4 header font-primary">A Century of Horological Mastery</h2>
 
@@ -134,7 +126,6 @@ function formatPrice($value)
                     <a href="#" class="text-white text-decoration-none fs-6 header font-primary">LEARN MORE <span>→</span></a>
                 </div>
 
-                <!-- Right Images -->
                 <div class="col-lg-6">
                     <div class="row g-3">
                         <div class="col-6 mb-5">
@@ -149,24 +140,20 @@ function formatPrice($value)
         </div>
     </section>
 
-    <!-- TESTIMONIAL SECTION -->
     <section class="bg-black text-white py-5">
         <div class="container-fluid p-3 p-md-5">
             <div class="row justify-content-center">
                 <div class="col-lg-8 text-center">
-                    <!-- Stars -->
                     <div class="mb-4">
                         <span class="fs-4">★ ★ ★ ★ ★</span>
                     </div>
 
-                    <!-- Quote -->
                     <blockquote class="mb-4">
                         <p class="display-6 fw-normal text-white" style="font-family: EB Garamond, serif;">
                             "Horologe doesn't just sell watches; they provide a legacy. The attention to detail in my Celestial Moonphase is unlike anything else in my collection."
                         </p>
                     </blockquote>
 
-                    <!-- Author -->
                     <div>
                         <p class="text-white fw-semibold mb-1">JOHN JESTER</p>
                         <p class="text-secondary small" style="letter-spacing: .1rem;">COLLECTOR & ENTHUSIAST</p>
@@ -178,12 +165,10 @@ function formatPrice($value)
 
     <?php include '../includes/footer.php'; ?>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
 
-    <!-- Custom JS -->
     <script src="../assets/js/cart.js"></script>
 </body>
 
