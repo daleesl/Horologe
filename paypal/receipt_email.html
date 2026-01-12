@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        body {
+            background-color: #e0e0e0;
+            font-family: 'VT323', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .receipt-container {
+            background-color: #fff;
+            width: 320px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin: 20px;
+        }
+
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .store-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .store-info {
+            font-size: 1.1rem;
+            line-height: 1.2;
+        }
+
+        .meta-data {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        th, td {
+            padding: 2px 0;
+        }
+
+        td:last-child {
+            text-align: right;
+        }
+
+        .totals {
+            border-top: 1px dashed #000;
+            padding-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .total-row.final {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .customer-info {
+            border-top: 1px dashed #000;
+            padding-top: 10px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+<div class="receipt-container">
+
+    <!-- Header -->
+    <div class="receipt-header">
+        <h1 class="store-name">Horologe</h1>
+        <div class="store-info">
+            {{DATE}} • {{TIME}}<br>
+            Official Purchase Receipt
+        </div>
+    </div>
+
+    <!-- Order Meta -->
+    <div class="meta-data">
+        <span>ORDER #{{orderID}}</span>
+        <span>{{status}}</span>
+    </div>
+
+    <!-- Customer Info -->
+    <div class="customer-info">
+        <strong>Customer:</strong> {{CUSTOMER_NAME}}<br>
+        <strong>Email:</strong> {{EMAIL}}<br>
+        <strong>Address:</strong> {{ADDRESS}}
+    </div>
+
+    <!-- Items -->
+    <table>
+        <tbody>
+            {{ITEM_ROWS}}
+        </tbody>
+    </table>
+
+    <div style="font-size: 1rem; margin-bottom: 10px;">
+        {{ITEM_COUNT}} ITEM(S)
+    </div>
+
+    <!-- Totals -->
+    <div class="totals">
+        <div class="total-row">
+            <span>Payment Method</span>
+            <span>{{PAYMENT_METHOD}}</span>
+        </div>
+        <div class="total-row final">
+            <span>TOTAL</span>
+            <span>${{TOTAL}}</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        Thank you for choosing Horologe!<br>
+        Your timepiece is being prepared.
+    </div>
+
+</div>
+
+</body>
+</html>
