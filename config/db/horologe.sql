@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 10, 2026 at 08:41 AM
+-- Generation Time: Jan 12, 2026 at 07:18 AM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -29,8 +29,20 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `cart` (
   `cart_id` varchar(50) NOT NULL,
-  `user_id` varchar(50) NOT NULL
+  `user_id` varchar(50) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `cart`
+--
+
+INSERT INTO `cart` (`cart_id`, `user_id`, `created_at`) VALUES
+('cart_6962408579372', 'USR004', '2026-01-10 20:05:25'),
+('cart_69632579dfd40', 'USR003', '2026-01-11 12:22:17'),
+('cart_69648956b8117', 'USR005', '2026-01-12 13:40:38'),
+('cart_69648cba6309d', 'USR001', '2026-01-12 13:55:06'),
+('cart_69648e5468847', 'USR006', '2026-01-12 14:01:56');
 
 -- --------------------------------------------------------
 
@@ -42,9 +54,16 @@ CREATE TABLE `cartitems` (
   `cart_item_id` varchar(50) NOT NULL,
   `watch_id` varchar(50) NOT NULL,
   `cart_id` varchar(50) NOT NULL,
-  `quantity` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL DEFAULT 1,
   `subtotal` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `cartitems`
+--
+
+INSERT INTO `cartitems` (`cart_item_id`, `watch_id`, `cart_id`, `quantity`, `subtotal`) VALUES
+('ci_69648e5a3cff6', 'W020', 'cart_69648e5468847', 1, 10000.00);
 
 -- --------------------------------------------------------
 
@@ -59,22 +78,63 @@ CREATE TABLE `orders` (
   `user_id` varchar(50) NOT NULL,
   `user_name` varchar(120) NOT NULL,
   `user_email` varchar(120) NOT NULL,
-  `user_phone` varchar(20) NOT NULL,
+  `ship_full_name` varchar(150) NOT NULL,
+  `ship_street_address` varchar(255) NOT NULL,
+  `ship_city` varchar(100) NOT NULL,
+  `ship_province_state` varchar(100) DEFAULT NULL,
+  `ship_postal_code` varchar(20) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`order_id`, `order_date`, `total_amount`, `user_id`, `user_name`, `user_email`, `ship_full_name`, `ship_street_address`, `ship_city`, `ship_province_state`, `ship_postal_code`, `created_at`) VALUES
+('ORD000001', '2026-01-12 01:50:55', 35500.00, 'USR005', 'Francis Gabrielle Canlobo', 'canlobofrancis@gmail.com', 'Francis Gabrielle Canlobo', 'Aya, Talisay, Batangas', 'Batangas', 'Philippines', '4220', '2026-01-12 01:50:55'),
+('ORD000002', '2026-01-12 02:37:16', 27000.00, 'USR005', 'Francis Gabrielle Canlobo', 'canlobofrancis@gmail.com', 'Francis Gabrielle Canlobo', 'Aya, Talisay, Batangas', 'Batangas', 'Philippines', '4220', '2026-01-12 02:37:16'),
+('ORD000003', '2026-01-12 03:16:30', 37500.00, 'USR005', 'Francis Gabrielle Canlobo', 'canlobofrancis@gmail.com', 'Francis Gabrielle Canlobo', 'Aya, Talisay, Batangas', 'Batangas', 'Philippines', '4220', '2026-01-12 03:16:30'),
+('ORD000005', '2026-01-12 03:30:14', 9500.00, 'USR005', 'Francis Gabrielle Canlobo', 'canlobofrancis@gmail.com', 'Francis Gabrielle Canlobo', 'Aya, Talisay, Batangas', 'Batangas', 'Philippines', '4220', '2026-01-12 03:30:14'),
+('ORD000006', '2026-01-12 03:35:14', 9500.00, 'USR005', 'Francis Gabrielle Canlobo', 'canlobofrancis@gmail.com', 'Francis Gabrielle Canlobo', 'Aya, Talisay, Batangas', 'Batangas', 'Philippines', '4220', '2026-01-12 03:35:14'),
+('ORD000007', '2026-01-12 03:41:58', 40000.00, 'USR005', 'Francis Gabrielle Canlobo', 'canlobofrancis@gmail.com', 'Francis Gabrielle Canlobo', 'Aya, Talisay, Batangas', 'Batangas', 'Philippines', '4220', '2026-01-12 03:41:58'),
+('ORD000008', '2026-01-12 13:40:34', 9000.00, 'USR005', 'Francis Gabrielle Canlobo', 'canlobofrancis@gmail.com', 'Francis Gabrielle Canlobo', 'Aya, Talisay, Batangas', 'Batangas', 'Philippines', '4220', '2026-01-12 13:40:34');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_items`
+--
+
+CREATE TABLE `order_items` (
+  `id` int(11) NOT NULL,
+  `order_id` varchar(50) NOT NULL,
   `watch_id` varchar(50) NOT NULL,
-  `product_name` varchar(150) NOT NULL,
+  `product_name` varchar(150) DEFAULT NULL,
   `product_description` text DEFAULT NULL,
   `quantity` int(11) NOT NULL,
   `price_at_purchase` decimal(10,2) NOT NULL,
-  `ship_full_name` varchar(150) NOT NULL,
-  `ship_phone_number` varchar(20) NOT NULL,
-  `ship_street_address` varchar(255) NOT NULL,
-  `ship_city` varchar(100) NOT NULL,
-  `ship_province_state` varchar(100) NOT NULL,
-  `ship_postal_code` varchar(20) NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `payment_method` varchar(50) NOT NULL
+  `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `order_items`
+--
+
+INSERT INTO `order_items` (`id`, `order_id`, `watch_id`, `product_name`, `product_description`, `quantity`, `price_at_purchase`, `created_at`) VALUES
+(30, 'ORD000001', 'W010', 'MontBlac Tradition Automatic Date 40 mm', 'A quintessential automatic watch that marries classical aesthetics with modern reliability. Its 40mm case houses a perfectly balanced dial, featuring subtle markers and a practical date window. Whether for boardroom meetings or casual elegance, the Tradition Automatic embodies Montblanc’s commitment to timeless design and exceptional craftsmanship.', 1, 7500.00, '2026-01-12 01:50:55'),
+(31, 'ORD000001', 'W013', 'Patek Philippe Grand Complications 5303R-001', 'This annual calendar timepiece combines functional complexity with aesthetic refinement. Its polished case and harmonious dial design present a sophisticated statement for the discerning wearer.', 1, 9000.00, '2026-01-12 01:50:55'),
+(32, 'ORD000001', 'W015', 'Patek Philippe Calatrava 5227J-001', 'The Calatrava 5227J-001 epitomizes minimalist elegance. Its clean dial, slender hands, and classic case design pay homage to Patek Philippe’s timeless philosophy of restraint and refinement. A watch that complements every attire, it stands as a symbol of understated luxury and lasting value.', 1, 9500.00, '2026-01-12 01:50:55'),
+(33, 'ORD000001', 'W018', 'Rolex Air-King 116900 2018', 'A tribute to Rolex’s aviation heritage, the Air-King 116900 features a bold, high-contrast dial and a robust Oystersteel case. Its precision and sporty aesthetic make it a dynamic choice for individuals who embrace adventure without compromising style.', 1, 9500.00, '2026-01-12 01:50:55'),
+(34, 'ORD000002', 'W002', 'Cartier Tank Basculante White Dial 2405', 'An exquisite reversible case design, the Tank Basculante combines timeless Cartier style with playful ingenuity. The crisp white dial and elegant hands reflect the brand’s mastery of understated luxury, making it a rare and collectible piece.', 1, 8000.00, '2026-01-12 02:37:16'),
+(35, 'ORD000002', 'W003', 'Cartier Panthere Two Tone Yellow Gold White Dial 110000R 2', 'This iconic Panthère model blends stainless steel and yellow gold in a harmonious two-tone design. The gleaming white dial and flexible bracelet exude sophistication, offering a perfect balance of sportiness and refined elegance.', 1, 9000.00, '2026-01-12 02:37:16'),
+(36, 'ORD000002', 'W006', 'MontBlac Star Legacy Chronograph 42mm Limited Edition - 178', 'A masterful embodiment of Montblanc’s dedication to haute horology, this limited-edition chronograph is one of only 1,786 pieces worldwide. Its 42mm case elegantly balances boldness and refinement, while the meticulously crafted dial, adorned with classic Arabic numerals and blued steel hands, pays homage to the brand’s historic Minerva heritage. Designed for those who appreciate both technical precision and timeless style, this piece is a true collector’s gem.', 1, 10000.00, '2026-01-12 02:37:16'),
+(37, 'ORD000003', 'W018', 'Rolex Air-King 116900 2018', 'A tribute to Rolex’s aviation heritage, the Air-King 116900 features a bold, high-contrast dial and a robust Oystersteel case. Its precision and sporty aesthetic make it a dynamic choice for individuals who embrace adventure without compromising style.', 1, 9500.00, '2026-01-12 03:16:30'),
+(38, 'ORD000003', 'W019', 'Rolex Datejust 28 Two Tone Yellow Gold White Roman Dial', 'An elegant blend of classic and contemporary design, this 28mm Datejust features a two-tone case and pristine white dial adorned with Roman numerals. It’s a refined and versatile timepiece that elevates both casual and formal ensembles.', 2, 9000.00, '2026-01-12 03:16:30'),
+(39, 'ORD000003', 'W011', 'Patek Philippe Grand Complications 5303R-001', 'The Grand Complications 5303R-001 is a breathtaking display of mechanical artistry. Its skeletonized dial offers a window into the intricate movement beneath, allowing admirers to witness the harmony of gears, springs, and levers in motion. Crafted for connoisseurs of haute horology, this piece exemplifies Patek Philippe’s mastery of both technical complexity and aesthetic perfection.', 1, 10000.00, '2026-01-12 03:16:30'),
+(41, 'ORD000005', 'W015', 'Patek Philippe Calatrava 5227J-001', 'The Calatrava 5227J-001 epitomizes minimalist elegance. Its clean dial, slender hands, and classic case design pay homage to Patek Philippe’s timeless philosophy of restraint and refinement. A watch that complements every attire, it stands as a symbol of understated luxury and lasting value.', 1, 9500.00, '2026-01-12 03:30:14'),
+(42, 'ORD000006', 'W018', 'Rolex Air-King 116900 2018', 'A tribute to Rolex’s aviation heritage, the Air-King 116900 features a bold, high-contrast dial and a robust Oystersteel case. Its precision and sporty aesthetic make it a dynamic choice for individuals who embrace adventure without compromising style.', 1, 9500.00, '2026-01-12 03:35:14'),
+(43, 'ORD000007', 'W017', 'Rolex Datejust 26 Two Tone Yellow Champagne Crystal Flak', 'The Datejust 26 exudes timeless glamour, combining the warmth of yellow gold with the sparkle of a diamond-set bezel. Its champagne dial glows with understated elegance, making it an ideal watch for those who appreciate luxury in every detail. Compact yet commanding, this piece perfectly marries sophistication with everyday versatility.', 4, 10000.00, '2026-01-12 03:41:58'),
+(44, 'ORD000008', 'W019', 'Rolex Datejust 28 Two Tone Yellow Gold White Roman Dial', 'An elegant blend of classic and contemporary design, this 28mm Datejust features a two-tone case and pristine white dial adorned with Roman numerals. It’s a refined and versatile timepiece that elevates both casual and formal ensembles.', 1, 9000.00, '2026-01-12 13:40:34');
 
 -- --------------------------------------------------------
 
@@ -83,15 +143,39 @@ CREATE TABLE `orders` (
 --
 
 CREATE TABLE `payment` (
+  `id` int(11) NOT NULL,
   `payment_id` varchar(50) NOT NULL,
   `payment_method` varchar(50) NOT NULL,
   `payment_status` varchar(50) NOT NULL,
   `payment_date` datetime DEFAULT current_timestamp(),
   `amount` decimal(10,2) NOT NULL,
-  `order_id` varchar(50) NOT NULL,
+  `order_id` varchar(50) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `payment`
+--
+
+INSERT INTO `payment` (`id`, `payment_id`, `payment_method`, `payment_status`, `payment_date`, `amount`, `order_id`, `created_at`, `updated_at`) VALUES
+(73, 'PAY-1768153802-4255', 'PAYPAL', 'COMPLETED', '2026-01-12 01:50:55', 35500.00, NULL, '2026-01-12 01:50:02', '2026-01-12 01:50:55'),
+(74, '3KM33733YN164964C', 'PAYPAL', 'COMPLETED', '2026-01-12 01:50:55', 35500.00, 'ORD000001', '2026-01-12 01:50:55', '2026-01-12 01:50:55'),
+(75, 'PAY-1768156594-2331', 'PAYPAL', 'COMPLETED', '2026-01-12 02:37:16', 27000.00, NULL, '2026-01-12 02:36:34', '2026-01-12 02:37:16'),
+(76, '8B609225603216638', 'PAYPAL', 'COMPLETED', '2026-01-12 02:37:16', 27000.00, 'ORD000002', '2026-01-12 02:37:16', '2026-01-12 02:37:16'),
+(77, 'PAY-1768158950-7264', 'PAYPAL', 'COMPLETED', '2026-01-12 03:16:30', 37500.00, NULL, '2026-01-12 03:15:50', '2026-01-12 03:16:30'),
+(78, '1UY87164E5706550H', 'PAYPAL', 'COMPLETED', '2026-01-12 03:16:30', 37500.00, 'ORD000003', '2026-01-12 03:16:30', '2026-01-12 03:16:30'),
+(79, 'PAY-1768159247-2203', 'PAYPAL', 'COMPLETED', '2026-01-12 03:20:58', 40000.00, NULL, '2026-01-12 03:20:47', '2026-01-12 03:20:58'),
+(81, 'PAY-1768159755-8971', 'PAYPAL', 'PENDING', '2026-01-12 03:29:15', 10000.00, NULL, '2026-01-12 03:29:15', '2026-01-12 03:29:15'),
+(82, 'PAY-1768159804-5711', 'PAYPAL', 'COMPLETED', '2026-01-12 03:30:14', 9500.00, NULL, '2026-01-12 03:30:04', '2026-01-12 03:30:14'),
+(83, '11739494W5283433P', 'PAYPAL', 'COMPLETED', '2026-01-12 03:30:14', 9500.00, 'ORD000005', '2026-01-12 03:30:14', '2026-01-12 03:30:14'),
+(84, 'PAY-1768160067-3383', 'PAYPAL', 'COMPLETED', '2026-01-12 03:35:14', 9500.00, NULL, '2026-01-12 03:34:27', '2026-01-12 03:35:14'),
+(85, '64462709VU645952V', 'PAYPAL', 'COMPLETED', '2026-01-12 03:35:14', 9500.00, 'ORD000006', '2026-01-12 03:35:14', '2026-01-12 03:35:14'),
+(86, 'PAY-1768160508-8413', 'PAYPAL', 'COMPLETED', '2026-01-12 03:41:58', 40000.00, NULL, '2026-01-12 03:41:48', '2026-01-12 03:41:58'),
+(87, '62U09242S6645044V', 'PAYPAL', 'COMPLETED', '2026-01-12 03:41:58', 40000.00, 'ORD000007', '2026-01-12 03:41:58', '2026-01-12 03:41:58'),
+(88, 'PAY-1768196404-3506', 'PAYPAL', 'COMPLETED', '2026-01-12 13:40:34', 9000.00, NULL, '2026-01-12 13:40:04', '2026-01-12 13:40:34'),
+(89, '9HH98294VV6102255', 'PAYPAL', 'COMPLETED', '2026-01-12 13:40:34', 9000.00, 'ORD000008', '2026-01-12 13:40:34', '2026-01-12 13:40:34'),
+(90, 'PAY-1768197746-7036', 'PAYPAL', 'PENDING', '2026-01-12 14:02:26', 10000.00, NULL, '2026-01-12 14:02:26', '2026-01-12 14:02:26');
 
 -- --------------------------------------------------------
 
@@ -100,12 +184,28 @@ CREATE TABLE `payment` (
 --
 
 CREATE TABLE `paypalpayment` (
+  `id` int(11) NOT NULL,
   `paypal_transaction_id` varchar(100) NOT NULL,
   `payer_email` varchar(100) NOT NULL,
   `transaction_date` datetime DEFAULT current_timestamp(),
   `payment_status` varchar(50) NOT NULL,
-  `payment_id` varchar(50) NOT NULL
+  `payment_id` varchar(50) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `paypalpayment`
+--
+
+INSERT INTO `paypalpayment` (`id`, `paypal_transaction_id`, `payer_email`, `transaction_date`, `payment_status`, `payment_id`, `created_at`) VALUES
+(32, '3KM33733YN164964C', 'sb-4gaft48466150@personal.example.com', '2026-01-12 01:50:55', 'COMPLETED', 'PAY-1768153802-4255', '2026-01-12 01:50:55'),
+(33, '8B609225603216638', 'sb-4gaft48466150@personal.example.com', '2026-01-12 02:37:16', 'COMPLETED', 'PAY-1768156594-2331', '2026-01-12 02:37:16'),
+(34, '1UY87164E5706550H', 'sb-4gaft48466150@personal.example.com', '2026-01-12 03:16:30', 'COMPLETED', 'PAY-1768158950-7264', '2026-01-12 03:16:30'),
+(35, '9H131610N78238005', 'sb-4gaft48466150@personal.example.com', '2026-01-12 03:20:58', 'COMPLETED', 'PAY-1768159247-2203', '2026-01-12 03:20:58'),
+(36, '11739494W5283433P', 'sb-4gaft48466150@personal.example.com', '2026-01-12 03:30:14', 'COMPLETED', 'PAY-1768159804-5711', '2026-01-12 03:30:14'),
+(37, '64462709VU645952V', 'sb-4gaft48466150@personal.example.com', '2026-01-12 03:35:14', 'COMPLETED', 'PAY-1768160067-3383', '2026-01-12 03:35:14'),
+(38, '62U09242S6645044V', 'sb-4gaft48466150@personal.example.com', '2026-01-12 03:41:58', 'COMPLETED', 'PAY-1768160508-8413', '2026-01-12 03:41:58'),
+(39, '9HH98294VV6102255', 'sb-4gaft48466150@personal.example.com', '2026-01-12 13:40:34', 'COMPLETED', 'PAY-1768196404-3506', '2026-01-12 13:40:34');
 
 -- --------------------------------------------------------
 
@@ -122,17 +222,21 @@ CREATE TABLE `users` (
   `phone_number` varchar(20) DEFAULT NULL,
   `status` enum('active','inactive') DEFAULT 'active',
   `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `role` enum('user','admin') NOT NULL DEFAULT 'user'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `fname`, `lname`, `email`, `password`, `phone_number`, `status`, `created_at`, `updated_at`) VALUES
-('USR001', 'test', '123', 'test123@gmail.com', '$2y$10$vBZhszJkAzFugvvhHjPDP.p8z/uPQZ//f0heKgu0nUh9bYG3nS5SK', '123123123123', 'active', '2026-01-10 00:27:45', '2026-01-10 00:27:45'),
-('USR002', 'Dale', 'Lee', 'daleandrewslee@gmail.com', '$2y$10$x6op2KosYBu3vO6muMP3q.Pn14u3N5PhcOttyigLZGo1A.Oxop6EG', '09466292876', 'active', '2026-01-10 01:48:28', '2026-01-10 01:48:28'),
-('USR003', 'John Jester', 'Luciriaga', 'johnjesterluciriaga4@gmail.com', '$2y$10$Sz9RObWDcclY9yLFIMcwJuCMY7LizOId6rlR68q3Cszc7Sg5UvdMC', '09278679012', 'active', '2026-01-10 03:20:44', '2026-01-10 03:20:44');
+INSERT INTO `users` (`user_id`, `fname`, `lname`, `email`, `password`, `phone_number`, `status`, `created_at`, `updated_at`, `role`) VALUES
+('USR001', 'Admin', 'User', 'admin@horologe.com', '$2y$10$AjaEhw2AcIULUAlG1CflDe.Uo65yUjvvProuxwdkgGkVVWd/lp94i', NULL, 'active', '2026-01-12 13:54:36', '2026-01-12 13:54:45', 'admin'),
+('USR002', 'Dale', 'Lee', 'daleandrewslee@gmail.com', '$2y$10$x6op2KosYBu3vO6muMP3q.Pn14u3N5PhcOttyigLZGo1A.Oxop6EG', '09466292876', 'active', '2026-01-10 01:48:28', '2026-01-10 01:48:28', 'user'),
+('USR003', 'John Jester', 'Luciriaga', 'johnjesterluciriaga4@gmail.com', '$2y$10$Sz9RObWDcclY9yLFIMcwJuCMY7LizOId6rlR68q3Cszc7Sg5UvdMC', '09278679012', 'active', '2026-01-10 03:20:44', '2026-01-10 03:20:44', 'user'),
+('USR004', 'Michelle', 'Baho', 'michelle@gmail.com', '$2y$10$k6rZlwENcWXFeRlgxKBCquHvSUcV.EA1GEIbmvAbi6OcSoqge/SLS', '09332113388', 'active', '2026-01-10 20:05:24', '2026-01-10 20:05:24', 'user'),
+('USR005', 'Francis Gabrielle', 'Canlobo', 'canlobofrancis@gmail.com', '$2y$10$ys.6MXy8klbfpMCFYyKl/.qHoO9cf2UIrsZYkAmpcrTgdxp9iO2uC', '09932113388', 'active', '2026-01-11 22:03:16', '2026-01-11 22:03:16', 'user'),
+('USR006', 'Francis Gabrielle', 'Canlobo', 'kikocanlobs@gmail.com', '$2y$10$MLeM75uD65kjI0lxl0ZHyOiOYW4lXB4tcJ2d9tP6lep/cCZrsHmTS', '09932113388', 'active', '2026-01-12 14:01:55', '2026-01-12 14:01:55', 'user');
 
 -- --------------------------------------------------------
 
@@ -146,7 +250,7 @@ CREATE TABLE `watch` (
   `model` varchar(50) NOT NULL,
   `description` text DEFAULT NULL,
   `price` decimal(10,2) NOT NULL,
-  `stock_quantity` int(11) NOT NULL,
+  `stock_quantity` int(11) NOT NULL DEFAULT 0,
   `image_file` varchar(255) NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -157,8 +261,26 @@ CREATE TABLE `watch` (
 --
 
 INSERT INTO `watch` (`watch_id`, `brand`, `model`, `description`, `price`, `stock_quantity`, `image_file`, `created_at`, `updated_at`) VALUES
-('W001', 'Rolex', 'Yacht-Master 40 Everose Black Dial 116655 2017', 'The Yacht-Master 40 in Everose gold epitomizes the perfect union of sport and luxury. Its bold black dial contrasts beautifully with the warm glow of Everose, while its Oysterflex bracelet ensures comfort and durability. Designed for maritime elegance and refined adventures, it is a statement of both performance and prestige.', 10000.00, 10, 'assets/uploads/prod_69615749cdc1a7.14454203_Rolex5_-_Rolex_Yacht-Master_40_Everose_Black_Dial_116655_2017.png', '2026-01-10 03:30:17', '2026-01-10 03:30:17'),
-('W002', 'Cartier', 'Americane Rose Gold W2607456', 'A graceful expression of Cartier’s signature elegance, this Tank Américaine in rose gold features a sleek rectangular case and classic Roman numerals. Its refined profile and polished finish make it a quintessential dress watch for those who appreciate subtle sophistication.', 9500.00, 5, 'assets/uploads/prod_6961577facfa98.81746719_Cartier1_-____Cartier_Americane_Rose_Gold_W2607456_Cartier_Americane_Rose_Gold_W2607456.png', '2026-01-10 03:31:11', '2026-01-10 03:31:11');
+('W001', 'Cartier', 'Americane Rose Gold W2607456', 'A graceful expression of Cartier’s signature elegance, this Tank Américaine in rose gold features a sleek rectangular case and classic Roman numerals. Its refined profile and polished finish make it a quintessential dress watch for those who appreciate subtle sophistication.', 9500.00, 20, 'assets/images/products/cartier/prod_6963dd9f2268f5.79902600_cartier1.png', '2026-01-12 01:27:59', '2026-01-12 01:27:59'),
+('W002', 'Cartier', 'Tank Basculante White Dial 2405', 'An exquisite reversible case design, the Tank Basculante combines timeless Cartier style with playful ingenuity. The crisp white dial and elegant hands reflect the brand’s mastery of understated luxury, making it a rare and collectible piece.', 8000.00, 19, 'assets/images/products/cartier/prod_6963ddc4b96944.77418149_cartier2.png', '2026-01-12 01:28:36', '2026-01-12 02:37:16'),
+('W003', 'Cartier', 'Panthere Two Tone Yellow Gold White Dial 110000R 2', 'This iconic Panthère model blends stainless steel and yellow gold in a harmonious two-tone design. The gleaming white dial and flexible bracelet exude sophistication, offering a perfect balance of sportiness and refined elegance.', 9000.00, 19, 'assets/images/products/cartier/prod_6963e15f952473.12982781_cartier3.png', '2026-01-12 01:43:17', '2026-01-12 02:37:16'),
+('W004', 'Cartier', 'Ronde Solo Yellow Gold W6700355 2021', 'A modern classic, the Ronde Solo features a round yellow gold case with crisp Roman numerals and a polished finish. Its balanced proportions and timeless design make it an effortlessly stylish companion for every occasion.', 10000.00, 20, 'assets/images/products/cartier/prod_6963e1682ae000.51645321_cartier4.png', '2026-01-12 01:43:17', '2026-01-12 01:44:08'),
+('W005', 'Cartier', 'Basculante Yellow Gold White Dial 2480', 'The Tank Basculante in yellow gold showcases Cartier’s inventive reversible case, combining elegance with mechanical ingenuity. Its pure white dial and polished finish create a timepiece that is both refined and visually striking.', 7500.00, 20, 'assets/images/products/cartier/prod_6963e174735221.15529938_cartier5.png', '2026-01-12 01:43:17', '2026-01-12 01:44:20'),
+('W006', 'MontBlac', 'Star Legacy Chronograph 42mm Limited Edition - 178', 'A masterful embodiment of Montblanc’s dedication to haute horology, this limited-edition chronograph is one of only 1,786 pieces worldwide. Its 42mm case elegantly balances boldness and refinement, while the meticulously crafted dial, adorned with classic Arabic numerals and blued steel hands, pays homage to the brand’s historic Minerva heritage. Designed for those who appreciate both technical precision and timeless style, this piece is a true collector’s gem.', 10000.00, 19, 'assets/images/products/montblac/prod_6963e18933a638.76632347_montblanc1.png', '2026-01-12 01:43:17', '2026-01-12 02:37:16'),
+('W007', 'MontBlac', 'Iced Sea Automatic Date 0 Oxygen', 'Inspired by the pristine and uncharted waters of alpine lakes, the Iced Sea Automatic features a unique oxygen-free case, ensuring longevity and clarity even in extreme conditions. The watch’s luminous markers and robust bezel combine sportiness with sophistication, making it an ideal companion for adventurous souls who refuse to compromise elegance for performance.', 9000.00, 20, 'assets/images/products/montblac/prod_6963e192457824.56445161_montblanc2.png', '2026-01-12 01:43:17', '2026-01-12 01:44:50'),
+('W008', 'MontBlac', 'Star Legacy Small Second 36 mm', 'This refined 36mm dress watch encapsulates the essence of understated luxury. The delicately crafted small-seconds subdial adds subtle complexity to its otherwise minimalist white dial, while the polished stainless steel case reflects light with graceful sophistication. A perfect companion for formal occasions or quiet moments of distinction.', 8000.00, 20, 'assets/images/products/montblac/prod_6963e19f0e20a9.40448904_montblanc3.png', '2026-01-12 01:43:17', '2026-01-12 01:45:03'),
+('W009', 'MontBlac', 'Star Legacy Orbis Terrarum', 'The Star Legacy Orbis Terrarum is a celebration of world exploration and precision engineering. Its intricate globe dial presents a sophisticated world-time complication that allows the wearer to instantly read the time across all 24 time zones. Encased in polished stainless steel and accented with elegant guilloché patterns, this timepiece is as much a conversation piece as it is a practical instrument for the cosmopolitan traveler.', 10000.00, 20, 'assets/images/products/montblac/prod_6963e1b21ae776.15922123_montblanc4.png', '2026-01-12 01:43:17', '2026-01-12 01:45:22'),
+('W010', 'MontBlac', 'Tradition Automatic Date 40 mm', 'A quintessential automatic watch that marries classical aesthetics with modern reliability. Its 40mm case houses a perfectly balanced dial, featuring subtle markers and a practical date window. Whether for boardroom meetings or casual elegance, the Tradition Automatic embodies Montblanc’s commitment to timeless design and exceptional craftsmanship.', 7500.00, 19, 'assets/images/products/montblac/prod_6963e1bf365cc0.58201852_montblanc5.png', '2026-01-12 01:43:17', '2026-01-12 01:50:55'),
+('W011', 'Patek Philippe', 'Grand Complications 5303R-001', 'The Grand Complications 5303R-001 is a breathtaking display of mechanical artistry. Its skeletonized dial offers a window into the intricate movement beneath, allowing admirers to witness the harmony of gears, springs, and levers in motion. Crafted for connoisseurs of haute horology, this piece exemplifies Patek Philippe’s mastery of both technical complexity and aesthetic perfection.', 10000.00, 19, 'assets/images/products/patek_philippe/prod_6963e1d5e975d0.33714786_patek1.png', '2026-01-12 01:43:17', '2026-01-12 03:16:30'),
+('W012', 'Patek Philippe', 'Golden Ellipse 5738R-001', 'Revered for its mathematically inspired elliptical case, the Golden Ellipse 5738R-001 blends classical design with a modern sensibility. The rose-gold case gleams softly under light, while the minimalistic dial reflects a commitment to purity and elegance. This watch is an ideal expression of quiet sophistication, suited for the wearer who values both style and intellectual refinement.', 9500.00, 20, 'assets/images/products/patek_philippe/prod_6963e248f25999.54140222_patek2.png', '2026-01-12 01:43:17', '2026-01-12 01:47:52'),
+('W013', 'Patek Philippe', 'Grand Complications 5303R-001', 'This annual calendar timepiece combines functional complexity with aesthetic refinement. Its polished case and harmonious dial design present a sophisticated statement for the discerning wearer.', 9000.00, 19, 'assets/images/products/patek_philippe/prod_6963e254beabc4.93907413_patek3.png', '2026-01-12 01:43:17', '2026-01-12 01:50:55'),
+('W014', 'Patek Philippe', 'Complications 5205R-001', 'A masterclass in functionality and beauty, the Complications 5205R-001 presents an annual calendar complication with effortless elegance. Its polished case, delicate dial layout, and intricately finished hands make it a statement piece that seamlessly combines mechanical ingenuity with refined aesthetics.', 8500.00, 20, 'assets/images/products/patek_philippe/prod_6963e25f528d82.05130041_patek4.png', '2026-01-12 01:43:17', '2026-01-12 01:48:15'),
+('W015', 'Patek Philippe', 'Calatrava 5227J-001', 'The Calatrava 5227J-001 epitomizes minimalist elegance. Its clean dial, slender hands, and classic case design pay homage to Patek Philippe’s timeless philosophy of restraint and refinement. A watch that complements every attire, it stands as a symbol of understated luxury and lasting value.', 9500.00, 18, 'assets/images/products/patek_philippe/prod_6963e26b433f28.38845350_patek5.png', '2026-01-12 01:43:17', '2026-01-12 03:30:14'),
+('W016', 'Rolex', 'Explorer I 36 14270 1996', 'Designed for adventurers and explorers, the Explorer I is celebrated for its robustness, clarity, and legendary reliability. Its 36mm case offers perfect proportions for everyday wear, while the simple, luminous dial ensures maximum legibility under all conditions. A classic Rolex icon that has inspired generations of collectors and enthusiasts alike.', 10000.00, 20, 'assets/images/products/rolex/prod_6963e27877da50.94140928_rolex1.png', '2026-01-12 01:43:17', '2026-01-12 01:48:40'),
+('W017', 'Rolex', 'Datejust 26 Two Tone Yellow Champagne Crystal Flak', 'The Datejust 26 exudes timeless glamour, combining the warmth of yellow gold with the sparkle of a diamond-set bezel. Its champagne dial glows with understated elegance, making it an ideal watch for those who appreciate luxury in every detail. Compact yet commanding, this piece perfectly marries sophistication with everyday versatility.', 10000.00, 16, 'assets/images/products/rolex/prod_6963e280ee0d37.58108795_rolex2.png', '2026-01-12 01:43:17', '2026-01-12 03:41:58'),
+('W018', 'Rolex', 'Air-King 116900 2018', 'A tribute to Rolex’s aviation heritage, the Air-King 116900 features a bold, high-contrast dial and a robust Oystersteel case. Its precision and sporty aesthetic make it a dynamic choice for individuals who embrace adventure without compromising style.', 9500.00, 17, 'assets/images/products/rolex/prod_6963e286ec53f1.07524692_rolex3.png', '2026-01-12 01:43:17', '2026-01-12 03:35:14'),
+('W019', 'Rolex', 'Datejust 28 Two Tone Yellow Gold White Roman Dial', 'An elegant blend of classic and contemporary design, this 28mm Datejust features a two-tone case and pristine white dial adorned with Roman numerals. It’s a refined and versatile timepiece that elevates both casual and formal ensembles.', 9000.00, 17, 'assets/images/products/rolex/prod_6963e28c723d16.80910908_rolex4.png', '2026-01-12 01:43:17', '2026-01-12 13:40:34'),
+('W020', 'Rolex', 'Yacht-Master 40 Everose Black Dial 116655 2017', 'The Yacht-Master 40 in Everose gold epitomizes the perfect union of sport and luxury. Its bold black dial contrasts beautifully with the warm glow of Everose, while its Oysterflex bracelet ensures comfort and durability. Designed for maritime elegance and refined adventures, it is a statement of both performance and prestige.', 10000.00, 20, 'assets/images/products/rolex/prod_6964444edd3fb2.27199305_rolex5.png', '2026-01-12 08:46:06', '2026-01-12 08:46:06');
 
 --
 -- Indexes for dumped tables
@@ -183,24 +305,34 @@ ALTER TABLE `cartitems`
 -- Indexes for table `orders`
 --
 ALTER TABLE `orders`
-  ADD PRIMARY KEY (`order_id`),
+  ADD PRIMARY KEY (`order_id`) USING BTREE,
   ADD KEY `fk_orders_user` (`user_id`),
-  ADD KEY `fk_orders_watch` (`watch_id`),
   ADD KEY `idx_orders_order_date` (`order_date`);
+
+--
+-- Indexes for table `order_items`
+--
+ALTER TABLE `order_items`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `order_id` (`order_id`),
+  ADD KEY `watch_id` (`watch_id`);
 
 --
 -- Indexes for table `payment`
 --
 ALTER TABLE `payment`
-  ADD PRIMARY KEY (`payment_id`),
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `payment_id` (`payment_id`),
+  ADD UNIQUE KEY `payment_id_2` (`payment_id`),
   ADD KEY `fk_payment_order` (`order_id`);
 
 --
 -- Indexes for table `paypalpayment`
 --
 ALTER TABLE `paypalpayment`
-  ADD PRIMARY KEY (`paypal_transaction_id`),
-  ADD UNIQUE KEY `payment_id` (`payment_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `paypal_transaction_id` (`paypal_transaction_id`),
+  ADD KEY `payment_id` (`payment_id`);
 
 --
 -- Indexes for table `users`
@@ -216,6 +348,28 @@ ALTER TABLE `watch`
   ADD PRIMARY KEY (`watch_id`);
 
 --
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `order_items`
+--
+ALTER TABLE `order_items`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+
+--
+-- AUTO_INCREMENT for table `payment`
+--
+ALTER TABLE `payment`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
+
+--
+-- AUTO_INCREMENT for table `paypalpayment`
+--
+ALTER TABLE `paypalpayment`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+
+--
 -- Constraints for dumped tables
 --
 
@@ -223,33 +377,39 @@ ALTER TABLE `watch`
 -- Constraints for table `cart`
 --
 ALTER TABLE `cart`
-  ADD CONSTRAINT `fk_cart_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_cart_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `cartitems`
 --
 ALTER TABLE `cartitems`
-  ADD CONSTRAINT `fk_cartitems_cart` FOREIGN KEY (`cart_id`) REFERENCES `cart` (`cart_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_cartitems_watch` FOREIGN KEY (`watch_id`) REFERENCES `watch` (`watch_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_cartitems_cart` FOREIGN KEY (`cart_id`) REFERENCES `cart` (`cart_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_cartitems_watch` FOREIGN KEY (`watch_id`) REFERENCES `watch` (`watch_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `orders`
 --
 ALTER TABLE `orders`
-  ADD CONSTRAINT `fk_orders_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_orders_watch` FOREIGN KEY (`watch_id`) REFERENCES `watch` (`watch_id`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_orders_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `order_items`
+--
+ALTER TABLE `order_items`
+  ADD CONSTRAINT `fk_order_items_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_order_items_watch` FOREIGN KEY (`watch_id`) REFERENCES `watch` (`watch_id`);
 
 --
 -- Constraints for table `payment`
 --
 ALTER TABLE `payment`
-  ADD CONSTRAINT `fk_payment_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_payment_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`);
 
 --
 -- Constraints for table `paypalpayment`
 --
 ALTER TABLE `paypalpayment`
-  ADD CONSTRAINT `fk_paypalpayment_payment` FOREIGN KEY (`payment_id`) REFERENCES `payment` (`payment_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_paypalpayment_payment` FOREIGN KEY (`payment_id`) REFERENCES `payment` (`payment_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

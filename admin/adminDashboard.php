@@ -82,7 +82,7 @@ if ($resTop) {
 
 function moneyFormat(float $value): string
 {
-    return '₱' . number_format($value, 2, '.', ',');
+    return '$' . number_format($value, 2, '.', ',');
 }
 ?>
 <!DOCTYPE html>
