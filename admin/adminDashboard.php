@@ -99,14 +99,9 @@ if ($resTop) {
     }
 }
 
-<<<<<<< HEAD
 function moneyFormat(float $value): string
 {
     return '$' . number_format($value, 2, '.', ',');
-=======
-function moneyFormat(float $value): string {
-    return '₱' . number_format($value, 2, '.', ',');
->>>>>>> origin/main
 }
 ?>
 
