@@ -1,3 +1,13 @@
+<?php 
+session_start();
+
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header("Location: ../auth/login.php");
+    exit();
+}
+
+?>
+
 <!doctype html>
 <html lang="en">
 
@@ -155,6 +165,7 @@
                         (SELECT COUNT(*) FROM orders o WHERE o.user_id = u.user_id) AS order_count,
                         (SELECT COALESCE(SUM(total_amount),0) FROM orders o WHERE o.user_id = u.user_id) AS total_spent
                     FROM users u
+                    WHERE role  = 'user'
                     ORDER BY u.created_at DESC";
             $res = $conn->query($sql);
             if ($res) {

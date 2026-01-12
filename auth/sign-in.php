@@ -1,19 +1,25 @@
 <?php
 session_start();
-include "../config/connect.php";
+require_once "../config/connect.php";
 
-$error = ""; // store error messages
+$error = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $email = trim($_POST['email']);
     $password = $_POST['password'];
 
-    // Get user by email
     $stmt = $conn->prepare(
-        "SELECT user_id, fname, lname, password, status
+        "SELECT 
+            user_id,
+            fname,
+            lname,
+            password,
+            status,
+            role
          FROM users
-         WHERE email = ?"
+         WHERE email = ?
+         LIMIT 1"
     );
 
     if (!$stmt) {
@@ -24,30 +30,30 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt->execute();
     $result = $stmt->get_result();
 
-    // Check if user exists
     if ($result->num_rows === 1) {
+
         $user = $result->fetch_assoc();
 
-        // Verify password
-        if (password_verify($password, $user['password'])) {
-
-            // Check account status
-            if ($user['status'] !== 'active') {
-                $error = "Your account is inactive. Contact admin.";
-            } else {
-                // Store session data
-                session_regenerate_id(true);
-                $_SESSION['user_id'] = $user['user_id'];
-                $_SESSION['fname']   = $user['fname'];
-                $_SESSION['lname']   = $user['lname'];
-
-                // Redirect on success
-                header("Location: ../public/index.php");
-                exit();
-            }
-
-        } else {
+        if (!password_verify($password, $user['password'])) {
             $error = "Invalid email or password.";
+        }
+        elseif ($user['status'] !== 'active') {
+            $error = "Your account is inactive. Contact admin.";
+        }
+        else {
+            session_regenerate_id(true);
+
+            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['fname']   = $user['fname'];
+            $_SESSION['lname']   = $user['lname'];
+            $_SESSION['role']    = $user['role'];
+
+            if ($user['role'] === 'admin') {
+                header("Location: ../admin/adminDashboard.php");
+            } else {
+                header("Location: ../public/index.php");
+            }
+            exit();
         }
 
     } else {
