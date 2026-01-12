@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header("Location: ../auth/login.php");
+    exit();
+}
+
 require_once __DIR__ . '/../config/connect.php';
 
 $overview = [
@@ -13,7 +20,6 @@ $overview = [
     'pending' => 0,
 ];
 
-// Revenue, total orders, average order value
 $resOrders = $conn->query('SELECT COALESCE(SUM(total_amount),0) AS revenue, COUNT(*) AS orders, COALESCE(AVG(total_amount),0) AS avg_order FROM orders');
 if ($resOrders) {
     $row = $resOrders->fetch_assoc();
@@ -22,7 +28,6 @@ if ($resOrders) {
     $overview['avg_order'] = (float)($row['avg_order'] ?? 0);
 }
 
-// Customers
 $resUsers = $conn->query("SELECT COUNT(*) AS total, SUM(status = 'active') AS active FROM users");
 if ($resUsers) {
     $row = $resUsers->fetch_assoc();
@@ -30,7 +35,6 @@ if ($resUsers) {
     $overview['active_customers'] = (int)($row['active'] ?? 0);
 }
 
-// Inventory
 $resStock = $conn->query('SELECT COALESCE(SUM(stock_quantity),0) AS total_stock, SUM(stock_quantity <= 5) AS low_stock FROM watch');
 if ($resStock) {
     $row = $resStock->fetch_assoc();
@@ -38,7 +42,6 @@ if ($resStock) {
     $overview['low_stock'] = (int)($row['low_stock'] ?? 0);
 }
 
-// Payment status counts
 $resPayments = $conn->query('SELECT LOWER(payment_status) AS status, COUNT(*) AS cnt FROM payment GROUP BY LOWER(payment_status)');
 if ($resPayments) {
     while ($row = $resPayments->fetch_assoc()) {
@@ -52,13 +55,27 @@ if ($resPayments) {
     }
 }
 
-// Recent orders
 $recentOrders = [];
-$sqlRecent = "SELECT o.order_id, o.user_name, o.user_email, o.product_name, o.total_amount, o.order_date, p.payment_status
-              FROM orders o
-              LEFT JOIN payment p ON p.order_id = o.order_id
-              ORDER BY o.order_date DESC
-              LIMIT 5";
+$sqlRecent = "
+    SELECT 
+        o.order_id, 
+        CONCAT(u.fname, ' ', u.lname) AS user_name,
+        u.email AS user_email,
+        o.total_amount, 
+        o.order_date,
+        CASE 
+            WHEN COUNT(oi.watch_id) = 1 THEN CONCAT(w.brand, ' ', w.model)
+            ELSE 'Multiple Items'
+        END AS product_name
+    FROM orders o
+    LEFT JOIN users u ON u.user_id = o.user_id
+    LEFT JOIN order_items oi ON oi.order_id = o.order_id
+    LEFT JOIN watch w ON w.watch_id = oi.watch_id
+    GROUP BY o.order_id, u.fname, u.lname, u.email, o.total_amount, o.order_date
+    ORDER BY o.order_date DESC
+    LIMIT 5
+";
+
 $resRecent = $conn->query($sqlRecent);
 if ($resRecent) {
     while ($row = $resRecent->fetch_assoc()) {
@@ -66,13 +83,15 @@ if ($resRecent) {
     }
 }
 
-// Top selling products
 $topProducts = [];
-$sqlTop = "SELECT o.product_name, o.watch_id, SUM(o.quantity) AS units_sold, SUM(o.total_amount) AS revenue
-           FROM orders o
-           GROUP BY o.watch_id, o.product_name
-           ORDER BY units_sold DESC, revenue DESC
-           LIMIT 3";
+$sqlTop = "
+    SELECT w.watch_id, CONCAT(w.brand, ' ', w.model) AS product_name, SUM(oi.quantity) AS units_sold, SUM(oi.quantity * oi.price_at_purchase) AS revenue
+    FROM order_items oi
+    JOIN watch w ON oi.watch_id = w.watch_id
+    GROUP BY w.watch_id, product_name
+    ORDER BY units_sold DESC, revenue DESC
+    LIMIT 3
+";
 $resTop = $conn->query($sqlTop);
 if ($resTop) {
     while ($row = $resTop->fetch_assoc()) {
@@ -80,11 +99,18 @@ if ($resTop) {
     }
 }
 
+<<<<<<< HEAD
 function moneyFormat(float $value): string
 {
     return '$' . number_format($value, 2, '.', ',');
+=======
+function moneyFormat(float $value): string {
+    return '₱' . number_format($value, 2, '.', ',');
+>>>>>>> origin/main
 }
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -185,23 +211,19 @@ function moneyFormat(float $value): string
 
 <body>
     <div class="d-flex flex-column flex-md-row">
-        <!-- Sidebar -->
         <?php include '../includes/adminSidebar.php'; ?>
 
-        <!-- Main Content -->
         <div class="flex-grow-1 w-100 p-3 p-sm-4 p-lg-5">
             <div class="d-md-none mb-3">
                 <button class="btn btn-outline-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebarOffcanvas" aria-controls="adminSidebarOffcanvas">
                     <i class="bi bi-list"></i> Menu
                 </button>
             </div>
-            <!-- Header -->
             <div class="mb-5">
                 <h1 class="display-5 fw-bold text-white">Dashboard</h1>
                 <p class="text-secondary">Welcome to your admin dashboard</p>
             </div>
 
-            <!-- Key Metrics Section -->
             <div class="row g-4 mb-5">
                 <div class="col-12 col-sm-6 col-lg-4">
                     <div class="dashboard-card h-100">
@@ -225,7 +247,6 @@ function moneyFormat(float $value): string
 
             </div>
 
-            <!-- Orders Section -->
             <div class="mb-5">
                 <h3 class="text-white text-uppercase fw-bold mb-4">Order Overview</h3>
                 <div class="row g-4 d-flex justify-content-start">
@@ -245,8 +266,6 @@ function moneyFormat(float $value): string
                 </div>
             </div>
 
-
-            <!-- Recent Orders -->
             <div class="mb-5">
                 <h3 class="text-white text-uppercase fw-bold mb-4">Recent Orders</h3>
                 <div class="card bg-dark border-0 shadow rounded-4">
@@ -301,7 +320,6 @@ function moneyFormat(float $value): string
                 </div>
             </div>
 
-            <!-- Top Products -->
             <div class="mb-5">
                 <h3 class="text-white text-uppercase fw-bold mb-4">Top Selling Products</h3>
                 <div class="row g-4">
