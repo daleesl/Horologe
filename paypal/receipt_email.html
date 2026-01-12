@@ -57,11 +57,10 @@
         }
 
         th, td {
-            text-align: left;
             padding: 2px 0;
         }
 
-        .price-col {
+        td:last-child {
             text-align: right;
         }
 
@@ -96,25 +95,6 @@
             margin-top: 20px;
             text-transform: uppercase;
         }
-
-        .btn-print {
-            display: block;
-            width: 100%;
-            background-color: #000;
-            color: #fff;
-            border: none;
-            padding: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
-            border-radius: 5px;
-        }
-
-        @media print {
-            body { background-color: #fff; }
-            .btn-print { display: none; }
-            .receipt-container { box-shadow: none; margin: 0; }
-        }
     </style>
 </head>
 <body>
@@ -125,7 +105,7 @@
     <div class="receipt-header">
         <h1 class="store-name">Horologe</h1>
         <div class="store-info">
-            {{date}} • {{time}}<br>
+            {{DATE}} • {{TIME}}<br>
             Official Purchase Receipt
         </div>
     </div>
@@ -138,32 +118,31 @@
 
     <!-- Customer Info -->
     <div class="customer-info">
-        <strong>Customer:</strong> {{customerName}}<br>
-        <strong>Email:</strong> {{email}}<br>
-        <strong>Contact:</strong> {{contact}}<br>
-        <strong>Address:</strong> {{address}}
+        <strong>Customer:</strong> {{CUSTOMER_NAME}}<br>
+        <strong>Email:</strong> {{EMAIL}}<br>
+        <strong>Address:</strong> {{ADDRESS}}
     </div>
 
     <!-- Items -->
     <table>
         <tbody>
-            {{itemsTable}}
+            {{ITEM_ROWS}}
         </tbody>
     </table>
 
     <div style="font-size: 1rem; margin-bottom: 10px;">
-        {{itemCount}} ITEM(S)
+        {{ITEM_COUNT}} ITEM(S)
     </div>
 
     <!-- Totals -->
     <div class="totals">
         <div class="total-row">
             <span>Payment Method</span>
-            <span>{{paymentMethod}}</span>
+            <span>{{PAYMENT_METHOD}}</span>
         </div>
         <div class="total-row final">
             <span>TOTAL</span>
-            <span>${{total}}</span>
+            <span>${{TOTAL}}</span>
         </div>
     </div>
 
@@ -172,8 +151,6 @@
         Thank you for choosing Horologe!<br>
         Your timepiece is being prepared.
     </div>
-
-    <button class="btn-print" onclick="window.print()">PRINT RECEIPT</button>
 
 </div>
 

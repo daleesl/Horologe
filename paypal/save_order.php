@@ -1,18 +1,7 @@
 <?php
+date_default_timezone_set('Asia/Manila');
 ob_start();
 header('Content-Type: application/json');
-
-register_shutdown_function(function () {
-    $error = error_get_last();
-    if ($error !== null) {
-        ob_end_clean();
-        echo json_encode([
-            'success' => false,
-            'error'   => 'PHP Fatal Error',
-            'details'=> $error
-        ]);
-    }
-});
 
 // ==================================================
 // ERROR LOGGING
@@ -30,7 +19,6 @@ require_once __DIR__ . '/../config/connect.php';
 require_once __DIR__ . '/../helpers/id_generator.php';
 
 if (!isset($conn) || !$conn) {
-    ob_end_clean();
     echo json_encode(['success' => false, 'error' => 'Database connection failed']);
     exit;
 }
@@ -40,7 +28,6 @@ if (!isset($conn) || !$conn) {
 // ==================================================
 $userID = $_SESSION['userID'] ?? $_SESSION['user_id'] ?? null;
 if (!$userID) {
-    ob_end_clean();
     echo json_encode(['success' => false, 'error' => 'User not logged in']);
     exit;
 }
@@ -50,7 +37,6 @@ if (!$userID) {
 // ==================================================
 $input = json_decode(file_get_contents('php://input'), true);
 if (!$input) {
-    ob_end_clean();
     echo json_encode(['success' => false, 'error' => 'Invalid JSON input']);
     exit;
 }
@@ -70,8 +56,7 @@ $paymentID     = trim($input['paymentID'] ?? '');
 $cart          = $input['cart'] ?? [];
 
 if (!$firstName || !$lastName || !$address || !$city || !$postalCode || !$email || !$paymentID || empty($cart)) {
-    ob_end_clean();
-    echo json_encode(['success' => false, 'error' => 'Missing required checkout data']);
+    echo json_encode(['success' => false, 'error' => 'Missing checkout data']);
     exit;
 }
 
@@ -80,11 +65,11 @@ if (!$firstName || !$lastName || !$address || !$city || !$postalCode || !$email 
 // ==================================================
 $total = 0;
 foreach ($cart as $item) {
-    $total += ((int)$item['quantity']) * ((float)$item['price']);
+    $total += $item['quantity'] * $item['price'];
 }
 
 // ==================================================
-// EMAIL FUNCTION
+// EMAIL FUNCTION (GMAIL SAFE CONFIG)
 // ==================================================
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -93,56 +78,75 @@ require_once __DIR__ . '/../PHPMailer/src/Exception.php';
 require_once __DIR__ . '/../PHPMailer/src/PHPMailer.php';
 require_once __DIR__ . '/../PHPMailer/src/SMTP.php';
 
-function sendReceiptEmail($toEmail, $name, $orderID, $cart, $total) {
+function sendReceiptEmail($toEmail, $name, $orderID, $cart, $total, $address, $paymentMethod)
+{
     try {
         $mail = new PHPMailer(true);
-        
-        // Server settings
+
+        // 🔍 DEBUG (writes to paypal_error.log)
+        $mail->SMTPDebug = 2;
+        $mail->Debugoutput = function ($str, $level) {
+            error_log("SMTP: $str");
+        };
+
+        // ✅ GMAIL SAFE SETTINGS
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'horologe@gmail.com';
-        $mail->Password   = 'wpvy vpbe elfe fgkc';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+        $mail->Username   = 'horologeofficial@gmail.com';
+        $mail->Password   = 'bfqd jlls oftv jsyp';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port       = 465;
 
-        // Recipients
-        $mail->setFrom('horologe@gmail.com', 'Horologe');
+        $mail->setFrom('horologeofficial@gmail.com', 'Horologe');
         $mail->addAddress($toEmail, $name);
 
-        // Content
         $mail->isHTML(true);
-        $mail->Subject = "Horologe Receipt – Order #$orderID";
+        $mail->Subject = "Horologe Receipt - Order #$orderID";
 
-        // Build email body
-        $emailBody = file_get_contents(__DIR__ . 'receipt_email.html');
+        // Load receipt template
+        $template = file_get_contents(__DIR__ . '/receipt_email.html');
 
         $itemsTable = '';
+        $itemCount  = 0;
+
         foreach ($cart as $item) {
             $itemTotal = $item['price'] * $item['quantity'];
+            $itemCount += $item['quantity'];
+
             $itemsTable .= "
                 <tr>
-                    <td>{$item['quantity']}</td>
-                    <td>{$item['name']}</td>
-                    <td>\$" . number_format($itemTotal, 2) . "</td>
+                    <td>{$item['quantity']}x {$item['name']}</td>
+                    <td>$" . number_format($itemTotal, 2) . "</td>
                 </tr>";
         }
 
-        $mail->Body = "
-            <h2>Order Receipt</h2>
-            <p>Thank you for your order, $name!</p>
-            <p><strong>Order #:</strong> $orderID</p>
-            <table border='1' cellpadding='10'>
-                <tr><th>Qty</th><th>Item</th><th>Total</th></tr>
-                $itemsTable
-            </table>
-            <p><strong>Total: \$" . number_format($total, 2) . "</strong></p>
-        ";
+        $mail->Body = str_replace(
+            [
+                '{{DATE}}', '{{TIME}}', '{{ORDER_ID}}', '{{CUSTOMER_NAME}}',
+                '{{EMAIL}}', '{{ADDRESS}}', '{{ITEM_ROWS}}', '{{ITEM_COUNT}}',
+                '{{PAYMENT_METHOD}}', '{{TOTAL}}'
+            ],
+            [
+                date('F d, Y'),
+                date('h:i A'),
+                $orderID,
+                $name,
+                $toEmail,
+                $address,
+                $itemsTable,
+                $itemCount,
+                $paymentMethod,
+                number_format($total, 2)
+            ],
+            $template
+        );
 
         $mail->send();
         return true;
+
     } catch (Exception $e) {
-        error_log("Email error: " . $e->getMessage());
+        error_log('MAIL ERROR: ' . $e->getMessage());
         return false;
     }
 }
@@ -156,160 +160,57 @@ $fullName = $firstName . ' ' . $lastName;
 try {
     $conn->begin_transaction();
 
-    // 1️⃣ ORDER HEADER
+    // ORDER
     $stmt = $conn->prepare("
         INSERT INTO orders (
             order_id, user_id, user_name, user_email,
             ship_full_name, ship_street_address, ship_city,
-            ship_postal_code, ship_province_state,
-            total_amount, payment_method, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            ship_province_state, ship_postal_code,
+            total_amount, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
     ");
 
     $stmt->bind_param(
-        "ssssssssssd",
-        $order_id,
-        $userID,
-        $fullName,
-        $email,
-        $fullName,
-        $address,
-        $city,
-        $postalCode,
-        $country,
-        $total,
-        $paymentMethod
+        "sssssssssd",
+        $order_id, $userID, $fullName, $email,
+        $fullName, $address, $city, $country, $postalCode, $total
     );
-
-    if (!$stmt->execute()) {
-        throw new Exception($stmt->error);
-    }
+    $stmt->execute();
     $stmt->close();
 
-    // 2️⃣ PAYMENT
+    // PAYMENT
     $paymentStmt = $conn->prepare("
         INSERT INTO payment (
             payment_id, payment_method, payment_status,
-            amount, order_id, created_at
-        ) VALUES (?, ?, 'COMPLETED', ?, ?, NOW())
+            payment_date, amount, order_id
+        ) VALUES (?, ?, 'COMPLETED', NOW(), ?, ?)
     ");
-
-    $paymentStmt->bind_param(
-        "ssds",
-        $paymentID,
-        $paymentMethod,
-        $total,
-        $order_id
-    );
-
-    if (!$paymentStmt->execute()) {
-        throw new Exception($paymentStmt->error);
-    }
+    $paymentStmt->bind_param("ssds", $paymentID, $paymentMethod, $total, $order_id);
+    $paymentStmt->execute();
     $paymentStmt->close();
-
-    // 3️⃣ ORDER ITEMS
-    $itemStmt = $conn->prepare("
-        INSERT INTO order_items (
-            order_id, watch_id, product_name,
-            product_description, quantity, price_at_purchase
-        ) VALUES (?, ?, ?, ?, ?, ?)
-    ");
-
-    $stockStmt = $conn->prepare("
-        UPDATE watch
-        SET stock_quantity = stock_quantity - ?
-        WHERE watch_id = ? AND stock_quantity >= ?
-    ");
-
-    foreach ($cart as $item) {
-        $watchId = $item['id'] ?? $item['watch_id'];
-        $qty     = (int)$item['quantity'];
-        $price   = (float)$item['price'];
-
-        $itemStmt->bind_param(
-            "ssssid",
-            $order_id,
-            $watchId,
-            $item['name'],
-            $item['description'],
-            $qty,
-            $price
-        );
-
-        if (!$itemStmt->execute()) {
-            throw new Exception($itemStmt->error);
-        }
-
-        $stockStmt->bind_param("isi", $qty, $watchId, $qty);
-        $stockStmt->execute();
-
-        if ($stockStmt->affected_rows === 0) {
-            throw new Exception("Insufficient stock for watch $watchId");
-        }
-    }
-
-    $itemStmt->close();
-    $stockStmt->close();
-
-    // Clear the user's cart as part of the same transaction so purchased items are removed
-    // Use the application's CartService which handles both session and DB carts
-    require_once __DIR__ . '/../classes/cart/CartService.php';
-    try {
-        $cartService = new CartService();
-        // clear() will delete DB cartitems when user is logged in or clear session cart
-        $cartService->clear();
-
-        // Additionally remove the cart header row to match normal checkout behavior
-        $delCart = $conn->prepare('DELETE FROM cart WHERE user_id = ?');
-        if ($delCart) {
-            $delCart->bind_param('s', $userID);
-            $delCart->execute();
-            $delCart->close();
-        }
-
-        // Clear any server-side session cart as safety
-        if (isset($_SESSION['cart'])) {
-            unset($_SESSION['cart']);
-        }
-    } catch (Throwable $ce) {
-        // If cart clearing fails, roll back and surface the error
-        $conn->rollback();
-        ob_end_clean();
-        error_log('Cart clear failed: ' . $ce->getMessage());
-        echo json_encode(['success' => false, 'error' => 'Failed to clear cart after purchase']);
-        exit;
-    }
 
     $conn->commit();
 
-    // Send email receipt after successful order
-    $emailSent = false;
-    if ($email) {
-        $emailSent = sendReceiptEmail($email, $fullName, $order_id, $cart, $total);
-    }
+    $emailSent = sendReceiptEmail(
+        $email,
+        $fullName,
+        $order_id,
+        $cart,
+        $total,
+        $address,
+        $paymentMethod
+    );
 
-    ob_end_clean();
     echo json_encode([
         'success'   => true,
         'order_id'  => $order_id,
         'total'     => $total,
         'emailSent' => $emailSent
     ]);
-    // Store order details in session so orderConfirmation.php can display them
-    $_SESSION['last_order'] = [
-        'order_id' => $order_id,
-        'items' => $cart,
-        'total' => $total
-    ];
-    
     exit;
 
 } catch (Throwable $e) {
     $conn->rollback();
-    ob_end_clean();
-    echo json_encode([
-        'success' => false,
-        'error'   => $e->getMessage()
-    ]);
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     exit;
 }
