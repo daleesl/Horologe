@@ -2,11 +2,7 @@
   $dbhost = "localhost";
 	$dbuser = "root";
 	$dbpass = "";
-<<<<<<< HEAD
-	$db = "horologe"; //database name
-=======
 	$db = "horologe";
->>>>>>> 41a342e (add ai integration but not final)
 
 	$conn = new mysqli($dbhost, $dbuser, $dbpass,$db) or die("Connect failed: %s\n". $conn -> error);
 
