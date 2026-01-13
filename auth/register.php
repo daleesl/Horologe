@@ -52,9 +52,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if (!empty($phone)) {
                 $phoneFormatted = '+63' . substr($phone, 1);
                 sendSMS(
-                    $phoneFormatted,
-                    "Welcome to Horologe, $fname! Your account is now active."
-                );                
+                    $user_id, $phoneFormatted, "Welcome to Horologe, $fname! Your account is now active."
+                );
                 file_put_contents(
                     __DIR__ . '/../logs/register_debug.log',
                     "[" . date('Y-m-d H:i:s') . "] sendSMS() about to run. Phone: $phone\n",
