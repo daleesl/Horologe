@@ -1,19 +1,20 @@
 <?php
-  $dbhost = "localhost";
-	$dbuser = "root";
-	$dbpass = "";
-	$db = "horologe";
+$dbhost = "localhost";
+$dbuser = "root";
+$dbpass = "";
+$dbname = "horologe"; // database name
 
-	$conn = new mysqli($dbhost, $dbuser, $dbpass,$db) or die("Connect failed: %s\n". $conn -> error);
+// Create connection
+$conn = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
 
-	if(!$conn)
-	{
-		die("Connection Failed. ". mysqli_connect_error());
-		echo "can't connect to database";
-	}
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 
-  function executeQuery($query){
-    $conn = $GLOBALS['conn'];
-    return mysqli_query($conn, $query);
-  }
+// Helper function to execute queries
+function executeQuery($query) {
+    global $conn;
+    return $conn->query($query);
+}
 ?>
