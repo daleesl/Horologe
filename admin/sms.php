@@ -63,7 +63,7 @@ $res = $stmt->get_result();
     </style>
 </head>
 
-<body class="bg-dark text-white">
+<body class="bg-black text-white">
     <div class="d-flex">
         <?php include '../includes/adminSidebar.php'; ?>
 
