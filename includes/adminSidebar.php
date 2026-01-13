@@ -30,6 +30,12 @@
                 ORDERS
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link text-white" href="sms.php">
+                <i class="bi bi-chat-dots me-2"></i> SMS INBOX
+            </a>
+        </li>
+
 
     </ul>
     <hr>

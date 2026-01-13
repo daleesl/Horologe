@@ -1,7 +1,7 @@
 <?php
 session_start();
 include "../config/connect.php";
-include "sms.php";
+include "../sms/sms.php";
 include "../helpers/id_generator.php";
 
 $error = ""; 
@@ -49,22 +49,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $stmt->execute();
 
-            // Optional SMS notification
             if (!empty($phone)) {
                 $phoneFormatted = '+63' . substr($phone, 1);
                 sendSMS(
                     $phoneFormatted,
-                    "Hello $fname! Your Horologe account has been successfully registered."
-                );
+                    "Welcome to Horologe, $fname! Your account is now active."
+                );                
+                file_put_contents(
+                    __DIR__ . '/../logs/register_debug.log',
+                    "[" . date('Y-m-d H:i:s') . "] sendSMS() about to run. Phone: $phone\n",
+                    FILE_APPEND
+                );                
             }
 
-            // AUTO-LOGIN
             session_regenerate_id(true);
             $_SESSION['user_id'] = $user_id;
             $_SESSION['fname']   = $fname;
             $_SESSION['lname']   = $lname;
 
-            // Redirect to index
             header("Location: ../public/index.php");
             exit();
 
