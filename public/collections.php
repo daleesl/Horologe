@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/connect.php';
 require_once __DIR__ . '/../classes/products/ProductService.php';
+require_once __DIR__ . '/../auth/roleGuard.php';
 
 $productService = new ProductService(new ProductRepository($conn));
 $products = $productService->getAllProducts();

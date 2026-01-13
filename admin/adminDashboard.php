@@ -7,6 +7,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 }
 
 require_once __DIR__ . '/../config/connect.php';
+require_once __DIR__ . '/../auth/roleGuard.php';
 
 $overview = [
     'revenue' => 0.0,
