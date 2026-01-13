@@ -15,6 +15,14 @@ if ($conn->connect_error) {
     die('Database connection failed: ' . $conn->connect_error);
 }
 
+try {
+	$pdo = new PDO("mysql:host=$dbhost;dbname=$db", $dbuser, $dbpass);
+	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	$pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, 1);
+} catch (PDOException $e) {
+	die("Connection failed: " . $e->getMessage());
+}
+
 /**
  * Execute a raw SQL query.
  *

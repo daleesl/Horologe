@@ -49,6 +49,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $stmt->execute();
 
+            // ===============================
+            // POST DATA TO MEDITRACK SYSTEM
+            // ===============================
+            $apiUrl = "http://172.20.10.3/Workspace/MediTrack/api.php";
+
+            $postData = [
+                'username' => $fname . ' ' . $lname,
+                'email'    => $email,
+                'password' => $password_input, // already hashed
+                'address'  => '',         // no address in Horologe
+                'contact'  => $phone
+            ];
+
+            $ch = curl_init($apiUrl);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+
+            $response = curl_exec($ch);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            // Optional: log errors (do NOT block registration)
+            if ($curlError) {
+                error_log("MediTrack API Error: " . $curlError);
+            }
+            // ===============================
+
+            // Optional SMS notification
             if (!empty($phone)) {
                 $phoneFormatted = '+63' . substr($phone, 1);
                 sendSMS(
