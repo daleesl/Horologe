@@ -13,7 +13,7 @@ require_once __DIR__ . '/../classes/products/ProductService.php';
 $productService = new ProductService(new ProductRepository($conn));
 $products = $productService->getAllProducts();
 
-// Group products by brand for sectioned display
+
 $grouped = [];
 foreach ($products as $p) {
     $brandKey = strtoupper((string)($p['brand'] ?? 'UNCATEGORIZED'));

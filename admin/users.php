@@ -137,7 +137,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                 $userStats['suspended'] = (int)($row['suspended'] ?? 0);
             }
             ?>
-            <!-- Stats Cards -->
+    
             <div class="row g-3 mb-4">
 
                 <!-- Active Users -->

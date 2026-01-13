@@ -94,7 +94,6 @@ class CartRepository
 
     public function updateCartTotal(string $cartId): void
     {
-        // Total is derived on the fly; cart table no longer stores it.
         $stmt = $this->conn->prepare('SELECT COALESCE(SUM(subtotal), 0) AS total FROM cartitems WHERE cart_id = ?');
         $stmt->bind_param('s', $cartId);
         $stmt->execute();
