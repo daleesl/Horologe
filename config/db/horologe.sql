@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 11, 2026 at 06:00 AM
+-- Generation Time: Jan 12, 2026 at 04:14 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -33,14 +33,6 @@ CREATE TABLE `cart` (
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `cart`
---
-
-INSERT INTO `cart` (`cart_id`, `user_id`, `created_at`) VALUES
-('cart_6962408579372', 'USR004', '2026-01-10 20:05:25'),
-('cart_69632579dfd40', 'USR003', '2026-01-11 12:22:17');
-
 -- --------------------------------------------------------
 
 --
@@ -55,14 +47,6 @@ CREATE TABLE `cartitems` (
   `subtotal` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `cartitems`
---
-
-INSERT INTO `cartitems` (`cart_item_id`, `watch_id`, `cart_id`, `quantity`, `subtotal`) VALUES
-('ci_6962408a59adf', 'W001', 'cart_6962408579372', 1, 10000.00),
-('ci_69624095e21c2', 'W002', 'cart_6962408579372', 1, 9500.00);
-
 -- --------------------------------------------------------
 
 --
@@ -76,45 +60,13 @@ CREATE TABLE `orders` (
   `user_id` varchar(50) NOT NULL,
   `user_name` varchar(120) NOT NULL,
   `user_email` varchar(120) NOT NULL,
-  `user_phone` varchar(20) DEFAULT NULL,
-  `watch_id` varchar(50) DEFAULT NULL,
-  `product_name` varchar(150) DEFAULT NULL,
-  `product_description` text DEFAULT NULL,
-  `quantity` int(11) DEFAULT 1,
-  `price_at_purchase` decimal(10,2) DEFAULT NULL,
   `ship_full_name` varchar(150) NOT NULL,
-  `ship_phone_number` varchar(20) DEFAULT NULL,
   `ship_street_address` varchar(255) NOT NULL,
   `ship_city` varchar(100) NOT NULL,
   `ship_province_state` varchar(100) DEFAULT NULL,
   `ship_postal_code` varchar(20) NOT NULL,
-  `payment_method` varchar(50) NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `orders`
---
-
-INSERT INTO `orders` (`order_id`, `order_date`, `total_amount`, `user_id`, `user_name`, `user_email`, `user_phone`, `watch_id`, `product_name`, `product_description`, `quantity`, `price_at_purchase`, `ship_full_name`, `ship_phone_number`, `ship_street_address`, `ship_city`, `ship_province_state`, `ship_postal_code`, `payment_method`, `created_at`, `updated_at`) VALUES
-('ORD696224c16aa98', '2026-01-10 18:06:57', 10000.00, 'USR003', 'John Jester Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'John Jester Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-10 18:06:57', '2026-01-10 18:06:57'),
-('ORD6962256a7c705', '2026-01-10 18:09:46', 10000.00, 'USR003', 'John Jester Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'John Jester Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-10 18:09:46', '2026-01-10 18:09:46'),
-('ORD69623ce3a6145', '2026-01-10 19:49:55', 9500.00, 'USR003', 'John Jester Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'John Jester Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-10 19:49:55', '2026-01-10 19:49:55'),
-('ORD69623d25e8d84', '2026-01-10 19:51:01', 9500.00, 'USR003', 'John Jester Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'John Jester Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-10 19:51:01', '2026-01-10 19:51:01'),
-('ORD69623df2c543f', '2026-01-10 19:54:26', 9500.00, 'USR003', 'John Jester Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'John Jester Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-10 19:54:26', '2026-01-10 19:54:26'),
-('ORD69623f449e7c6', '2026-01-10 20:00:04', 9500.00, 'USR003', 'John Jester Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'John Jester Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-10 20:00:04', '2026-01-10 20:00:04'),
-('ORD69623fce941eb', '2026-01-10 20:02:22', 10000.00, 'USR003', 'Kiko Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'Kiko Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-10 20:02:22', '2026-01-10 20:02:22'),
-('ORD696241db8601e', '2026-01-10 20:11:07', 10000.00, 'USR003', 'John Jester Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'John Jester Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-10 20:11:07', '2026-01-10 20:11:07'),
-('ORD69624dd31afd8', '2026-01-10 21:02:11', 9500.00, 'USR003', 'John Jester Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'John Jester Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-10 21:02:11', '2026-01-10 21:02:11'),
-('ORD696250af78bea', '2026-01-10 21:14:23', 123123.00, 'USR003', 'John Jester Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'John Jester Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-10 21:14:23', '2026-01-10 21:14:23'),
-('ORD696250e3227fe', '2026-01-10 21:15:15', 133123.00, 'USR003', 'John Jester Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'John Jester Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-10 21:15:15', '2026-01-10 21:15:15'),
-('ORD6962520fc4d58', '2026-01-10 21:20:15', 123123.00, 'USR003', 'John Jester Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'John Jester Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-10 21:20:15', '2026-01-10 21:20:15'),
-('ORD69628000df8d9', '2026-01-11 00:36:16', 123123.00, 'USR003', 'John Jester Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'John Jester Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-11 00:36:16', '2026-01-11 00:36:16'),
-('ORD69628001', '2026-01-11 00:55:03', 10000.00, 'USR003', 'Michelle Olfindo', 'michelle@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'Michelle Olfindo', NULL, '2222', 'Calamba', 'Philippines', '123', '0', '2026-01-11 00:55:03', '2026-01-11 00:55:03'),
-('ORD69628002', '2026-01-11 00:59:59', 133123.00, 'USR003', 'John Jester Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'John Jester Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-11 00:59:59', '2026-01-11 00:59:59'),
-('ORD69628003', '2026-01-11 01:38:18', 10000.00, 'USR003', 'John Jester Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'John Jester Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-11 01:38:18', '2026-01-11 01:38:18'),
-('ORD69628004', '2026-01-11 12:22:04', 10000.00, 'USR003', 'John Jester Luciriaga', 'johnjesterluciriaga4@gmail.com', NULL, NULL, NULL, NULL, 1, NULL, 'John Jester Luciriaga', NULL, '1111', 'Calamba', 'Philippines', '123', '0', '2026-01-11 12:22:04', '2026-01-11 12:22:04');
 
 -- --------------------------------------------------------
 
@@ -132,31 +84,6 @@ CREATE TABLE `order_items` (
   `price_at_purchase` decimal(10,2) NOT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `order_items`
---
-
-INSERT INTO `order_items` (`id`, `order_id`, `watch_id`, `product_name`, `product_description`, `quantity`, `price_at_purchase`, `created_at`) VALUES
-(1, 'ORD696224c16aa98', 'W001', 'Rolex Yacht-Master 40 Everose Black Dial 116655 2017', '', 1, 10000.00, '2026-01-10 18:06:57'),
-(2, 'ORD6962256a7c705', 'W001', 'Rolex Yacht-Master 40 Everose Black Dial 116655 2017', NULL, 1, 10000.00, '2026-01-10 18:09:46'),
-(3, 'ORD69623ce3a6145', 'W002', 'Cartier Americane Rose Gold W2607456', 'A graceful expression of Cartier\'s signature elegance, this Tank Américaine in rose gold features a sleek rectangular case and classic Roman numerals. Its refined profile and polished finish make it a quintessential dress watch for those who appreciate subtle sophistication.', 1, 9500.00, '2026-01-10 19:49:55'),
-(4, 'ORD69623d25e8d84', 'W002', 'Cartier Americane Rose Gold W2607456', 'A graceful expression of Cartier\'s signature elegance, this Tank Américaine in rose gold features a sleek rectangular case and classic Roman numerals. Its refined profile and polished finish make it a quintessential dress watch for those who appreciate subtle sophistication.', 1, 9500.00, '2026-01-10 19:51:01'),
-(5, 'ORD69623df2c543f', 'W002', 'Cartier Americane Rose Gold W2607456', 'A graceful expression of Cartier\'s signature elegance, this Tank Américaine in rose gold features a sleek rectangular case and classic Roman numerals. Its refined profile and polished finish make it a quintessential dress watch for those who appreciate subtle sophistication.', 1, 9500.00, '2026-01-10 19:54:26'),
-(6, 'ORD69623f449e7c6', 'W002', 'Cartier Americane Rose Gold W2607456', 'A graceful expression of Cartier\'s signature elegance, this Tank Américaine in rose gold features a sleek rectangular case and classic Roman numerals. Its refined profile and polished finish make it a quintessential dress watch for those who appreciate subtle sophistication.', 1, 9500.00, '2026-01-10 20:00:04'),
-(7, 'ORD69623fce941eb', 'W001', 'Rolex Yacht-Master 40 Everose Black Dial 116655 2017', 'The Yacht-Master 40 in Everose gold epitomizes the perfect union of sport and luxury. Its bold black dial contrasts beautifully with the warm glow of Everose, while its Oysterflex bracelet ensures comfort and durability. Designed for maritime elegance and refined adventures, it is a statement of both performance and prestige.', 1, 10000.00, '2026-01-10 20:02:22'),
-(8, 'ORD696241db8601e', 'W001', 'Rolex Yacht-Master 40 Everose Black Dial 116655 2017', 'The Yacht-Master 40 in Everose gold epitomizes the perfect union of sport and luxury. Its bold black dial contrasts beautifully with the warm glow of Everose, while its Oysterflex bracelet ensures comfort and durability. Designed for maritime elegance and refined adventures, it is a statement of both performance and prestige.', 1, 10000.00, '2026-01-10 20:11:07'),
-(9, 'ORD69624dd31afd8', 'W002', 'Cartier Americane Rose Gold W2607456', 'A graceful expression of Cartier\'s signature elegance, this Tank Américaine in rose gold features a sleek rectangular case and classic Roman numerals. Its refined profile and polished finish make it a quintessential dress watch for those who appreciate subtle sophistication.', 1, 9500.00, '2026-01-10 21:02:11'),
-(10, 'ORD696250af78bea', 'W003', 'Rolex test', 'asdadw', 1, 123123.00, '2026-01-10 21:14:23'),
-(11, 'ORD696250e3227fe', 'W001', 'Rolex Yacht-Master 40 Everose Black Dial 116655 2017', 'The Yacht-Master 40 in Everose gold epitomizes the perfect union of sport and luxury. Its bold black dial contrasts beautifully with the warm glow of Everose, while its Oysterflex bracelet ensures comfort and durability. Designed for maritime elegance and refined adventures, it is a statement of both performance and prestige.', 1, 10000.00, '2026-01-10 21:15:15'),
-(12, 'ORD696250e3227fe', 'W003', 'Rolex test', 'asdadw', 1, 123123.00, '2026-01-10 21:15:15'),
-(13, 'ORD6962520fc4d58', 'W003', 'Rolex test', 'asdadw', 1, 123123.00, '2026-01-10 21:20:15'),
-(14, 'ORD69628000df8d9', 'W003', 'Rolex test', 'asdadw', 1, 123123.00, '2026-01-11 00:36:16'),
-(15, 'ORD69628001', 'W001', 'Rolex Yacht-Master 40 Everose Black Dial 116655 2017', 'The Yacht-Master 40 in Everose gold epitomizes the perfect union of sport and luxury. Its bold black dial contrasts beautifully with the warm glow of Everose, while its Oysterflex bracelet ensures comfort and durability. Designed for maritime elegance and refined adventures, it is a statement of both performance and prestige.', 1, 10000.00, '2026-01-11 00:55:03'),
-(16, 'ORD69628002', 'W001', 'Rolex Yacht-Master 40 Everose Black Dial 116655 2017', 'The Yacht-Master 40 in Everose gold epitomizes the perfect union of sport and luxury. Its bold black dial contrasts beautifully with the warm glow of Everose, while its Oysterflex bracelet ensures comfort and durability. Designed for maritime elegance and refined adventures, it is a statement of both performance and prestige.', 1, 10000.00, '2026-01-11 00:59:59'),
-(17, 'ORD69628002', 'W003', 'Rolex test', 'asdadw', 1, 123123.00, '2026-01-11 00:59:59'),
-(18, 'ORD69628003', 'W001', 'Rolex Yacht-Master 40 Everose Black Dial 116655 2017', 'The Yacht-Master 40 in Everose gold epitomizes the perfect union of sport and luxury. Its bold black dial contrasts beautifully with the warm glow of Everose, while its Oysterflex bracelet ensures comfort and durability. Designed for maritime elegance and refined adventures, it is a statement of both performance and prestige.', 1, 10000.00, '2026-01-11 01:38:18'),
-(19, 'ORD69628004', 'W001', 'Rolex Yacht-Master 40 Everose Black Dial 116655 2017', 'The Yacht-Master 40 in Everose gold epitomizes the perfect union of sport and luxury. Its bold black dial contrasts beautifully with the warm glow of Everose, while its Oysterflex bracelet ensures comfort and durability. Designed for maritime elegance and refined adventures, it is a statement of both performance and prestige.', 1, 10000.00, '2026-01-11 12:22:04');
 
 -- --------------------------------------------------------
 
@@ -176,70 +103,6 @@ CREATE TABLE `payment` (
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `payment`
---
-
-INSERT INTO `payment` (`id`, `payment_id`, `payment_method`, `payment_status`, `payment_date`, `amount`, `order_id`, `created_at`, `updated_at`) VALUES
-(1, 'PAY-1768036894-9400', 'PAYPAL', 'COMPLETED', '2026-01-10 17:21:45', 10000.00, NULL, '2026-01-10 17:21:34', '2026-01-10 17:21:45'),
-(3, 'PAY-1768037003-1127', 'PAYPAL', 'COMPLETED', '2026-01-10 17:23:35', 10000.00, NULL, '2026-01-10 17:23:23', '2026-01-10 17:23:35'),
-(5, 'PAY-1768037140-6077', 'PAYPAL', 'COMPLETED', '2026-01-10 17:25:52', 10000.00, NULL, '2026-01-10 17:25:40', '2026-01-10 17:25:52'),
-(6, 'PAY-1768037182-8874', 'PAYPAL', 'COMPLETED', '2026-01-10 17:26:32', 10000.00, NULL, '2026-01-10 17:26:22', '2026-01-10 17:26:32'),
-(7, 'PAY-1768037317-5467', 'PAYPAL', 'PENDING', '2026-01-10 17:28:37', 10000.00, NULL, '2026-01-10 17:28:37', '2026-01-10 17:28:37'),
-(8, 'PAY-1768037333-6044', 'PAYPAL', 'PENDING', '2026-01-10 17:28:53', 10000.00, NULL, '2026-01-10 17:28:53', '2026-01-10 17:28:53'),
-(9, 'PAY-1768037346-6305', 'PAYPAL', 'COMPLETED', '2026-01-10 17:29:29', 10000.00, NULL, '2026-01-10 17:29:06', '2026-01-10 17:29:29'),
-(10, 'PAY-1768037989-2313', 'PAYPAL', 'COMPLETED', '2026-01-10 17:40:01', 10000.00, NULL, '2026-01-10 17:39:49', '2026-01-10 17:40:01'),
-(12, 'PAY-1768039107-9386', 'PAYPAL', 'COMPLETED', '2026-01-10 17:59:41', 10000.00, NULL, '2026-01-10 17:58:27', '2026-01-10 17:59:41'),
-(13, 'PAY-1768039428-2102', 'PAYPAL', 'COMPLETED', '2026-01-10 18:03:59', 10000.00, NULL, '2026-01-10 18:03:48', '2026-01-10 18:03:59'),
-(14, 'PAY-1768039486-6382', 'PAYPAL', 'COMPLETED', '2026-01-10 18:04:59', 10000.00, NULL, '2026-01-10 18:04:46', '2026-01-10 18:04:59'),
-(15, 'PAY-1768039606-1466', 'PAYPAL', 'COMPLETED', '2026-01-10 18:06:57', 10000.00, NULL, '2026-01-10 18:06:46', '2026-01-10 18:06:57'),
-(16, '8N399668TH4462343', 'PAYPAL', 'COMPLETED', '2026-01-10 18:06:57', 10000.00, 'ORD696224c16aa98', '2026-01-10 18:06:57', '2026-01-10 18:06:57'),
-(17, 'PAY-1768039774-1469', 'PAYPAL', 'COMPLETED', '2026-01-10 18:09:46', 10000.00, NULL, '2026-01-10 18:09:34', '2026-01-10 18:09:46'),
-(18, '8F186912V75302807', 'PAYPAL', 'COMPLETED', '2026-01-10 18:09:46', 10000.00, 'ORD6962256a7c705', '2026-01-10 18:09:46', '2026-01-10 18:09:46'),
-(19, 'PAY-1768045686-7122', 'PAYPAL', 'COMPLETED', '2026-01-10 19:49:55', 9500.00, NULL, '2026-01-10 19:48:06', '2026-01-10 19:49:55'),
-(20, '4JR68969WU844320E', 'PAYPAL', 'COMPLETED', '2026-01-10 19:49:55', 9500.00, 'ORD69623ce3a6145', '2026-01-10 19:49:55', '2026-01-10 19:49:55'),
-(21, 'PAY-1768045821-7876', 'PAYPAL', 'COMPLETED', '2026-01-10 19:51:01', 9500.00, NULL, '2026-01-10 19:50:21', '2026-01-10 19:51:01'),
-(22, '2BF22250WB5111242', 'PAYPAL', 'COMPLETED', '2026-01-10 19:51:01', 9500.00, 'ORD69623d25e8d84', '2026-01-10 19:51:01', '2026-01-10 19:51:01'),
-(23, 'PAY-1768046056-7564', 'PAYPAL', 'COMPLETED', '2026-01-10 19:54:26', 9500.00, NULL, '2026-01-10 19:54:16', '2026-01-10 19:54:26'),
-(24, '6W80238242495231A', 'PAYPAL', 'COMPLETED', '2026-01-10 19:54:26', 9500.00, 'ORD69623df2c543f', '2026-01-10 19:54:26', '2026-01-10 19:54:26'),
-(25, 'PAY-1768046392-7641', 'PAYPAL', 'COMPLETED', '2026-01-10 20:00:04', 9500.00, NULL, '2026-01-10 19:59:52', '2026-01-10 20:00:04'),
-(26, '0DW70195GT062783R', 'PAYPAL', 'COMPLETED', '2026-01-10 20:00:04', 9500.00, 'ORD69623f449e7c6', '2026-01-10 20:00:04', '2026-01-10 20:00:04'),
-(27, 'PAY-1768046526-7622', 'PAYPAL', 'COMPLETED', '2026-01-10 20:02:22', 10000.00, NULL, '2026-01-10 20:02:06', '2026-01-10 20:02:22'),
-(28, '5XC908755C914010K', 'PAYPAL', 'COMPLETED', '2026-01-10 20:02:22', 10000.00, 'ORD69623fce941eb', '2026-01-10 20:02:22', '2026-01-10 20:02:22'),
-(29, 'PAY-1768047056-5384', 'PAYPAL', 'COMPLETED', '2026-01-10 20:11:07', 10000.00, NULL, '2026-01-10 20:10:56', '2026-01-10 20:11:07'),
-(30, '16M28086EG099530W', 'PAYPAL', 'COMPLETED', '2026-01-10 20:11:07', 10000.00, 'ORD696241db8601e', '2026-01-10 20:11:07', '2026-01-10 20:11:07'),
-(31, 'PAY-1768048540-1138', 'PAYPAL', 'PENDING', '2026-01-10 20:35:40', 9500.00, NULL, '2026-01-10 20:35:40', '2026-01-10 20:35:40'),
-(32, 'PAY-1768048803-9844', 'PAYPAL', 'PENDING', '2026-01-10 20:40:03', 9500.00, NULL, '2026-01-10 20:40:03', '2026-01-10 20:40:03'),
-(33, 'PAY-1768049021-1260', 'PAYPAL', 'PENDING', '2026-01-10 20:43:41', 9500.00, NULL, '2026-01-10 20:43:41', '2026-01-10 20:43:41'),
-(34, 'PAY-1768049029-1212', 'PAYPAL', 'PENDING', '2026-01-10 20:43:49', 9500.00, NULL, '2026-01-10 20:43:49', '2026-01-10 20:43:49'),
-(35, 'PAY-1768049701-4896', 'PAYPAL', 'PENDING', '2026-01-10 20:55:01', 9500.00, NULL, '2026-01-10 20:55:01', '2026-01-10 20:55:01'),
-(36, 'PAY-1768049830-4863', 'PAYPAL', 'PENDING', '2026-01-10 20:57:10', 9500.00, NULL, '2026-01-10 20:57:10', '2026-01-10 20:57:10'),
-(37, 'PAY-1768049846-9317', 'PAYPAL', 'PENDING', '2026-01-10 20:57:26', 9500.00, NULL, '2026-01-10 20:57:26', '2026-01-10 20:57:26'),
-(38, 'PAY-1768049905-3402', 'PAYPAL', 'PENDING', '2026-01-10 20:58:25', 9500.00, NULL, '2026-01-10 20:58:25', '2026-01-10 20:58:25'),
-(39, 'PAY-1768050066-5100', 'PAYPAL', 'COMPLETED', '2026-01-10 21:02:11', 9500.00, NULL, '2026-01-10 21:01:06', '2026-01-10 21:02:11'),
-(40, '4KX78700LX360374V', 'PAYPAL', 'COMPLETED', '2026-01-10 21:02:11', 9500.00, 'ORD69624dd31afd8', '2026-01-10 21:02:11', '2026-01-10 21:02:11'),
-(41, 'PAY-1768050327-5879', 'PAYPAL', 'PENDING', '2026-01-10 21:05:27', 123123.00, NULL, '2026-01-10 21:05:27', '2026-01-10 21:05:27'),
-(42, 'PAY-1768050806-5595', 'PAYPAL', 'PENDING', '2026-01-10 21:13:26', 123123.00, NULL, '2026-01-10 21:13:26', '2026-01-10 21:13:26'),
-(43, 'PAY-1768050853-3273', 'PAYPAL', 'COMPLETED', '2026-01-10 21:14:23', 123123.00, NULL, '2026-01-10 21:14:13', '2026-01-10 21:14:23'),
-(44, '2WS26930TN638181W', 'PAYPAL', 'COMPLETED', '2026-01-10 21:14:23', 123123.00, 'ORD696250af78bea', '2026-01-10 21:14:23', '2026-01-10 21:14:23'),
-(45, 'PAY-1768050903-4889', 'PAYPAL', 'COMPLETED', '2026-01-10 21:15:15', 133123.00, NULL, '2026-01-10 21:15:03', '2026-01-10 21:15:15'),
-(46, '03J296906X004872U', 'PAYPAL', 'COMPLETED', '2026-01-10 21:15:15', 133123.00, 'ORD696250e3227fe', '2026-01-10 21:15:15', '2026-01-10 21:15:15'),
-(47, 'PAY-1768051204-5309', 'PAYPAL', 'COMPLETED', '2026-01-10 21:20:15', 123123.00, NULL, '2026-01-10 21:20:04', '2026-01-10 21:20:15'),
-(48, '9E574312BN497235G', 'PAYPAL', 'COMPLETED', '2026-01-10 21:20:15', 123123.00, 'ORD6962520fc4d58', '2026-01-10 21:20:15', '2026-01-10 21:20:15'),
-(49, 'PAY-1768062686-4221', 'PAYPAL', 'PENDING', '2026-01-11 00:31:26', 123123.00, NULL, '2026-01-11 00:31:26', '2026-01-11 00:31:26'),
-(50, 'PAY-1768062730-7093', 'PAYPAL', 'COMPLETED', '2026-01-11 00:36:16', 123123.00, NULL, '2026-01-11 00:32:10', '2026-01-11 00:36:16'),
-(51, '0R2605166F3486805', 'PAYPAL', 'COMPLETED', '2026-01-11 00:36:16', 123123.00, 'ORD69628000df8d9', '2026-01-11 00:36:16', '2026-01-11 00:36:16'),
-(52, 'PAY-1768064050-4721', 'PAYPAL', 'COMPLETED', '2026-01-11 00:55:03', 10000.00, NULL, '2026-01-11 00:54:10', '2026-01-11 00:55:03'),
-(53, '2T139502PC553500C', 'PAYPAL', 'COMPLETED', '2026-01-11 00:55:03', 10000.00, 'ORD69628001', '2026-01-11 00:55:03', '2026-01-11 00:55:03'),
-(54, 'PAY-1768064329-6720', 'PAYPAL', 'PENDING', '2026-01-11 00:58:49', 133123.00, NULL, '2026-01-11 00:58:49', '2026-01-11 00:58:49'),
-(55, 'PAY-1768064388-2419', 'PAYPAL', 'COMPLETED', '2026-01-11 00:59:59', 133123.00, NULL, '2026-01-11 00:59:48', '2026-01-11 00:59:59'),
-(56, '4U495771P7228384U', 'PAYPAL', 'COMPLETED', '2026-01-11 00:59:59', 133123.00, 'ORD69628002', '2026-01-11 00:59:59', '2026-01-11 00:59:59'),
-(57, 'PAY-1768066648-7618', 'PAYPAL', 'COMPLETED', '2026-01-11 01:38:18', 10000.00, NULL, '2026-01-11 01:37:28', '2026-01-11 01:38:18'),
-(58, '92953637FT7974248', 'PAYPAL', 'COMPLETED', '2026-01-11 01:38:18', 10000.00, 'ORD69628003', '2026-01-11 01:38:18', '2026-01-11 01:38:18'),
-(59, 'PAY-1768105240-7251', 'PAYPAL', 'COMPLETED', '2026-01-11 12:22:04', 10000.00, NULL, '2026-01-11 12:20:40', '2026-01-11 12:22:04'),
-(60, '0SS13286R12268604', 'PAYPAL', 'COMPLETED', '2026-01-11 12:22:04', 10000.00, 'ORD69628004', '2026-01-11 12:22:04', '2026-01-11 12:22:04'),
-(61, 'PAY-1768107056-5903', 'PAYPAL', 'PENDING', '2026-01-11 12:50:56', 10000.00, NULL, '2026-01-11 12:50:56', '2026-01-11 12:50:56');
-
 -- --------------------------------------------------------
 
 --
@@ -256,37 +119,20 @@ CREATE TABLE `paypalpayment` (
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
 --
--- Dumping data for table `paypalpayment`
+-- Table structure for table `sms`
 --
 
-INSERT INTO `paypalpayment` (`id`, `paypal_transaction_id`, `payer_email`, `transaction_date`, `payment_status`, `payment_id`, `created_at`) VALUES
-(1, '7WA87504SA4259814', 'doe-john123@personal.example.com', '2026-01-10 17:21:45', 'COMPLETED', 'PAY-1768036894-9400', '2026-01-10 17:21:45'),
-(2, '1VM969028L0473703', 'doe-john123@personal.example.com', '2026-01-10 17:23:35', 'COMPLETED', 'PAY-1768037003-1127', '2026-01-10 17:23:35'),
-(3, '7B619680ET908053K', 'doe-john123@personal.example.com', '2026-01-10 17:25:52', 'COMPLETED', 'PAY-1768037140-6077', '2026-01-10 17:25:52'),
-(4, '94A42960T1700180R', 'doe-john123@personal.example.com', '2026-01-10 17:26:32', 'COMPLETED', 'PAY-1768037182-8874', '2026-01-10 17:26:32'),
-(5, '9SK334070U2092158', 'doe-john123@personal.example.com', '2026-01-10 17:29:29', 'COMPLETED', 'PAY-1768037346-6305', '2026-01-10 17:29:29'),
-(6, '77H694249Y439754L', 'doe-john123@personal.example.com', '2026-01-10 17:40:01', 'COMPLETED', 'PAY-1768037989-2313', '2026-01-10 17:40:01'),
-(7, '2GM862408E334683U', 'sb-47o3z347849561@personal.example.com', '2026-01-10 17:59:41', 'COMPLETED', 'PAY-1768039107-9386', '2026-01-10 17:59:41'),
-(8, '6A798027H9648070Y', 'sb-47o3z347849561@personal.example.com', '2026-01-10 18:03:59', 'COMPLETED', 'PAY-1768039428-2102', '2026-01-10 18:03:59'),
-(9, '03534134G1573101T', 'sb-47o3z347849561@personal.example.com', '2026-01-10 18:04:59', 'COMPLETED', 'PAY-1768039486-6382', '2026-01-10 18:04:59'),
-(10, '8N399668TH4462343', 'sb-47o3z347849561@personal.example.com', '2026-01-10 18:06:57', 'COMPLETED', 'PAY-1768039606-1466', '2026-01-10 18:06:57'),
-(11, '8F186912V75302807', 'sb-47o3z347849561@personal.example.com', '2026-01-10 18:09:46', 'COMPLETED', 'PAY-1768039774-1469', '2026-01-10 18:09:46'),
-(12, '4JR68969WU844320E', 'sb-47o3z347849561@personal.example.com', '2026-01-10 19:49:55', 'COMPLETED', 'PAY-1768045686-7122', '2026-01-10 19:49:55'),
-(13, '2BF22250WB5111242', 'sb-47o3z347849561@personal.example.com', '2026-01-10 19:51:01', 'COMPLETED', 'PAY-1768045821-7876', '2026-01-10 19:51:01'),
-(14, '6W80238242495231A', 'sb-47o3z347849561@personal.example.com', '2026-01-10 19:54:26', 'COMPLETED', 'PAY-1768046056-7564', '2026-01-10 19:54:26'),
-(15, '0DW70195GT062783R', 'sb-47o3z347849561@personal.example.com', '2026-01-10 20:00:04', 'COMPLETED', 'PAY-1768046392-7641', '2026-01-10 20:00:04'),
-(16, '5XC908755C914010K', 'sb-47o3z347849561@personal.example.com', '2026-01-10 20:02:22', 'COMPLETED', 'PAY-1768046526-7622', '2026-01-10 20:02:22'),
-(17, '16M28086EG099530W', 'sb-47o3z347849561@personal.example.com', '2026-01-10 20:11:07', 'COMPLETED', 'PAY-1768047056-5384', '2026-01-10 20:11:07'),
-(18, '4KX78700LX360374V', 'sb-47o3z347849561@personal.example.com', '2026-01-10 21:02:11', 'COMPLETED', 'PAY-1768050066-5100', '2026-01-10 21:02:11'),
-(19, '2WS26930TN638181W', 'sb-47o3z347849561@personal.example.com', '2026-01-10 21:14:23', 'COMPLETED', 'PAY-1768050853-3273', '2026-01-10 21:14:23'),
-(20, '03J296906X004872U', 'sb-47o3z347849561@personal.example.com', '2026-01-10 21:15:15', 'COMPLETED', 'PAY-1768050903-4889', '2026-01-10 21:15:15'),
-(21, '9E574312BN497235G', 'sb-47o3z347849561@personal.example.com', '2026-01-10 21:20:15', 'COMPLETED', 'PAY-1768051204-5309', '2026-01-10 21:20:15'),
-(22, '0R2605166F3486805', 'sb-47o3z347849561@personal.example.com', '2026-01-11 00:36:16', 'COMPLETED', 'PAY-1768062730-7093', '2026-01-11 00:36:16'),
-(23, '2T139502PC553500C', 'sb-47o3z347849561@personal.example.com', '2026-01-11 00:55:03', 'COMPLETED', 'PAY-1768064050-4721', '2026-01-11 00:55:03'),
-(24, '4U495771P7228384U', 'sb-47o3z347849561@personal.example.com', '2026-01-11 00:59:59', 'COMPLETED', 'PAY-1768064388-2419', '2026-01-11 00:59:59'),
-(25, '92953637FT7974248', 'doe-john123@personal.example.com', '2026-01-11 01:38:18', 'COMPLETED', 'PAY-1768066648-7618', '2026-01-11 01:38:18'),
-(26, '0SS13286R12268604', 'doe-john123@personal.example.com', '2026-01-11 12:22:04', 'COMPLETED', 'PAY-1768105240-7251', '2026-01-11 12:22:04');
+CREATE TABLE `sms` (
+  `id` int(11) NOT NULL,
+  `direction` enum('incoming','outgoing') NOT NULL,
+  `phone_number` varchar(20) NOT NULL,
+  `message` text NOT NULL,
+  `source` varchar(50) DEFAULT 'system',
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -311,11 +157,8 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `fname`, `lname`, `email`, `password`, `phone_number`, `status`, `created_at`, `updated_at`) VALUES
-('USR001', 'test', '123', 'test123@gmail.com', '$2y$10$vBZhszJkAzFugvvhHjPDP.p8z/uPQZ//f0heKgu0nUh9bYG3nS5SK', '123123123123', 'active', '2026-01-10 00:27:45', '2026-01-10 00:27:45'),
-('USR002', 'Dale', 'Lee', 'daleandrewslee@gmail.com', '$2y$10$x6op2KosYBu3vO6muMP3q.Pn14u3N5PhcOttyigLZGo1A.Oxop6EG', '09466292876', 'active', '2026-01-10 01:48:28', '2026-01-10 01:48:28'),
-('USR003', 'John Jester', 'Luciriaga', 'johnjesterluciriaga4@gmail.com', '$2y$10$Sz9RObWDcclY9yLFIMcwJuCMY7LizOId6rlR68q3Cszc7Sg5UvdMC', '09278679012', 'active', '2026-01-10 03:20:44', '2026-01-10 03:20:44'),
-('USR004', 'Michelle', 'Baho', 'michelle@gmail.com', '$2y$10$k6rZlwENcWXFeRlgxKBCquHvSUcV.EA1GEIbmvAbi6OcSoqge/SLS', '09332113388', 'active', '2026-01-10 20:05:24', '2026-01-10 20:05:24');
+INSERT INTO `users` (`user_id`, `fname`, `lname`, `email`, `password`, `phone_number`, `status`, `created_at`, `updated_at`, `role`) VALUES
+('USR001', 'Admin', 'User', 'admin@horologe.com', '$2y$10$AjaEhw2AcIULUAlG1CflDe.Uo65yUjvvProuxwdkgGkVVWd/lp94i', NULL, 'active', '2026-01-12 13:54:36', '2026-01-12 13:54:45', 'admin');
 
 -- --------------------------------------------------------
 
@@ -340,9 +183,26 @@ CREATE TABLE `watch` (
 --
 
 INSERT INTO `watch` (`watch_id`, `brand`, `model`, `description`, `price`, `stock_quantity`, `image_file`, `created_at`, `updated_at`) VALUES
-('W001', 'Rolex', 'Yacht-Master 40 Everose Black Dial 116655 2017', 'The Yacht-Master 40 in Everose gold epitomizes the perfect union of sport and luxury. Its bold black dial contrasts beautifully with the warm glow of Everose, while its Oysterflex bracelet ensures comfort and durability. Designed for maritime elegance and refined adventures, it is a statement of both performance and prestige.', 10000.00, 1, 'assets/uploads/prod_69615749cdc1a7.14454203_Rolex5_-_Rolex_Yacht-Master_40_Everose_Black_Dial_116655_2017.png', '2026-01-10 03:30:17', '2026-01-11 12:22:04'),
-('W002', 'Cartier', 'Americane Rose Gold W2607456', 'A graceful expression of Cartier\'s signature elegance, this Tank Américaine in rose gold features a sleek rectangular case and classic Roman numerals. Its refined profile and polished finish make it a quintessential dress watch for those who appreciate subtle sophistication.', 9500.00, 0, 'assets/uploads/prod_6961577facfa98.81746719_Cartier1_-____Cartier_Americane_Rose_Gold_W2607456_Cartier_Americane_Rose_Gold_W2607456.png', '2026-01-10 03:31:11', '2026-01-10 21:02:11'),
-('W003', 'Rolex', 'test', 'asdadw', 123123.00, 0, 'assets/uploads/prod_69624e2e8d6668.22813492_Rolex1_-_Rolex_Explorer_I_36_14270_1996.png', '2026-01-10 21:03:42', '2026-01-11 00:59:59');
+('W001', 'Cartier', 'Americane Rose Gold W2607456', 'A graceful expression of Cartier’s signature elegance, this Tank Américaine in rose gold features a sleek rectangular case and classic Roman numerals. Its refined profile and polished finish make it a quintessential dress watch for those who appreciate subtle sophistication.', 9500.00, 20, 'assets/images/products/cartier/prod_6963dd9f2268f5.79902600_cartier1.png', '2026-01-12 01:27:59', '2026-01-12 01:27:59'),
+('W002', 'Cartier', 'Tank Basculante White Dial 2405', 'An exquisite reversible case design, the Tank Basculante combines timeless Cartier style with playful ingenuity. The crisp white dial and elegant hands reflect the brand’s mastery of understated luxury, making it a rare and collectible piece.', 8000.00, 19, 'assets/images/products/cartier/prod_6963ddc4b96944.77418149_cartier2.png', '2026-01-12 01:28:36', '2026-01-12 02:37:16'),
+('W003', 'Cartier', 'Panthere Two Tone Yellow Gold White Dial 110000R 2', 'This iconic Panthère model blends stainless steel and yellow gold in a harmonious two-tone design. The gleaming white dial and flexible bracelet exude sophistication, offering a perfect balance of sportiness and refined elegance.', 9000.00, 19, 'assets/images/products/cartier/prod_6963e15f952473.12982781_cartier3.png', '2026-01-12 01:43:17', '2026-01-12 02:37:16'),
+('W004', 'Cartier', 'Ronde Solo Yellow Gold W6700355 2021', 'A modern classic, the Ronde Solo features a round yellow gold case with crisp Roman numerals and a polished finish. Its balanced proportions and timeless design make it an effortlessly stylish companion for every occasion.', 10000.00, 20, 'assets/images/products/cartier/prod_6963e1682ae000.51645321_cartier4.png', '2026-01-12 01:43:17', '2026-01-12 01:44:08'),
+('W005', 'Cartier', 'Basculante Yellow Gold White Dial 2480', 'The Tank Basculante in yellow gold showcases Cartier’s inventive reversible case, combining elegance with mechanical ingenuity. Its pure white dial and polished finish create a timepiece that is both refined and visually striking.', 7500.00, 20, 'assets/images/products/cartier/prod_6963e174735221.15529938_cartier5.png', '2026-01-12 01:43:17', '2026-01-12 01:44:20'),
+('W006', 'MontBlac', 'Star Legacy Chronograph 42mm Limited Edition - 178', 'A masterful embodiment of Montblanc’s dedication to haute horology, this limited-edition chronograph is one of only 1,786 pieces worldwide. Its 42mm case elegantly balances boldness and refinement, while the meticulously crafted dial, adorned with classic Arabic numerals and blued steel hands, pays homage to the brand’s historic Minerva heritage. Designed for those who appreciate both technical precision and timeless style, this piece is a true collector’s gem.', 10000.00, 19, 'assets/images/products/montblac/prod_6963e18933a638.76632347_montblanc1.png', '2026-01-12 01:43:17', '2026-01-12 02:37:16'),
+('W007', 'MontBlac', 'Iced Sea Automatic Date 0 Oxygen', 'Inspired by the pristine and uncharted waters of alpine lakes, the Iced Sea Automatic features a unique oxygen-free case, ensuring longevity and clarity even in extreme conditions. The watch’s luminous markers and robust bezel combine sportiness with sophistication, making it an ideal companion for adventurous souls who refuse to compromise elegance for performance.', 9000.00, 20, 'assets/images/products/montblac/prod_6963e192457824.56445161_montblanc2.png', '2026-01-12 01:43:17', '2026-01-12 01:44:50'),
+('W008', 'MontBlac', 'Star Legacy Small Second 36 mm', 'This refined 36mm dress watch encapsulates the essence of understated luxury. The delicately crafted small-seconds subdial adds subtle complexity to its otherwise minimalist white dial, while the polished stainless steel case reflects light with graceful sophistication. A perfect companion for formal occasions or quiet moments of distinction.', 8000.00, 20, 'assets/images/products/montblac/prod_6963e19f0e20a9.40448904_montblanc3.png', '2026-01-12 01:43:17', '2026-01-12 01:45:03'),
+('W009', 'MontBlac', 'Star Legacy Orbis Terrarum', 'The Star Legacy Orbis Terrarum is a celebration of world exploration and precision engineering. Its intricate globe dial presents a sophisticated world-time complication that allows the wearer to instantly read the time across all 24 time zones. Encased in polished stainless steel and accented with elegant guilloché patterns, this timepiece is as much a conversation piece as it is a practical instrument for the cosmopolitan traveler.', 10000.00, 20, 'assets/images/products/montblac/prod_6963e1b21ae776.15922123_montblanc4.png', '2026-01-12 01:43:17', '2026-01-12 01:45:22'),
+('W010', 'MontBlac', 'Tradition Automatic Date 40 mm', 'A quintessential automatic watch that marries classical aesthetics with modern reliability. Its 40mm case houses a perfectly balanced dial, featuring subtle markers and a practical date window. Whether for boardroom meetings or casual elegance, the Tradition Automatic embodies Montblanc’s commitment to timeless design and exceptional craftsmanship.', 7500.00, 19, 'assets/images/products/montblac/prod_6963e1bf365cc0.58201852_montblanc5.png', '2026-01-12 01:43:17', '2026-01-12 01:50:55'),
+('W011', 'Patek Philippe', 'Grand Complications 5303R-001', 'The Grand Complications 5303R-001 is a breathtaking display of mechanical artistry. Its skeletonized dial offers a window into the intricate movement beneath, allowing admirers to witness the harmony of gears, springs, and levers in motion. Crafted for connoisseurs of haute horology, this piece exemplifies Patek Philippe’s mastery of both technical complexity and aesthetic perfection.', 10000.00, 19, 'assets/images/products/patek_philippe/prod_6963e1d5e975d0.33714786_patek1.png', '2026-01-12 01:43:17', '2026-01-12 03:16:30'),
+('W012', 'Patek Philippe', 'Golden Ellipse 5738R-001', 'Revered for its mathematically inspired elliptical case, the Golden Ellipse 5738R-001 blends classical design with a modern sensibility. The rose-gold case gleams softly under light, while the minimalistic dial reflects a commitment to purity and elegance. This watch is an ideal expression of quiet sophistication, suited for the wearer who values both style and intellectual refinement.', 9500.00, 20, 'assets/images/products/patek_philippe/prod_6963e248f25999.54140222_patek2.png', '2026-01-12 01:43:17', '2026-01-12 01:47:52'),
+('W013', 'Patek Philippe', 'Grand Complications 5303R-001', 'This annual calendar timepiece combines functional complexity with aesthetic refinement. Its polished case and harmonious dial design present a sophisticated statement for the discerning wearer.', 9000.00, 19, 'assets/images/products/patek_philippe/prod_6963e254beabc4.93907413_patek3.png', '2026-01-12 01:43:17', '2026-01-12 01:50:55'),
+('W014', 'Patek Philippe', 'Complications 5205R-001', 'A masterclass in functionality and beauty, the Complications 5205R-001 presents an annual calendar complication with effortless elegance. Its polished case, delicate dial layout, and intricately finished hands make it a statement piece that seamlessly combines mechanical ingenuity with refined aesthetics.', 8500.00, 20, 'assets/images/products/patek_philippe/prod_6963e25f528d82.05130041_patek4.png', '2026-01-12 01:43:17', '2026-01-12 01:48:15'),
+('W015', 'Patek Philippe', 'Calatrava 5227J-001', 'The Calatrava 5227J-001 epitomizes minimalist elegance. Its clean dial, slender hands, and classic case design pay homage to Patek Philippe’s timeless philosophy of restraint and refinement. A watch that complements every attire, it stands as a symbol of understated luxury and lasting value.', 9500.00, 18, 'assets/images/products/patek_philippe/prod_6963e26b433f28.38845350_patek5.png', '2026-01-12 01:43:17', '2026-01-12 03:30:14'),
+('W016', 'Rolex', 'Explorer I 36 14270 1996', 'Designed for adventurers and explorers, the Explorer I is celebrated for its robustness, clarity, and legendary reliability. Its 36mm case offers perfect proportions for everyday wear, while the simple, luminous dial ensures maximum legibility under all conditions. A classic Rolex icon that has inspired generations of collectors and enthusiasts alike.', 10000.00, 20, 'assets/images/products/rolex/prod_6963e27877da50.94140928_rolex1.png', '2026-01-12 01:43:17', '2026-01-12 01:48:40'),
+('W017', 'Rolex', 'Datejust 26 Two Tone Yellow Champagne Crystal Flak', 'The Datejust 26 exudes timeless glamour, combining the warmth of yellow gold with the sparkle of a diamond-set bezel. Its champagne dial glows with understated elegance, making it an ideal watch for those who appreciate luxury in every detail. Compact yet commanding, this piece perfectly marries sophistication with everyday versatility.', 10000.00, 16, 'assets/images/products/rolex/prod_6963e280ee0d37.58108795_rolex2.png', '2026-01-12 01:43:17', '2026-01-12 03:41:58'),
+('W018', 'Rolex', 'Air-King 116900 2018', 'A tribute to Rolex’s aviation heritage, the Air-King 116900 features a bold, high-contrast dial and a robust Oystersteel case. Its precision and sporty aesthetic make it a dynamic choice for individuals who embrace adventure without compromising style.', 9500.00, 17, 'assets/images/products/rolex/prod_6963e286ec53f1.07524692_rolex3.png', '2026-01-12 01:43:17', '2026-01-12 03:35:14'),
+('W019', 'Rolex', 'Datejust 28 Two Tone Yellow Gold White Roman Dial', 'An elegant blend of classic and contemporary design, this 28mm Datejust features a two-tone case and pristine white dial adorned with Roman numerals. It’s a refined and versatile timepiece that elevates both casual and formal ensembles.', 9000.00, 17, 'assets/images/products/rolex/prod_6963e28c723d16.80910908_rolex4.png', '2026-01-12 01:43:17', '2026-01-12 13:40:34'),
+('W020', 'Rolex', 'Yacht-Master 40 Everose Black Dial 116655 2017', 'The Yacht-Master 40 in Everose gold epitomizes the perfect union of sport and luxury. Its bold black dial contrasts beautifully with the warm glow of Everose, while its Oysterflex bracelet ensures comfort and durability. Designed for maritime elegance and refined adventures, it is a statement of both performance and prestige.', 10000.00, 20, 'assets/images/products/rolex/prod_6964444edd3fb2.27199305_rolex5.png', '2026-01-12 08:46:06', '2026-01-12 08:46:06');
 
 --
 -- Indexes for dumped tables
@@ -385,6 +245,7 @@ ALTER TABLE `order_items`
 ALTER TABLE `payment`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `payment_id` (`payment_id`),
+  ADD UNIQUE KEY `payment_id_2` (`payment_id`),
   ADD KEY `fk_payment_order` (`order_id`);
 
 --
@@ -394,6 +255,12 @@ ALTER TABLE `paypalpayment`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `paypal_transaction_id` (`paypal_transaction_id`),
   ADD KEY `payment_id` (`payment_id`);
+
+--
+-- Indexes for table `sms`
+--
+ALTER TABLE `sms`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `users`
@@ -416,19 +283,25 @@ ALTER TABLE `watch`
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT for table `payment`
 --
 ALTER TABLE `payment`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
 
 --
 -- AUTO_INCREMENT for table `paypalpayment`
 --
 ALTER TABLE `paypalpayment`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+
+--
+-- AUTO_INCREMENT for table `sms`
+--
+ALTER TABLE `sms`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
@@ -451,8 +324,7 @@ ALTER TABLE `cartitems`
 -- Constraints for table `orders`
 --
 ALTER TABLE `orders`
-  ADD CONSTRAINT `fk_orders_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
-  ADD CONSTRAINT `fk_orders_watch` FOREIGN KEY (`watch_id`) REFERENCES `watch` (`watch_id`);
+  ADD CONSTRAINT `fk_orders_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
 -- Constraints for table `order_items`
