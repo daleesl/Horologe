@@ -1,19 +1,28 @@
 <?php
-  $dbhost = "localhost";
-	$dbuser = "root";
-	$dbpass = "";
-	$db = "horologe"; //database name
 
-	$conn = new mysqli($dbhost, $dbuser, $dbpass,$db) or die("Connect failed: %s\n". $conn -> error);
+require_once __DIR__ . '/env.php';
 
-	if(!$conn)
-	{
-		die("Connection Failed. ". mysqli_connect_error());
-		echo "can't connect to database";
-	}
+date_default_timezone_set('Asia/Manila');
 
-  function executeQuery($query){
-    $conn = $GLOBALS['conn'];
-    return mysqli_query($conn, $query);
-  }
+$dbhost = getenv('DB_HOST') ?: 'localhost';
+$dbuser = getenv('DB_USER') ?: 'root';
+$dbpass = getenv('DB_PASS') ?: '';
+$dbname = getenv('DB_NAME') ?: 'horologe';
+
+$conn = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
+
+if ($conn->connect_error) {
+    die('Database connection failed: ' . $conn->connect_error);
+}
+
+/**
+ * Execute a raw SQL query.
+ *
+ * @param string $query
+ * @return mysqli_result|bool
+ */
+function executeQuery(string $query)
+{
+    return mysqli_query($GLOBALS['conn'], $query);
+}
 ?>

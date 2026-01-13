@@ -166,6 +166,38 @@ try {
     $paymentStmt->execute();
     $paymentStmt->close();
 
+    // INSERT INTO order_items
+    $orderItemsStmt = $conn->prepare("
+    INSERT INTO order_items 
+    (order_id, watch_id, product_name, price_at_purchase, quantity)
+    VALUES (?, ?, ?, ?, ?)
+    ");
+
+    if (!$orderItemsStmt) {
+        throw new Exception("Failed to prepare order_items statement: " . $conn->error);
+    }
+
+    foreach ($cart as $item) {
+        $prodId = (string)($item['id'] ?? $item['watch_id'] ?? '');
+        $name   = $item['name'] ?? '';
+        $price  = (float)($item['price'] ?? 0);
+        $qty    = (int)($item['quantity'] ?? 0);
+
+        if ($prodId === '' || $qty <= 0) continue;
+
+        $orderItemsStmt->bind_param(
+            "sssid",
+            $order_id,
+            $prodId,
+            $name,
+            $price,
+            $qty
+        );
+        $orderItemsStmt->execute();
+        }
+
+    $orderItemsStmt->close();
+
     $lockStmt = $conn->prepare("SELECT stock_quantity FROM watch WHERE watch_id = ? FOR UPDATE");
     $updateStmt = $conn->prepare("UPDATE watch SET stock_quantity = ? WHERE watch_id = ?");
     if (!$lockStmt || !$updateStmt) {
@@ -224,7 +256,6 @@ try {
 
     $conn->commit();
 
-    // Save the purchased items and IDs to session so orderConfirmation shows only checked-out items
     try {
         $_SESSION['last_order'] = [
             'items' => $cart,
