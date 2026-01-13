@@ -35,20 +35,11 @@ function normalizePHPhoneNumber($phoneNumber) {
  *
  * @return bool
  */
-function sendSMS($phoneNumber, $message) {
+function sendSMS($userId, $phoneNumber, $message) {
 
     $gatewayUrl = getenv('SMS_GATEWAY_URL');
     $username   = getenv('SMS_GATEWAY_USER');
     $password   = getenv('SMS_GATEWAY_PASS');
-
-    file_put_contents(
-        __DIR__ . '/../logs/sms_env_debug.log',
-        "[" . date('Y-m-d H:i:s') . "] " .
-        "URL=" . var_export($gatewayUrl, true) . " | " .
-        "USER=" . var_export($username, true) . " | " .
-        "PASS_SET=" . ($password ? 'YES' : 'NO') . "\n",
-        FILE_APPEND
-    );
 
     $normalizedPhoneNumber = normalizePHPhoneNumber($phoneNumber);
     $url = rtrim($gatewayUrl, '/') . '/messages';
@@ -59,7 +50,6 @@ function sendSMS($phoneNumber, $message) {
     ]);
 
     $ch = curl_init($url);
-
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,
@@ -74,18 +64,16 @@ function sendSMS($phoneNumber, $message) {
     $response   = curl_exec($ch);
     $curlError  = curl_error($ch);
     $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
     curl_close($ch);
 
-    if ($statusCode >= 200 && $statusCode < 300) {
-        $stmt = $GLOBALS['conn']->prepare(
-            "INSERT INTO sms (direction, phone_number, message, source)
-            VALUES ('outgoing', ?, ?, 'system')"
-        );
-        $stmt->bind_param("ss", $normalizedPhoneNumber, $message);
-        $stmt->execute();
-        $stmt->close();
-    }
+    global $conn;
+    $stmt = $conn->prepare(
+        "INSERT INTO sms (user_id, direction, phone_number, message, source, created_at)
+        VALUES (?, 'outgoing', ?, ?, 'system', NOW())"
+    );
+    $stmt->bind_param("sss", $userId, $normalizedPhoneNumber, $message);
+    $stmt->execute();
+    $stmt->close();
 
     return $statusCode >= 200 && $statusCode < 300;
 }

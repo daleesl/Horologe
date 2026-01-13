@@ -55,24 +55,18 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
         require_once __DIR__ . '/../config/connect.php';
 
         $orders = [];
-
-        if (!isset($conn) || !$conn) {
-            die('<div class="alert alert-danger">Database connection failed.</div>');
-        }
-
         $sql = "
-            SELECT 
-                order_id,
-                user_name,
-                user_email,
-                total_amount,
-                order_date
-            FROM orders
-            ORDER BY order_date DESC
+            SELECT o.order_id, o.user_name, o.user_email, o.total_amount, o.order_date,
+                (SELECT COUNT(*) FROM order_items WHERE order_id = o.order_id) AS items_count,
+                (SELECT w.model 
+                    FROM order_items oi 
+                    JOIN watch w ON oi.watch_id = w.watch_id 
+                    WHERE oi.order_id = o.order_id 
+                    LIMIT 1) AS first_product
+            FROM orders o
+            ORDER BY o.order_date DESC
         ";
-
         $res = $conn->query($sql);
-
         if ($res instanceof mysqli_result) {
             while ($row = $res->fetch_assoc()) {
                 $orders[] = $row;
@@ -100,37 +94,26 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                     </tr>
                     </thead>
                     <tbody>
-
                     <?php if (!empty($orders)): ?>
                         <?php foreach ($orders as $order): ?>
                             <tr class="border-bottom border-secondary">
-                                <td class="fw-semibold py-4">
-                                    <?= htmlspecialchars($order['order_id'] ?? '') ?>
-                                </td>
-
+                                <td class="fw-semibold py-4"><?= htmlspecialchars($order['order_id']) ?></td>
                                 <td class="py-4">
-                                    <div class="fw-semibold">
-                                        <?= htmlspecialchars($order['user_name'] ?? '') ?>
-                                    </div>
-                                    <div class="text-secondary small">
-                                        <?= htmlspecialchars($order['user_email'] ?? '') ?>
-                                    </div>
+                                    <div class="fw-semibold"><?= htmlspecialchars($order['user_name']) ?></div>
+                                    <div class="text-secondary small"><?= htmlspecialchars($order['user_email']) ?></div>
                                 </td>
-
-                                <td class="py-4">Multiple Items</td>
-
-                                <td class="fw-semibold py-4">
-                                    <?= moneyFormat((float)($order['total_amount'] ?? 0)) ?>
-                                </td>
-
                                 <td class="py-4">
-                                    <?= !empty($order['order_date'])
-                                        ? date('n/j/Y', strtotime($order['order_date']))
-                                        : '--' ?>
+                                    <?php
+                                    if ($order['items_count'] == 1) {
+                                        echo htmlspecialchars($order['first_product']);
+                                    } else {
+                                        echo $order['items_count'] . ' Items';
+                                    }
+                                    ?>
                                 </td>
-
+                                <td class="fw-semibold py-4"><?= moneyFormat((float)$order['total_amount']) ?></td>
+                                <td class="py-4"><?= !empty($order['order_date']) ? date('n/j/Y', strtotime($order['order_date'])) : '--' ?></td>
                                 <td></td>
-
                                 <td class="py-4">
                                     <button class="btn btn-sm btn-outline-light d-flex align-items-center gap-1 view-order-btn">
                                         <i class="bi bi-eye"></i>
@@ -141,12 +124,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="7" class="text-center text-secondary py-4">
-                                No orders found.
-                            </td>
+                            <td colspan="7" class="text-center text-secondary py-4">No orders found.</td>
                         </tr>
                     <?php endif; ?>
-
                     </tbody>
                 </table>
             </div>

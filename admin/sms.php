@@ -7,34 +7,45 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
 require_once __DIR__ . '/../config/connect.php';
 
-// Search logic
 $search = $_GET['search'] ?? '';
 $searchSql = '';
 $types = '';
 $params = [];
 
 if (!empty($search)) {
-    $searchSql = "WHERE phone_number LIKE CONCAT('%', ?, '%') OR message LIKE CONCAT('%', ?, '%')";
-    $types = "ss";
-    $params = [$search, $search];
+    $searchSql = "
+        WHERE 
+            s.phone_number LIKE CONCAT('%', ?, '%')
+            OR s.message LIKE CONCAT('%', ?, '%')
+            OR u.fname LIKE CONCAT('%', ?, '%')
+            OR u.lname LIKE CONCAT('%', ?, '%')
+    ";
+    $types = "ssss";
+    $params = [$search, $search, $search, $search];
 }
 
-// Query SMS
 $sql = "
-    SELECT direction, phone_number, message, created_at
-    FROM sms
+    SELECT 
+        s.created_at,
+        s.direction,
+        s.phone_number,
+        s.message,
+        u.fname,
+        u.lname
+    FROM sms s
+    LEFT JOIN users u ON s.user_id = u.user_id
     $searchSql
-    ORDER BY created_at DESC
+    ORDER BY s.created_at DESC
 ";
 
 $stmt = $conn->prepare($sql);
-if (!empty($searchSql)) {
+
+if (!empty($search)) {
     $stmt->bind_param($types, ...$params);
 }
 
 $stmt->execute();
 $res = $stmt->get_result();
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -52,48 +63,62 @@ $res = $stmt->get_result();
     </style>
 </head>
 
-<body class="bg-dark text-white">
-<div class="d-flex">
+<body class="bg-black text-white">
+    <div class="d-flex">
+        <?php include '../includes/adminSidebar.php'; ?>
 
-    <?php include '../includes/adminSidebar.php'; ?>
+        <div class="flex-grow-1 p-4">
+            <h1 class="fw-bold mb-4">SMS Inbox</h1>
 
-    <div class="flex-grow-1 p-4">
-        <h1 class="fw-bold mb-4">SMS Inbox</h1>
+            <form method="GET" class="mb-3">
+                <input type="text" name="search"
+                    class="form-control w-50 d-inline"
+                    placeholder="Search phone, message, or user..."
+                    value="<?= htmlspecialchars($search) ?>">
+                <button class="btn btn-light ms-2">Search</button>
+            </form>
 
-        <form method="GET" class="mb-3">
-            <input type="text" name="search" class="form-control w-50 d-inline" placeholder="Search phone or text..." value="<?= htmlspecialchars($search) ?>">
-            <button class="btn btn-light ms-2 bg">Search</button>
-        </form>
-
-        <div class="card bg-black border border-secondary rounded-4">
-            <div class="table-responsive">
-                <table class="table table-dark table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Direction</th>
-                            <th>Phone</th>
-                            <th>Message</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php if ($res->num_rows > 0): ?>
-                        <?php while ($row = $res->fetch_assoc()): ?>
+            <div class="card bg-black border border-secondary rounded-4">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead>
                             <tr>
-                                <td><?= date('Y-m-d H:i', strtotime($row['created_at'])) ?></td>
-                                <td><span class="badge <?= $row['direction'] === 'incoming' ? 'bg-success' : 'bg-primary' ?>"><?= strtoupper($row['direction']) ?></span></td>
-                                <td><?= htmlspecialchars($row['phone_number']) ?></td>
-                                <td><?= htmlspecialchars($row['message']) ?></td>
+                                <th>Date</th>
+                                <th>Direction</th>
+                                <th>User</th>
+                                <th>Phone</th>
+                                <th>Message</th>
                             </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
-                        <tr><td colspan="4" class="text-center text-secondary">No SMS Found</td></tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        <?php if ($res->num_rows > 0): ?>
+                            <?php while ($row = $res->fetch_assoc()): ?>
+                                <tr>
+                                    <td><?= date('Y-m-d H:i', strtotime($row['created_at'])) ?></td>
+                                    <td>
+                                        <span class="badge <?= $row['direction'] === 'incoming' ? 'bg-success' : 'bg-primary' ?>">
+                                            <?= strtoupper($row['direction']) ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <?= $row['fname']
+                                            ? htmlspecialchars($row['fname'] . ' ' . $row['lname'])
+                                            : '<span class="text-secondary">Unknown</span>' ?>
+                                    </td>
+                                    <td><?= htmlspecialchars($row['phone_number']) ?></td>
+                                    <td><?= htmlspecialchars($row['message']) ?></td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="5" class="text-center text-secondary">No SMS Found</td>
+                            </tr>
+                        <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 </body>
 </html>

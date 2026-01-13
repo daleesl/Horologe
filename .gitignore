@@ -1,22 +1,6 @@
-# ===============================
-# User uploads (DO NOT COMMIT)
-# ===============================
-assets/uploads/
+# Environment variables (DO NOT COMMIT)
+.env
 
-# ===============================
-# Videos (large files)
-# ===============================
-*.mp4
-assets/video/
-
-# ===============================
 # Logs
-# ===============================
 *.log
 logs/
-
-# ===============================
-# OS / Editor junk
-# ===============================
-.DS_Store
-Thumbs.db
