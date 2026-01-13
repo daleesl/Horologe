@@ -54,7 +54,7 @@ $paymentMethod = (string)($_POST['payment_method'] ?? 'PAYPAL');
 
 $shipName = trim($firstName . ' ' . $lastName);
 
-// Insert one row per product as required by the current schema
+
 $orderIds = [];
 $grandTotal = 0.0;
 
@@ -65,7 +65,7 @@ foreach ($items as $item) {
     $lineTotal = $qty * $price;
     $grandTotal += $lineTotal;
 
-        // Check and update stock
+ 
     $productRepo = new ProductRepository($conn);
     $product = $productRepo->getById($watchId);
     $currentStock = isset($product['stock']) ? (int)$product['stock'] : 0;
@@ -128,13 +128,13 @@ foreach ($items as $item) {
     $stmt->close();
 }
 
-// Defer cart cleanup until confirmation is rendered
+
 $_SESSION['pending_clear_ids'] = array_map(static function ($item) {
     return (string) ($item['id'] ?? '');
 }, $items);
 unset($_SESSION['checkout_selected_ids']);
 
-// Cache last order for confirmation display
+
 $_SESSION['last_order'] = [
     'order_id' => $orderIds[0] ?? '',
     'order_date' => date('Y-m-d H:i:s'),

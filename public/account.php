@@ -16,6 +16,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout'])) {
 	exit();
 }
 
+// Handle profile update (save changes)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['logout'])) {
+	$firstName = trim((string)($_POST['first_name'] ?? ''));
+	$lastName = trim((string)($_POST['last_name'] ?? ''));
+	$email = trim((string)($_POST['email'] ?? ''));
+	$phone = trim((string)($_POST['phone'] ?? ''));
+
+	$errors = [];
+	if ($firstName === '' || $lastName === '') {
+		$errors[] = 'First and last name are required.';
+	}
+	if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+		$errors[] = 'A valid email address is required.';
+	}
+
+	if (empty($errors)) {
+		// Ensure email is unique (skip current user)
+		$check = $conn->prepare('SELECT user_id FROM users WHERE email = ? AND user_id != ? LIMIT 1');
+		if ($check) {
+			$check->bind_param('ss', $email, $_SESSION['user_id']);
+			$check->execute();
+			$res = $check->get_result();
+			if ($res && $res->fetch_assoc()) {
+				$errors[] = 'Email is already in use by another account.';
+			}
+			$check->close();
+		}
+	}
+
+	if (empty($errors)) {
+		$upd = $conn->prepare('UPDATE users SET fname = ?, lname = ?, email = ?, phone_number = ?, updated_at = NOW() WHERE user_id = ?');
+		if ($upd) {
+			$upd->bind_param('sssss', $firstName, $lastName, $email, $phone, $_SESSION['user_id']);
+			if ($upd->execute()) {
+				$_SESSION['fname'] = $firstName;
+				$_SESSION['lname'] = $lastName;
+				$_SESSION['email'] = $email;
+				// also keep alternate key used elsewhere
+				$_SESSION['userID'] = $_SESSION['user_id'];
+				$_SESSION['phone_number'] = $phone;
+
+				$upd->close();
+				header('Location: account.php?updated=1');
+				exit();
+			} else {
+				$errors[] = 'Failed to save changes. Please try again.';
+			}
+			$upd->close();
+		} else {
+			$errors[] = 'Failed to prepare update statement.';
+		}
+	}
+	if (!empty($errors)) {
+		$_SESSION['account_update_errors'] = $errors;
+		header('Location: account.php?updated=0');
+		exit();
+	}
+}
+
 $user = [
 	'first_name' => $_SESSION['fname'] ?? '',
 	'last_name'  => $_SESSION['lname'] ?? '',
@@ -55,6 +114,24 @@ if ($stmt) {
 
 	<?php include '../includes/navbar.php'; ?>
 
+	<?php
+	if (isset($_GET['updated'])) {
+		if ($_GET['updated'] === '1') {
+			echo '<div class="container mt-4"><div class="alert alert-success">Account updated successfully.</div></div>';
+		} else {
+			$errs = $_SESSION['account_update_errors'] ?? [];
+			unset($_SESSION['account_update_errors']);
+			if (!empty($errs)) {
+				echo '<div class="container mt-4"><div class="alert alert-danger"><ul>'; 
+				foreach ($errs as $e) echo '<li>' . htmlspecialchars($e) . '</li>';
+				echo '</ul></div></div>';
+			} else {
+				echo '<div class="container mt-4"><div class="alert alert-danger">Failed to update account.</div></div>';
+			}
+		}
+	}
+	?>
+
 	<div class="container-fluid min-vh-100">
 		<div class="row flex-nowrap min-vh-100">
 
@@ -87,7 +164,7 @@ if ($stmt) {
 									</div>
 									<div class="col-12">
 										<label class="form-label text-white fw-semibold">Phone Number</label>
-										<input type="text" class="form-control form-control-lg bg-dark text-secondary border-secondary rounded-3" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>">
+										<input type="number" class="form-control form-control-lg bg-dark text-secondary border-secondary rounded-3" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>">
 									</div>
 								</div>
 							</div>
@@ -95,12 +172,11 @@ if ($stmt) {
 
 
 							<div class="col-12 d-flex justify-content-end gap-2">
-								<form method="post" class="mb-0">
+	
 									<button type="submit" class="btn btn-success btn-lg rounded-pill shadow-sm me-3">
 										Save Changes
 									</button>
 									<button type="submit" name="logout" value="1" class="btn btn-outline-light btn-lg">Logout</button>
-								</form>
 							</div>
 						</form>
 					</div>

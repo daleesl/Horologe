@@ -76,7 +76,7 @@ function formatPrice($value)
                         <!-- Price & Stock -->
                         <div class="mb-3">
                             <p id="productPrice" class="fs-3 fw-bold mb-1"><?= formatPrice($product['price']) ?></p>
-                            <p class="text-secondary mb-0">Stock: <?= (int)($product['stock'] ?? 0) ?></p>
+                            <p class="text-secondary mb-0 product-stock" data-product-id="<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>">Stock: <span class="stock-count"><?= (int)($product['stock'] ?? 0) ?></span></p>
                         </div>
 
                         <!-- Description -->
@@ -205,7 +205,6 @@ function formatPrice($value)
         }
 
         if (addToCartBtn && quantityInput) {
-            // Only set the quantity as a data attribute for cart.js to use
             addToCartBtn.addEventListener('click', function() {
                 const quantity = parseInt(quantityInput.value, 10) || 1;
                 addToCartBtn.dataset.productQuantity = quantity;

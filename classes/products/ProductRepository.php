@@ -35,7 +35,7 @@ class ProductRepository
     }
 
   
-     //Fetch a single product by id.
+     //Fetch single product by id.
     
     public function getById(string $id): ?array
     {
@@ -71,8 +71,6 @@ class ProductRepository
         return $this->normalizeList($result ? $result->fetch_all(MYSQLI_ASSOC) : []);
     }
 
- 
-     // Helper to run a simple query without parameters.
 
     private function fetchAll(string $sql): array
     {
@@ -82,8 +80,6 @@ class ProductRepository
         }
         return $result->fetch_all(MYSQLI_ASSOC);
     }
-
-     // Normalize a list of product rows (image paths, stock types)
 
     private function normalizeList(array $rows): array
     {
@@ -95,11 +91,8 @@ class ProductRepository
 
     private function normalizeRow(array $row): array
     {
-        // Ensure stock is integer
         $row['stock'] = isset($row['stock']) ? (int) $row['stock'] : 0;
-        // Ensure price is float
         $row['price'] = isset($row['price']) ? (float) $row['price'] : 0.0;
-        // Normalize image path: if relative without leading slash, prefix ../ so admin & public pages resolve
         if (!empty($row['image'])) {
             $img = (string) $row['image'];
             $alreadyPrefixed = str_starts_with($img, '../');

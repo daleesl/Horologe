@@ -242,7 +242,7 @@ function formatPrice($value)
         <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert">
             <div class="d-flex">
                 <div class="toast-body">
-                    ✅ Order placed successfully!
+                    Order placed successfully!
                 </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
@@ -251,7 +251,7 @@ function formatPrice($value)
         <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert">
             <div class="d-flex">
                 <div class="toast-body">
-                    ❌ Something went wrong. Please try again.
+                    Something went wrong. Please try again.
                 </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
@@ -271,7 +271,7 @@ function formatPrice($value)
             // Form validation happens here, PayPal works independently
             const firstName = document.getElementById('firstName').value.trim();
             if (firstName) {
-                showToast('successToast', '✅ Form validated. Click PayPal button to pay.');
+                showToast('successToast', 'Form validated. Click PayPal button to pay.');
             }
         });
 
@@ -287,7 +287,7 @@ function formatPrice($value)
 
             // Validate all required fields
             if (!firstName || !lastName || !address || !city || !postalCode || !country || !email) {
-                showToast('errorToast', '❌ Please fill in all required fields before paying.');
+                showToast('errorToast', 'Please fill in all required fields before paying.');
                 throw new Error('Missing required checkout data');
             }
 
@@ -398,6 +398,42 @@ function formatPrice($value)
                         if (r.success) {
                             // Store info and show success
                             localStorage.setItem('checkoutInfo', JSON.stringify(formDataSubmitted));
+                                // Update product stock displays immediately using returned mapping
+                                if (r.updatedStocks && typeof r.updatedStocks === 'object') {
+                                    Object.keys(r.updatedStocks).forEach(pid => {
+                                        const newStock = parseInt(r.updatedStocks[pid], 10);
+                                        // Update any stock-count spans
+                                        document.querySelectorAll('[data-product-id="' + pid + '"]').forEach(el => {
+                                            const sc = el.querySelector('.stock-count');
+                                            if (sc) sc.textContent = newStock;
+                                            // Update any add-to-cart buttons inside product cards
+                                            // If the element itself is the product-stock container, also update sibling buttons
+                                        });
+
+                                        // Update add-to-cart buttons in listings
+                                        document.querySelectorAll('button.add-to-cart-btn[data-product-id="' + pid + '"]').forEach(btn => {
+                                            if (newStock > 0) {
+                                                btn.disabled = false;
+                                                btn.textContent = btn.dataset.restoreLabel || 'ADD TO CART';
+                                            } else {
+                                                btn.disabled = true;
+                                                btn.textContent = 'OUT OF STOCK';
+                                            }
+                                        });
+
+                                        // Update single product page add button (if present)
+                                        const singleBtn = document.querySelector('#addToCartBtn[data-product-id="' + pid + '"]');
+                                        if (singleBtn) {
+                                            if (newStock > 0) {
+                                                singleBtn.disabled = false;
+                                                singleBtn.textContent = singleBtn.dataset.restoreLabel || 'ADD TO COLLECTION';
+                                            } else {
+                                                singleBtn.disabled = true;
+                                                singleBtn.textContent = 'OUT OF STOCK';
+                                            }
+                                        }
+                                    });
+                                }
                             // Refresh cart display (calls actions/cart/summary.php) so UI reflects empty cart
                             // Also clear any client-side cart storage for completeness
                             try {

@@ -233,7 +233,6 @@ document.querySelectorAll('.view-order-btn').forEach(btn => {
 
                 document.getElementById('modalCustomerName').textContent = data.order.user_name;
                 document.getElementById('modalCustomerEmail').textContent = data.order.user_email;
-                document.getElementById('modalCustomerPhone').textContent = data.order.user_phone || '';
                 document.getElementById('modalShippingAddress').textContent = data.order.shipping_address || 'N/A';
 
                 let html = '';

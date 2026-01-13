@@ -9,13 +9,14 @@ if (!$orderId) {
 }
 
 $stmtOrder = $conn->prepare('
-    SELECT o.order_id, o.order_date, o.user_name, o.user_email, o.user_phone,
+    SELECT o.order_id, o.order_date, o.user_name, o.user_email,
            o.ship_full_name, o.ship_street_address, o.ship_city, o.ship_province_state, o.ship_postal_code,
            o.total_amount, p.payment_status
     FROM orders o
     LEFT JOIN payment p ON p.order_id = o.order_id
     WHERE o.order_id = ?
 ');
+
 $stmtOrder->bind_param('s', $orderId);
 $stmtOrder->execute();
 $resOrder = $stmtOrder->get_result();
@@ -32,7 +33,6 @@ $order = [
     'order_date' => $orderRow['order_date'],
     'user_name' => $orderRow['user_name'],
     'user_email' => $orderRow['user_email'],
-    'user_phone' => $orderRow['user_phone'],
     'shipping_address' => trim(
         $orderRow['ship_full_name'] . ', ' . 
         $orderRow['ship_street_address'] . ', ' . 
@@ -41,6 +41,7 @@ $order = [
         $orderRow['ship_postal_code']
     ),
 ];
+
 
 $stmt = $conn->prepare("
     SELECT oi.*, w.image_file, w.description AS product_description
