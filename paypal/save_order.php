@@ -3,47 +3,36 @@ date_default_timezone_set('Asia/Manila');
 ob_start();
 header('Content-Type: application/json');
 
-// ==================================================
-// ERROR LOGGING
-// ==================================================
+
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/../logs/paypal_error.log');
 
-// ==================================================
-// SESSION + DB
-// ==================================================
+
 session_start();
 require_once __DIR__ . '/../config/connect.php';
 require_once __DIR__ . '/../helpers/id_generator.php';
+require_once __DIR__ . '/../classes/products/ProductRepository.php';
+require_once __DIR__ . '/../classes/cart/CartRepository.php';
 
 if (!isset($conn) || !$conn) {
     echo json_encode(['success' => false, 'error' => 'Database connection failed']);
     exit;
 }
 
-// ==================================================
-// USER VALIDATION
-// ==================================================
 $userID = $_SESSION['userID'] ?? $_SESSION['user_id'] ?? null;
 if (!$userID) {
     echo json_encode(['success' => false, 'error' => 'User not logged in']);
     exit;
 }
 
-// ==================================================
-// READ INPUT
-// ==================================================
 $input = json_decode(file_get_contents('php://input'), true);
 if (!$input) {
     echo json_encode(['success' => false, 'error' => 'Invalid JSON input']);
     exit;
 }
 
-// ==================================================
-// EXTRACT DATA
-// ==================================================
 $firstName     = trim($input['firstName'] ?? '');
 $lastName      = trim($input['lastName'] ?? '');
 $city          = trim($input['city'] ?? '');
@@ -60,17 +49,11 @@ if (!$firstName || !$lastName || !$address || !$city || !$postalCode || !$email 
     exit;
 }
 
-// ==================================================
-// CALCULATE TOTAL
-// ==================================================
 $total = 0;
 foreach ($cart as $item) {
     $total += $item['quantity'] * $item['price'];
 }
 
-// ==================================================
-// EMAIL FUNCTION (GMAIL SAFE CONFIG)
-// ==================================================
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -83,13 +66,11 @@ function sendReceiptEmail($toEmail, $name, $orderID, $cart, $total, $address, $p
     try {
         $mail = new PHPMailer(true);
 
-        // 🔍 DEBUG (writes to paypal_error.log)
         $mail->SMTPDebug = 2;
         $mail->Debugoutput = function ($str, $level) {
             error_log("SMTP: $str");
         };
 
-        // ✅ GMAIL SAFE SETTINGS
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
@@ -104,7 +85,6 @@ function sendReceiptEmail($toEmail, $name, $orderID, $cart, $total, $address, $p
         $mail->isHTML(true);
         $mail->Subject = "Horologe Receipt - Order #$orderID";
 
-        // Load receipt template
         $template = file_get_contents(__DIR__ . '/receipt_email.html');
 
         $itemsTable = '';
@@ -151,9 +131,6 @@ function sendReceiptEmail($toEmail, $name, $orderID, $cart, $total, $address, $p
     }
 }
 
-// ==================================================
-// SAVE ORDER
-// ==================================================
 $order_id = generateId($conn, 'orders', 'order_id', 'ORD', 6);
 $fullName = $firstName . ' ' . $lastName;
 
@@ -189,7 +166,79 @@ try {
     $paymentStmt->execute();
     $paymentStmt->close();
 
+    $lockStmt = $conn->prepare("SELECT stock_quantity FROM watch WHERE watch_id = ? FOR UPDATE");
+    $updateStmt = $conn->prepare("UPDATE watch SET stock_quantity = ? WHERE watch_id = ?");
+    if (!$lockStmt || !$updateStmt) {
+        throw new Exception('Failed to prepare stock statements');
+    }
+
+    $updatedStocks = [];
+    foreach ($cart as $item) {
+        $prodId = (string)($item['id'] ?? $item['watch_id'] ?? '');
+        $qty = max(0, (int)($item['quantity'] ?? 0));
+        if ($prodId === '' || $qty <= 0) continue;
+
+        // Lock row
+        $lockStmt->bind_param('s', $prodId);
+        $lockStmt->execute();
+        $res = $lockStmt->get_result();
+        $row = $res ? $res->fetch_assoc() : null;
+        if (!$row) {
+            throw new Exception("Product not found: $prodId");
+        }
+        $current = (int)$row['stock_quantity'];
+        if ($qty > $current) {
+            throw new Exception("Insufficient stock for product $prodId");
+        }
+
+        $newStock = $current - $qty;
+        if ($newStock < 0) {
+            throw new Exception("Stock would become negative for $prodId");
+        }
+
+        $updateStmt->bind_param('is', $newStock, $prodId);
+        $ok = $updateStmt->execute();
+        if (!$ok) {
+            throw new Exception("Failed to update stock for $prodId");
+        }
+
+        $updatedStocks[$prodId] = $newStock;
+    }
+
+    $lockStmt->close();
+    $updateStmt->close();
+
+    try {
+        $cartRepo = new CartRepository($conn);
+        $userCartId = $cartRepo->getCartIdByUserId($userID);
+        if ($userCartId) {
+            foreach ($cart as $item) {
+                $prodId = (string)($item['id'] ?? $item['watch_id'] ?? '');
+                if ($prodId === '') continue;
+                $cartRepo->removeCartItem($userCartId, $prodId);
+            }
+        }
+    } catch (Throwable $e) {
+        throw $e;
+    }
+
     $conn->commit();
+
+    // Save the purchased items and IDs to session so orderConfirmation shows only checked-out items
+    try {
+        $_SESSION['last_order'] = [
+            'items' => $cart,
+            'total' => $total,
+            'order_id' => $order_id
+        ];
+        $ids = [];
+        foreach ($cart as $item) {
+            $ids[] = (string)($item['id'] ?? $item['watch_id'] ?? '');
+        }
+        $_SESSION['pending_clear_ids'] = array_values(array_filter($ids, function($v){ return $v !== ''; }));
+    } catch (Throwable $e) {
+        error_log('SESSION SAVE ERROR: ' . $e->getMessage());
+    }
 
     $emailSent = sendReceiptEmail(
         $email,
@@ -205,7 +254,8 @@ try {
         'success'   => true,
         'order_id'  => $order_id,
         'total'     => $total,
-        'emailSent' => $emailSent
+        'emailSent' => $emailSent,
+        'updatedStocks' => $updatedStocks
     ]);
     exit;
 

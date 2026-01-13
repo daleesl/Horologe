@@ -77,7 +77,6 @@ function formatPrice($value)
                                         <div class="col-auto p-3" style="width: 175px;">
                                             <?php
                                             $imgPath = $item['image'];
-                                            // If not an absolute URL and doesn't start with '../', prefix it
                                             if (strpos($imgPath, 'http') !== 0 && strpos($imgPath, '../') !== 0) {
                                                 $imgPath = '../' . ltrim($imgPath, '/');
                                             }

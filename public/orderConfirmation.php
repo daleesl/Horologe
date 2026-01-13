@@ -16,10 +16,26 @@ if (isset($_SESSION['last_order']) && is_array($_SESSION['last_order'])) {
 } else {
     $cartService = new CartService();
     $cartItems = $cartService->getItems();
+
+    if (isset($_SESSION['pending_clear_ids']) && is_array($_SESSION['pending_clear_ids']) && count($_SESSION['pending_clear_ids']) > 0) {
+        $selectedMap = array_flip(array_map('strval', $_SESSION['pending_clear_ids']));
+        $cartItems = array_values(array_filter($cartItems, function ($item) use ($selectedMap) {
+            $id = (string) ($item['id'] ?? $item['watch_id'] ?? '');
+            return $id !== '' && isset($selectedMap[$id]);
+        }));
+    }
+
     $cartSummary = $cartService->getSummary();
+    $cartSummary['items'] = 0;
+    $cartSummary['subtotal'] = 0.0;
+    foreach ($cartItems as $ci) {
+        $qty = (int) ($ci['quantity'] ?? 0);
+        $price = (float) ($ci['price'] ?? 0);
+        $cartSummary['items'] += $qty;
+        $cartSummary['subtotal'] += ($qty * $price);
+    }
 }
 
-// After we have the data to render, clear purchased items once per confirmation load
 if (isset($_SESSION['pending_clear_ids']) && is_array($_SESSION['pending_clear_ids'])) {
     $cartService = new CartService();
     foreach ($_SESSION['pending_clear_ids'] as $cid) {

@@ -52,8 +52,8 @@ function formatPrice($value)
                     </p>
 
                     <div class="d-flex flex-wrap gap-3">
-                        <button class="btn btn-light text-dark px-4 py-2 text-secondary">EXPLORE COLLECTIONS</button>
-                        <button class="btn btn-outline-light px-4 py-2 text-secondary">OUR HERITAGE</button>
+                        <a href="collections.php"><button class="btn btn-light text-dark px-4 py-2 text-secondary">EXPLORE COLLECTIONS</button></a>
+                        <a href="heritage.php"><button class="btn btn-outline-light px-4 py-2 text-secondary">OUR HERITAGE</button></a>
                     </div>
                 </div>
             </div>
@@ -123,7 +123,7 @@ function formatPrice($value)
                         Our master watchmakers spend hundreds of hours on a single movement, ensuring that every tick is a synchronization of art and engineering.
                     </p>
 
-                    <a href="#" class="text-white text-decoration-none fs-6 header font-primary">LEARN MORE <span>→</span></a>
+                    <a href="heritage.php" class="text-white text-decoration-none fs-6 header font-primary">LEARN MORE <span>→</span></a>
                 </div>
 
                 <div class="col-lg-6">
