@@ -41,7 +41,7 @@ $shippingAddress = trim(
 
 $stmtProducts = $conn->prepare("
     SELECT oi.quantity, oi.price_at_purchase AS price, w.model AS product_name,
-           w.description, w.image_url AS image
+           w.description, w.image_file AS image
     FROM order_items oi
     LEFT JOIN watch w ON oi.watch_id = w.watch_id
     WHERE oi.order_id = ?
