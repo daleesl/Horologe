@@ -1,10 +1,8 @@
 <?php
 session_start();
 
-// Require DB connection
 require_once __DIR__ . '/../config/connect.php';
 
-// Ensure user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../auth/sign-in.php');
     exit();
@@ -12,7 +10,6 @@ if (!isset($_SESSION['user_id'])) {
 
 $userId = $_SESSION['user_id'];
 
-// Fetch orders for this user with primary product thumbnail and item count
 $stmt = $conn->prepare(
     "SELECT o.order_id, o.order_date, o.total_amount,
         (SELECT COUNT(*) FROM order_items WHERE order_id = o.order_id) AS items_count,
@@ -105,7 +102,6 @@ function moneyFormat(float $value): string {
     </div>
 </section>
 
-<!-- Order Details Modal -->
 <div class="modal fade" id="orderDetailsModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content bg-black text-white border border-secondary rounded-4">

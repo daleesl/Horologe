@@ -14,7 +14,6 @@ if (!$orderId) {
     exit();
 }
 
-// Verify order belongs to current user
 $stmt = $conn->prepare("SELECT order_id, order_date, total_amount FROM orders WHERE order_id = ? AND user_id = ? LIMIT 1");
 $stmt->bind_param('ss', $orderId, $_SESSION['user_id']);
 $stmt->execute();
@@ -27,7 +26,6 @@ if (!$order) {
     exit();
 }
 
-// Fetch products for the order
 $stmt = $conn->prepare("SELECT oi.quantity, oi.price_at_purchase AS price, w.model AS product_name, w.description, w.image_file AS image
     FROM order_items oi
     LEFT JOIN watch w ON oi.watch_id = w.watch_id
