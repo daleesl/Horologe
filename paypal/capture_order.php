@@ -91,7 +91,6 @@ if (!$responseData) {
     exit;
 }
 
-/* ---- Validate PayPal Success ---- */
 if (($responseData['status'] ?? '') !== 'COMPLETED') {
     echo json_encode([
         "error" => "Payment not completed",
@@ -100,7 +99,6 @@ if (($responseData['status'] ?? '') !== 'COMPLETED') {
     exit;
 }
 
-/* ---- SECURE payment_id FROM PAYPAL ---- */
 $payment_id =
     $responseData['purchase_units'][0]['payments']['captures'][0]['custom_id']
     ?? $responseData['purchase_units'][0]['custom_id']
@@ -111,11 +109,9 @@ if (!$payment_id) {
     exit;
 }
 
-/* ---- Database Update ---- */
 $conn->begin_transaction();
 
 try {
-    // Update payment table
     $stmt = $conn->prepare("
         UPDATE payment 
         SET payment_status = 'COMPLETED', payment_date = NOW() 
@@ -124,7 +120,6 @@ try {
     $stmt->bind_param("s", $payment_id);
     $stmt->execute();
 
-    // Insert PayPal payment record
     $paypal_transaction_id = $responseData['id'] ?? $orderID;
     $payer_email = $responseData['payer']['email_address'] ?? '';
 
@@ -142,7 +137,6 @@ try {
     $_SESSION['payment_id'] = $payment_id;
     $_SESSION['paypal_order_id'] = $paypal_transaction_id;
 
-    // Return success response with PayPal data
     echo json_encode($responseData);
 
 } catch (Exception $e) {
