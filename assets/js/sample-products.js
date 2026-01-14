@@ -1,4 +1,4 @@
-//dummy product data for testing purposes
+
 
 var products = [
   {

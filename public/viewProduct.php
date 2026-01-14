@@ -151,7 +151,7 @@ function formatPrice($value)
                                 <?php foreach ($relatedProducts as $related) : ?>
                                     <div class="col-12 col-sm-6 col-lg-3">
                                         <a href="viewProduct.php?id=<?= htmlspecialchars($related['id'], ENT_QUOTES) ?>" class="text-decoration-none">
-                                            <div class="text-center border border-secondary rounded-3 p-3 h-100 d-flex flex-column justify-content-between hover-effect" style="transition: all 0.3s ease;">
+                                            <div class="product-card text-center rounded-3 p-3 h-100 d-flex flex-column justify-content-between" style="transition: all 0.3s ease;">
                                                 <div>
                                                     <div class="mb-3 overflow-hidden rounded ratio ratio-1x1">
                                                         <img src="<?= htmlspecialchars($related['image'], ENT_QUOTES) ?>" alt="<?= htmlspecialchars($related['name'], ENT_QUOTES) ?>" class="w-100 h-100 object-fit-contain p-3">

@@ -1,5 +1,4 @@
 <?php
-// Data access for products
 class ProductRepository
 {
     private mysqli $conn;
@@ -16,9 +15,6 @@ class ProductRepository
         return $this->normalizeList($this->fetchAll($sql));
     }
 
-
-    // Fetch a limited set for featured display.
-   
     public function getFeatured(int $limit = 4): array
     {
         $sql = "SELECT watch_id AS id, brand, model, CONCAT(brand, ' ', model) AS name, brand AS category, price, image_file AS image, description, stock_quantity AS stock FROM watch ORDER BY watch_id DESC LIMIT ?";
@@ -34,8 +30,6 @@ class ProductRepository
         return $this->normalizeList($result ? $result->fetch_all(MYSQLI_ASSOC) : []);
     }
 
-  
-     //Fetch single product by id.
     
     public function getById(string $id): ?array
     {
@@ -53,8 +47,6 @@ class ProductRepository
         return $row ? $this->normalizeRow($row) : null;
     }
 
-  
-     // Fetch related products by brand, excluding the current one.
  
     public function getRelated(string $brand, string $excludeId, int $limit = 4): array
     {
