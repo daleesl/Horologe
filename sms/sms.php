@@ -2,13 +2,6 @@
 
 require_once __DIR__ . '/../config/env.php';
 
-/**
- * Normalizes Philippine phone numbers into 639XXXXXXXXXXX format.
- *
- * @param string $phoneNumber
- *
- * @return string
- */
 function normalizePHPhoneNumber($phoneNumber) {
     $digitsOnly = preg_replace('/\D+/', '', $phoneNumber);
 
@@ -27,14 +20,7 @@ function normalizePHPhoneNumber($phoneNumber) {
     return $digitsOnly;
 }
 
-/**
- * Sends SMS through SMSGate local HTTP API
- *
- * @param string $phoneNumber
- * @param string $message
- *
- * @return bool
- */
+
 function sendSMS($userId, $phoneNumber, $message) {
 
     $gatewayUrl = getenv('SMS_GATEWAY_URL');

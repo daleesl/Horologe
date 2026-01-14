@@ -1,22 +1,18 @@
 <?php
-/* ---------------- ERRORS FOR DEBUGGING ---------------- */
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-/* ---------------- DATABASE CONFIG ---------------- */
 $conn = new mysqli("127.0.0.1", "root", "", "horologe");
 if ($conn->connect_error) {
     echo json_encode(['ok' => false, 'reply' => 'Database connection failed']);
     exit;
 }
 
-/* ---------------- CONFIG ---------------- */
 $NO_DATA_RESPONSE = "I do not have enough information to answer that.";
 $OLLAMA_API_URL = 'http://127.0.0.1:11434/api/chat';
 $MODEL = 'gemma3:270m';
 $OLLAMA_TIMEOUT = 30;
 
-/* ---------------- HANDLE CHAT ---------------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json; charset=utf-8');
 
@@ -26,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    /* ---------- NORMALIZE INPUT ---------- */
     $msgNorm = strtolower($userMsg);
     $msgNorm = preg_replace('/[^a-z0-9\s]/', '', $msgNorm);
     $msgNorm = trim(preg_replace('/\s+/', ' ', $msgNorm));
@@ -35,12 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $searchValue = null;
     $matchedModels = [];
 
-    /* ---------- 1. BRAND LIST INTENT ---------- */
     if (preg_match('/\bbrand(s)?\b|\bbrand list\b|\bbrands in horologe\b|\bwhat are the brands\b/', $msgNorm)) {
         $searchMode = 'brand_list';
     }
 
-    /* ---------- 2. SPECIFIC BRAND DETECTION ---------- */
     if ($searchMode === null) {
         $brands = [];
         $res = $conn->query("SELECT DISTINCT brand FROM watch");
@@ -57,23 +50,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    /* ---------- 3. SEARCH MODELS BY ANY MATCHING KEYWORD ---------- */
     if ($searchMode === null) {
         $userInput = trim($_POST['prompt'] ?? $_POST['message'] ?? '');
         $matchedModels = [];
 
-        // 1. Fetch all models from DB
         $res = $conn->query("SELECT model FROM watch");
         while ($row = $res->fetch_assoc()) {
             $modelName = $row['model'];
-            // If the user input contains at least part of the model name, consider it a match
             similar_text(strtolower($userInput), strtolower($modelName), $percent);
-            if ($percent > 50) { // Adjust threshold as needed
+            if ($percent > 50) {
                 $matchedModels[] = $modelName;
             }
         }
 
-        // 2. If no match found, do a LIKE search
         if (empty($matchedModels)) {
             $stmt = $conn->prepare("
             SELECT model 
@@ -96,10 +85,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    /* ---------- 4. DATABASE RESPONSE ---------- */
     $dbOutput = '';
 
-    /* ---- BRANDS LIST ---- */
+
     if ($searchMode === 'brand_list') {
         $stmt = $conn->query("SELECT DISTINCT brand FROM watch ORDER BY brand");
         $brandsList = [];
@@ -111,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    /* ---- MODELS UNDER BRAND ---- */ elseif ($searchMode === 'brand') {
+     elseif ($searchMode === 'brand') {
         $stmt = $conn->prepare("SELECT model FROM watch WHERE LOWER(brand)=? ORDER BY model");
         $stmt->bind_param("s", $searchValue);
         $stmt->execute();
@@ -131,11 +119,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    /* ---- MODELS MATCHING KEYWORD ---- */ elseif ($searchMode === 'model_keyword') {
+     elseif ($searchMode === 'model_keyword') {
         if (count($matchedModels) === 1) {
             $modelName = $matchedModels[0];
 
-            // Fetch description from DB
+        
             $stmt = $conn->prepare("SELECT description FROM watch WHERE model=?");
             $stmt->bind_param("s", $modelName);
             $stmt->execute();
@@ -144,13 +132,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->close();
 
             if ($desc !== '') {
-                // Build dbOutput to include model + description for Ollama
+
                 $dbOutput = "Model: {$modelName}\nDescription: {$desc}";
             } else {
                 $dbOutput = "Model: {$modelName}";
             }
         } else {
-            // Multiple matches: list all
             $dbOutput = "Multiple models match your query:\n";
             foreach ($matchedModels as $i => $m) {
                 $dbOutput .= ($i + 1) . ". $m\n";
@@ -159,15 +146,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 
-
-
-    /* ---------- 5. FALLBACK ---------- */
     if (trim($dbOutput) === '') {
         echo json_encode(['ok' => true, 'reply' => $NO_DATA_RESPONSE]);
         exit;
     }
 
-    /* ---------- 6. SYSTEM PROMPT ---------- */
     $systemPrompt = [
         'role' => 'system',
         'content' =>
@@ -181,7 +164,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
 
 
-    /* ---------- 7. CALL OLLAMA ---------- */
     $payload = json_encode([
         'model' => $MODEL,
         'messages' => [
