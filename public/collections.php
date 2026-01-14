@@ -19,6 +19,7 @@ function formatPrice($value)
     <title>The Collections - Horologe</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;700&display=swap" rel="stylesheet">
@@ -72,10 +73,10 @@ function formatPrice($value)
         <div class="container">
             <div id="productsRow" class="row g-3 g-lg-5">
                 <?php if (!empty($products)) : ?>
-                    <?php $i = 0; foreach ($products as $product) : ?>
+                    <?php $i = 0; $delay = 0; foreach ($products as $product) : ?>
                         <?php $i++; ?>
                         <div class="col-12 col-sm-6 col-lg-3 product-item" data-category="<?= htmlspecialchars(strtolower($product['category'] ?? ''), ENT_QUOTES) ?>" data-price="<?= htmlspecialchars($product['price'], ENT_QUOTES) ?>" data-index="<?= $i ?>">
-                            <div class="product-card  rounded-3 p-3 h-100 d-flex flex-column justify-content-between">
+                            <div class="product-card rounded-3 p-3 h-100 d-flex flex-column justify-content-between" data-aos="fade-up" data-aos-delay="<?= $delay ?>">
                                 <a href="viewProduct.php?id=<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>" class="text-decoration-none flex-grow-1">
                                     <div>
                                         <div class="mb-2 overflow-hidden rounded ratio ratio-1x1">
@@ -105,7 +106,7 @@ function formatPrice($value)
                                 </div>
                             </div>
                         </div>
-                    <?php endforeach; ?>
+                    <?php $delay += 100; endforeach; ?>
                 <?php else : ?>
                     <div class="col-12 text-center">
                         <p class="text-secondary">Products coming soon.</p>
