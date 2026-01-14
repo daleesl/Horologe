@@ -8,7 +8,7 @@ $cartSummary = $cartService->getSummary();
 
 function formatPrice($value)
 {
-    return '$' . number_format((float)$value, 0, '.', ',');
+    return '$' . number_format((float) $value, 0, '.', ',');
 }
 ?>
 <!doctype html>
@@ -50,26 +50,31 @@ function formatPrice($value)
                             <p class="text-secondary small fw-bold mb-0" style="letter-spacing: 0.1rem;">TIMEPIECE</p>
                         </div>
                         <div class="col-auto" style="width: 140px;">
-                            <p class="text-secondary small fw-bold mb-0 text-center" style="letter-spacing: 0.1rem;">QUANTITY</p>
+                            <p class="text-secondary small fw-bold mb-0 text-center" style="letter-spacing: 0.1rem;">
+                                QUANTITY</p>
                         </div>
                         <div class="col-auto" style="width: 100px;">
-                            <p class="text-secondary small fw-bold mb-0 text-end" style="letter-spacing: 0.1rem;">PRICE</p>
+                            <p class="text-secondary small fw-bold mb-0 text-end" style="letter-spacing: 0.1rem;">PRICE
+                            </p>
                         </div>
                     </div>
 
                     <div id="productsContainer">
-                        <?php if (empty($cartItems)) : ?>
+                        <?php if (empty($cartItems)): ?>
                             <div class="text-center py-5 text-secondary">
                                 <p>No items in your collection yet</p>
                             </div>
-                        <?php else : ?>
-                            <?php foreach ($cartItems as $item) : ?>
-                                <div class="pb-4 mb-4 border-bottom border-secondary cart-item" data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>" data-unit-price="<?= htmlspecialchars($item['price'], ENT_QUOTES) ?>">
+                        <?php else: ?>
+                            <?php foreach ($cartItems as $item): ?>
+                                <div class="pb-4 mb-4 border-bottom border-secondary cart-item"
+                                    data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>"
+                                    data-unit-price="<?= htmlspecialchars($item['price'], ENT_QUOTES) ?>">
                                     <div class="row align-items-center g-4">
                                         <!-- Checkbox -->
                                         <div class="col-auto" style="width: 40px;">
                                             <div class="form-check">
-                                                <input class="form-check-input select-item" type="checkbox" checked data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>">
+                                                <input class="form-check-input select-item" type="checkbox" checked
+                                                    data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>">
                                             </div>
                                         </div>
 
@@ -81,7 +86,9 @@ function formatPrice($value)
                                                 $imgPath = '../' . ltrim($imgPath, '/');
                                             }
                                             ?>
-                                            <img src="<?= htmlspecialchars($imgPath, ENT_QUOTES) ?>" alt="<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>" class="w-100" style="width: 100%; height: 150px; object-fit: contain;">
+                                            <img src="<?= htmlspecialchars($imgPath, ENT_QUOTES) ?>"
+                                                alt="<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>" class="w-100"
+                                                style="width: 100%; height: 150px; object-fit: contain;">
                                         </div>
 
                                         <!-- Product Details (Timepiece) -->
@@ -97,17 +104,26 @@ function formatPrice($value)
                                         <!-- Quantity Control -->
                                         <div class="col-auto" style="width: 140px;">
                                             <div class="d-flex align-items-center justify-content-center gap-2">
-                                                <button class="btn btn-sm btn-outline-secondary px-2 py-1 btn-decrease" data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>">−</button>
-                                                <input type="number" value="<?= htmlspecialchars($item['quantity'], ENT_QUOTES) ?>" readonly class="form-control form-control-sm item-qty" style="width: 50px; text-align: center;">
-                                                <button class="btn btn-sm btn-outline-secondary px-2 py-1 btn-increase" data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>">+</button>
+                                                <button class="btn btn-sm btn-outline-secondary px-2 py-1 btn-decrease"
+                                                    data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>">−</button>
+                                                <input type="number"
+                                                    value="<?= htmlspecialchars($item['quantity'], ENT_QUOTES) ?>" readonly
+                                                    class="form-control form-control-sm item-qty"
+                                                    style="width: 50px; text-align: center;">
+                                                <button class="btn btn-sm btn-outline-secondary px-2 py-1 btn-increase"
+                                                    data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>">+</button>
                                             </div>
                                         </div>
 
                                         <!-- Price & Remove -->
                                         <div class="col-auto" style="width: 100px;">
                                             <div class="text-end">
-                                                <p class="text-white fw-semibold mb-2 item-price" data-raw-price="<?= htmlspecialchars($item['price'], ENT_QUOTES) ?>"><?= formatPrice($item['price']) ?></p>
-                                                <a href="#" class="text-secondary text-decoration-none small link-remove" data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>">
+                                                <p class="text-white fw-semibold mb-2 item-price"
+                                                    data-raw-price="<?= htmlspecialchars($item['price'], ENT_QUOTES) ?>">
+                                                    <?= formatPrice($item['price']) ?>
+                                                </p>
+                                                <a href="#" class="text-secondary text-decoration-none small link-remove"
+                                                    data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>">
                                                     <i class="bi bi-trash"></i> REMOVE
                                                 </a>
                                             </div>
@@ -121,7 +137,8 @@ function formatPrice($value)
 
                 <!-- Summary -->
                 <div class="col-lg-4">
-                    <div class="border border-secondary bg-dark p-4 rounded position-sticky" style="top: 100px; z-index: 1020;">
+                    <div class="border border-secondary bg-dark p-4 rounded position-sticky"
+                        style="top: 100px; z-index: 1020;">
                         <h3 class="h5 text-white mb-4 text-uppercase">SUMMARY</h3>
 
                         <div class="d-flex justify-content-between mb-3 fs-6">
@@ -136,16 +153,39 @@ function formatPrice($value)
 
                         <div class="d-flex justify-content-between border-top border-secondary pt-3 mb-4">
                             <span class="text-white fw-bold">TOTAL</span>
-                            <span class="text-white fw-bold" id="total"><?= formatPrice($cartSummary['subtotal']) ?></span>
+                            <span class="text-white fw-bold"
+                                id="total"><?= formatPrice($cartSummary['subtotal']) ?></span>
                         </div>
 
-                        <button id="proceedCheckout" class="btn btn-light w-100 fw-bold py-3 text-uppercase">PROCEED TO CHECKOUT</button>
-                        <p class="text-center text-secondary small mt-3" style="letter-spacing: 0.05rem;">SECURE CHECKOUT WITH ENCRYPTED PROTECTION</p>
+                        <button id="proceedCheckout" class="btn btn-light w-100 fw-bold py-3 text-uppercase">PROCEED TO
+                            CHECKOUT</button>
+                        <p class="text-center text-secondary small mt-3" style="letter-spacing: 0.05rem;">SECURE
+                            CHECKOUT WITH ENCRYPTED PROTECTION</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <div class="modal fade" id="emptyCartModal" tabindex="-1" aria-labelledby="emptyCartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="emptyCartModalLabel">No Items Selected</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body fs-6">
+                    <p class="text-white text-secondary">
+                        You must select at least one item to proceed to checkout.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary text-white" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -234,7 +274,7 @@ function formatPrice($value)
             });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             attachQuantityHandlers();
             attachRemoveHandlers();
             document.querySelectorAll('.select-item').forEach(box => {
@@ -252,12 +292,15 @@ function formatPrice($value)
                     }
                     const selectedIds = collectSelectedIds();
                     if (selectedIds.length === 0) {
-                        alert('Select at least one item to checkout.');
+                        // Show the modal instead of alert
+                        const emptyCartModal = new bootstrap.Modal(document.getElementById('emptyCartModal'));
+                        emptyCartModal.show();
                         return;
                     }
                     await postForm('../actions/cart/select.php', { selected_ids: selectedIds.join(',') });
                     window.location.href = 'checkout.php';
                 });
+
             }
         });
     </script>
