@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/connect.php';
 require_once __DIR__ . '/../classes/products/ProductService.php';
-require_once __DIR__ . '/../auth/roleGuard.php';
 
 $productService = new ProductService(new ProductRepository($conn));
 $featuredProducts = $productService->getFeaturedProducts(4);
@@ -10,7 +9,6 @@ function formatPrice($value)
 {
     return '$' . number_format((float) $value, 0, '.', ',');
 }
-
 ?>
 <!doctype html>
 <html lang="en">
@@ -94,6 +92,7 @@ function formatPrice($value)
 
             <div id="productsRow" class="row g-3 g-md-4 justify-content-center">
 <<<<<<< HEAD
+<<<<<<< HEAD
                 <?php if (!empty($featuredProducts)) : ?>
                     <?php $delay = 0; foreach ($featuredProducts as $product) : ?>
                         <div class="col-lg-3 col-md-6 col-sm-6">
@@ -111,6 +110,14 @@ function formatPrice($value)
                                         alt="<?= htmlspecialchars($product['name'], ENT_QUOTES) ?>"
                                         class="img-fluid w-100 object-fit-contain" style="max-height: 350px;">
 >>>>>>> 8536c35 (changes for buttons)
+=======
+                <?php if (!empty($featuredProducts)) : ?>
+                    <?php $delay = 0; foreach ($featuredProducts as $product) : ?>
+                        <div class="col-lg-3 col-md-6 col-sm-6">
+                            <div class="product-card h-100 d-flex flex-column p-3 rounded-3" data-aos="fade-up" data-aos-delay="<?= $delay ?>">
+                                <a href="viewProduct.php?id=<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>" class="text-decoration-none">
+                                    <img src="<?= htmlspecialchars($product['image'], ENT_QUOTES) ?>" alt="<?= htmlspecialchars($product['name'], ENT_QUOTES) ?>" class="img-fluid w-100 object-fit-contain" style="max-height: 350px;">
+>>>>>>> e5d5df6 (update index)
                                     <div class="pt-3">
                                         <p class="small text-secondary mb-2 text-uppercase">
                                             <?= htmlspecialchars($product['category'], ENT_QUOTES) ?></p>
