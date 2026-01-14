@@ -33,6 +33,10 @@
                     <span id="cartCount">0</span>
                 </span>
             </a>
+            <a href="orders.php" class="text-decoration-none icon-link px-3 position-relative" aria-label="Orders">
+                <i class="bi bi-receipt text-white"></i>
+                <span id="ordersBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary" style="font-size: 0.55rem; display:none;">0</span>
+            </a>
             <a href="account.php" class="text-decoration-none icon-link px-3" aria-label="Account">
                 <i class="bi bi-person text-white"></i>
             </a>

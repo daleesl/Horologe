@@ -196,7 +196,7 @@ document.querySelectorAll('.view-order-btn').forEach(btn => {
 
         const orderId = btn.closest('tr').children[0].textContent.trim();
 
-        fetch('/Horologe/actions/admin/order_details_api.php?order_id=' + encodeURIComponent(orderId))
+        fetch('../actions/admin/order_details_api.php?order_id=' + encodeURIComponent(orderId))
             .then(res => res.json())
             .then(data => {
 
@@ -220,7 +220,7 @@ document.querySelectorAll('.view-order-btn').forEach(btn => {
 
                 data.products.forEach(p => {
                     const img = p.image
-                        ? '/Horologe/' + p.image
+                        ? '../' + p.image.replace(/^\/+/, '')
                         : 'https://via.placeholder.com/60x60?text=No+Image';
 
                     const line = p.price * p.quantity;

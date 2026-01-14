@@ -72,6 +72,7 @@ function formatPrice($value)
             justify-content: center;
             font-size: 60px;
         }
+
     </style>
 </head>
 
