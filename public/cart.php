@@ -31,7 +31,6 @@ function formatPrice($value)
 
     <section class="py-5" style="padding-top: 100px;">
         <div class="container-fluid px-4 px-md-5">
-            <!-- Header -->
             <div class="row mb-5">
                 <div class="col-12">
                     <h1 class="display-4 fw-normal text-white mb-2">Your Collection</h1>
@@ -39,11 +38,8 @@ function formatPrice($value)
                 </div>
             </div>
 
-            <!-- Main Content -->
             <div class="row g-4">
-                <!-- Products List -->
                 <div class="col-lg-8">
-                    <!-- Header Row -->
                     <div class="row align-items-center g-4 mb-4 pb-3 border-bottom border-secondary">
                         <div class="col-auto" style="width: 40px;"></div>
                         <div class="col flex-grow-1">
@@ -70,7 +66,6 @@ function formatPrice($value)
                                     data-product-id="<?= htmlspecialchars($item['id'], ENT_QUOTES) ?>"
                                     data-unit-price="<?= htmlspecialchars($item['price'], ENT_QUOTES) ?>">
                                     <div class="row align-items-center g-4">
-                                        <!-- Checkbox -->
                                         <div class="col-auto" style="width: 40px;">
                                             <div class="form-check">
                                                 <input class="form-check-input select-item" type="checkbox" checked
@@ -78,7 +73,6 @@ function formatPrice($value)
                                             </div>
                                         </div>
 
-                                        <!-- Product Image -->
                                         <div class="col-auto p-3" style="width: 175px;">
                                             <?php
                                             $imgPath = $item['image'];
@@ -91,7 +85,6 @@ function formatPrice($value)
                                                 style="width: 100%; height: 150px; object-fit: contain;">
                                         </div>
 
-                                        <!-- Product Details (Timepiece) -->
                                         <div class="col flex-grow-1">
                                             <p class="text-secondary small mb-1" style="letter-spacing: 0.05rem;">
                                                 <?= htmlspecialchars($item['category'], ENT_QUOTES) ?>
@@ -101,7 +94,6 @@ function formatPrice($value)
                                             </h6>
                                         </div>
 
-                                        <!-- Quantity Control -->
                                         <div class="col-auto" style="width: 140px;">
                                             <div class="d-flex align-items-center justify-content-center gap-2">
                                                 <button class="btn btn-sm btn-outline-secondary px-2 py-1 btn-decrease"
@@ -115,7 +107,6 @@ function formatPrice($value)
                                             </div>
                                         </div>
 
-                                        <!-- Price & Remove -->
                                         <div class="col-auto" style="width: 100px;">
                                             <div class="text-end">
                                                 <p class="text-white fw-semibold mb-2 item-price"
@@ -135,7 +126,6 @@ function formatPrice($value)
                     </div>
                 </div>
 
-                <!-- Summary -->
                 <div class="col-lg-4">
                     <div class="border border-secondary bg-dark p-4 rounded position-sticky"
                         style="top: 100px; z-index: 1020;">
@@ -292,7 +282,6 @@ function formatPrice($value)
                     }
                     const selectedIds = collectSelectedIds();
                     if (selectedIds.length === 0) {
-                        // Show the modal instead of alert
                         const emptyCartModal = new bootstrap.Modal(document.getElementById('emptyCartModal'));
                         emptyCartModal.show();
                         return;

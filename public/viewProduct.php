@@ -44,7 +44,6 @@ function formatPrice($value)
                     </div>
                 </div>
             <?php else : ?>
-                <!-- Back Button -->
                 <div class="row mb-5">
                     <div class="col-12">
                         <a href="collections.php" class="text-secondary text-decoration-none d-inline-flex align-items-center gap-2">
@@ -54,37 +53,29 @@ function formatPrice($value)
                     </div>
                 </div>
 
-                <!-- Product Details -->
                 <div class="row g-5 align-items-center">
-                    <!-- Product Image -->
                     <div class="col-lg-6 d-flex justify-content-center">
                         <div id="productImageContainer" class="ratio ratio-1x1 w-100" style="max-width: 500px;">
                             <img id="productImage" src="<?= htmlspecialchars($product['image'], ENT_QUOTES) ?>" alt="<?= htmlspecialchars($product['name'], ENT_QUOTES) ?>" class="w-100 h-100 object-fit-contain">
                         </div>
                     </div>
 
-                    <!-- Product Info -->
                     <div class="col-lg-6">
-                        <!-- Category -->
                         <div class="mb-4">
                             <span id="productCategory" class="border border-secondary text-secondary px-3 py-2 d-inline-block small fw-bold text-uppercase"><?= htmlspecialchars($product['category'], ENT_QUOTES) ?></span>
                         </div>
 
-                        <!-- Title -->
                         <h1 id="productName" class="display-4 fw-normal mb-4"><?= htmlspecialchars($product['name'], ENT_QUOTES) ?></h1>
 
-                        <!-- Price & Stock -->
                         <div class="mb-3">
                             <p id="productPrice" class="fs-3 fw-bold mb-1"><?= formatPrice($product['price']) ?></p>
                             <p class="text-secondary mb-0 product-stock" data-product-id="<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>">Stock: <span class="stock-count"><?= (int)($product['stock'] ?? 0) ?></span></p>
                         </div>
 
-                        <!-- Description -->
                         <div class="mb-5">
                             <p id="productDescription" class="fs-5 text-secondary mb-0"><?= htmlspecialchars($product['description'] ?? 'Premium luxury timepiece crafted with precision and elegance.', ENT_QUOTES) ?></p>
                         </div>
 
-                        <!-- Quantity Selector -->
                         <div class="mb-4">
                             <label for="quantityInput" class="form-label fw-bold text-uppercase small">QUANTITY</label>
                             <div class="input-group" style="max-width: 150px;">
@@ -98,7 +89,6 @@ function formatPrice($value)
                             </div>
                         </div>
 
-                        <!-- Add to Cart Button -->
                         <div class="mb-5">
                             <?php $inStock = (int)($product['stock'] ?? 0) > 0; ?>
                             <button class="btn btn-light w-100 fw-bold py-3 add-to-cart-btn" id="addToCartBtn"
@@ -140,7 +130,6 @@ function formatPrice($value)
                     </div>
                 </div>
 
-                <!-- Related Products -->
                 <div class="row mt-5 pt-5">
                     <div class="col-12">
                         <h3 class="display-5 fw-normal mb-5">YOU MAY ALSO LIKE</h3>

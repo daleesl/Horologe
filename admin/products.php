@@ -255,7 +255,6 @@ foreach ($products as $p) {
             }
         });
 
-        // Simple client-side search filter by name/brand
         const searchInput = document.getElementById('productSearch');
         const tiles = document.querySelectorAll('.product-tile');
         searchInput.addEventListener('input', () => {
@@ -268,7 +267,6 @@ foreach ($products as $p) {
             });
         });
 
-        // Delete handler via modal
         const deleteModalEl = document.getElementById('deleteModal');
         const deleteModal = new bootstrap.Modal(deleteModalEl);
         const deleteNameEl = document.getElementById('deleteProductName');

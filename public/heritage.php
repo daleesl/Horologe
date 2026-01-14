@@ -16,7 +16,6 @@
 
     <?php include '../includes/navbar.php'; ?>
 
-    <!-- HERITAGE INTRO -->
     <div class="container-fluid py-5" style="background-color: #171717;">
         <div class="row">
             <div class="col-12">
@@ -32,7 +31,6 @@
         </div>
     </div>
 
-    <!-- THE BEGINNING SECTION -->
     <div class="container py-5 border-bottom border-secondary">
         <div class="row align-items-center g-4">
             <div class="col-lg-6 order-lg-1 order-2">
@@ -53,7 +51,6 @@
         </div>
     </div>
 
-    <!-- THE CRAFT SECTION -->
     <div class="container py-5">
         <div class="row align-items-center g-4">
             <div class="col-lg-6 order-lg-1 mb-4 mb-lg-0">
@@ -74,7 +71,6 @@
         </div>
     </div>
 
-    <!-- PHILOSOPHY SECTION -->
     <section class="bg-black py-5 mt-5">
         <div class="container">
             <h2 class="display-3 fw-bold text-white text-center mb-5">Our Philosophy</h2>

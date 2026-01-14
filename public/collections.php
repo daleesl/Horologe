@@ -31,7 +31,6 @@ function formatPrice($value)
 
     <section class="py-5" style="padding-top: 100px;">
         <div class="container-fluid px-4 px-md-5">
-            <!-- Header -->
             <div class="row mb-5 text-center">
                 <div class="col-12">
                     <h1 class="display-3 fw-normal text-white mb-3">The Collections</h1>
@@ -39,7 +38,6 @@ function formatPrice($value)
                 </div>
             </div>
 
-            <!-- Filters & Sort -->
             <div class="row mb-5 align-items-center border-bottom border-secondary pb-4">
                 <div class="col-lg-8">
                     <div class="d-flex flex-wrap gap-3 align-items-center" id="filterButtons">
@@ -65,11 +63,8 @@ function formatPrice($value)
                     </div>
                 </div>
             </div>
-
         </div>
 
-
-        <!-- Products Grid -->
         <div class="container">
             <div id="productsRow" class="row g-3 g-lg-5">
                 <?php if (!empty($products)) : ?>
@@ -86,7 +81,6 @@ function formatPrice($value)
                                         <h5 class="text-white text-secondary-bold"><?= htmlspecialchars($product['name'], ENT_QUOTES) ?></h5>
                                         <p class="text-white mb-1"><?= formatPrice($product['price']) ?></p>
                                         <p class="text-secondary small mb-1 product-stock" data-product-id="<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>">Stock: <span class="stock-count"><?= (int)($product['stock'] ?? 0) ?></span></p>
-                               
                                     </div>
                                 </a>
                                 
@@ -114,7 +108,6 @@ function formatPrice($value)
                 <?php endif; ?>
             </div>
         </div>
-
     </section>
 
     <?php include '../includes/footer.php'; ?>
