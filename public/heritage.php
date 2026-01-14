@@ -1,6 +1,3 @@
-<?php
-require_once __DIR__ . '/../auth/roleGuard.php';
-?>
 <!doctype html>
 <html lang="en">
 
