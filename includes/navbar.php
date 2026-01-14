@@ -27,10 +27,6 @@
 
         <!-- Right icons -->
         <div class="d-flex align-items-center ms-auto">
-<<<<<<< HEAD
-=======
-            </a>
->>>>>>> 405430d (remove search)
             <a href="cart.php" class="text-decoration-none icon-link px-3 position-relative" aria-label="Bag">
                 <i class="bi bi-bag text-white"></i>
                 <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
