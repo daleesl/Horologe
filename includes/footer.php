@@ -2,6 +2,7 @@
     <div class="container">
         <div class="row g-4 py-4">
             <!-- Brand Column -->
+<<<<<<< HEAD
             <div class="col-lg-4 col-md-6">
                 <h2 class="footer-brand text-white mb-3 font-primary">HOROLOGE</h2>
                 <p class="footer-text text-secondary mb-3">Excellence in horology. Providing the world's most distinguished timepieces to discerning collectors since 1924.</p>
@@ -51,4 +52,32 @@
             </div>
         </div>
     </div>
+=======
+            <div class="col-lg-6 col-md-6">
+                <h2 class="footer-brand text-white mb-3 font-primary">HOROLOGE</h2>
+                <p class="footer-text text-secondary mb-0">Excellence in horology. Providing the world's most
+                    distinguished timepieces to discerning collectors since 1924.</p>
+            </div>
+
+            <!-- Collections Column -->
+            <div class="col-lg-6 col-md-6">
+                <h5 class="footer-heading text-white mb-3">Collections</h5>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><span class="d-block text-secondary">Rolex</span></li>
+                    <li class="mb-2"><span class="d-block text-secondary">Cartier</span></li>
+                    <li class="mb-2"><span class="d-block text-secondary">Patek Philippe</span></li>
+                    <li class="mb-2"><span class="d-block text-secondary">Montblanc</span></li>
+                </ul>
+            </div>
+
+
+
+            <!-- Copyright -->
+            <div class="row mt-4 pt-4 border-top border-secondary">
+                <div class="col-12 text-center">
+                    <p class="footer-text text-secondary mb-0">© 2026 HOROLOGE INTERNATIONAL. ALL RIGHTS RESERVED.</p>
+                </div>
+            </div>
+        </div>
+>>>>>>> f70e66e (clean footer)
 </footer>
