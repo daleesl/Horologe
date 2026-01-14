@@ -16,7 +16,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password_input = $_POST['password'];
     $confirm_password_input = $_POST['confirm_password'] ?? '';
 
-    // Validation
     if ($password_input !== $confirm_password_input) {
         $error = "Passwords do not match.";
     } elseif (empty($fname) || empty($lname) || empty($email) || empty($password_input)) {
@@ -49,9 +48,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $stmt->execute();
 
-            // ===============================
-            // POST DATA TO MEDITRACK SYSTEM
-            // ===============================
             $apiUrl = "http://172.20.10.3/Workspace/MediTrack/api.php";
 
             $postData = [
@@ -72,13 +68,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $curlError = curl_error($ch);
             curl_close($ch);
 
-            // Optional: log errors (do NOT block registration)
             if ($curlError) {
                 error_log("MediTrack API Error: " . $curlError);
             }
-            // ===============================
 
-            // Optional SMS notification
             if (!empty($phone)) {
                 $phoneFormatted = '+63' . substr($phone, 1);
                 sendSMS(
@@ -126,7 +119,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <body class="bg-black">
     <nav class="navbar navbar-dark bg-black border-bottom border-secondary">
         <div class="container-fluid d-flex justify-content-center py-2 py-md-3">
-            <div class="navbar-brand text-center text-white">HOROLOGE</div>
+             <div class="navbar-brand position-absolute top-50 start-50 translate-middle d-none d-lg-block" href="index.php">
+            <span class="display-6 header font-primary text-white">HOROLOGE</span>
+        </div>
         </div>
     </nav>
 

@@ -76,7 +76,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <body class="bg-black">
     <nav class="navbar navbar-dark bg-black border-bottom border-secondary">
         <div class="container-fluid d-flex justify-content-center py-2 py-md-3">
-            <div class="navbar-brand text-center text-white">HOROLOGE</div>
+             <div class="navbar-brand position-absolute top-50 start-50 translate-middle d-none d-lg-block" href="index.php">
+            <span class="display-6 header font-primary text-white">HOROLOGE</span>
+        </div>
         </div>
     </nav>
 
