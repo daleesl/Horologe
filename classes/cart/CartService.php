@@ -1,5 +1,4 @@
 <?php
-// Session-based cart manager. Keeps data sourced from the database via ProductService.
 require_once __DIR__ . '/CartRepository.php';
 require_once __DIR__ . '/../../config/connect.php';
 
@@ -31,10 +30,7 @@ class CartService
         }
     }
 
-    /**
-     * Add or increment a product in the cart.
-     * @param array<string,mixed> $product
-     */
+
     public function addProduct(array $product, int $quantity = 1): void
     {
         $id = (string) ($product['id'] ?? '');
@@ -59,9 +55,6 @@ class CartService
         }
     }
 
-    /**
-     * Update quantity; remove item if quantity <= 0.
-     */
     public function updateQuantity(string $productId, int $quantity): void
     {
         if ($productId === '') {
@@ -72,7 +65,6 @@ class CartService
                 $this->repo->removeCartItem($this->cartId, $productId);
                 return;
             }
-            // Fetch product price for subtotal
             $productRepo = new \ProductRepository($GLOBALS['conn']);
             $product = $productRepo->getById($productId);
             $price = isset($product['price']) ? (float)$product['price'] : 0.0;
@@ -107,23 +99,17 @@ class CartService
         }
     }
 
-    /**
-     * @return array<int,array<string,mixed>>
-     */
+
     public function getItems(): array
     {
         if ($this->useDb) {
             $items = $this->repo->getCartItems($this->cartId);
-            // Optionally, join with product table for details
             return $items;
         } else {
             return array_values($_SESSION['cart']);
         }
     }
 
-    /**
-     * @return array{items:int, unique:int, subtotal:float}
-     */
     public function getSummary(): array
     {
         $items = $this->getItems();
