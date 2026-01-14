@@ -145,7 +145,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+<<<<<<< HEAD
     /* ---------- 5. FALLBACK ---------- */
+=======
+
+>>>>>>> 2a35db6 (cleanup)
     if (trim($dbOutput) === '') {
         echo json_encode(['ok' => true, 'reply' => $NO_DATA_RESPONSE]);
         exit;
@@ -163,7 +167,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "DATA:\n$dbOutput"
     ];
 
+<<<<<<< HEAD
     /* ---------- 7. CALL OLLAMA ---------- */
+=======
+
+>>>>>>> 2a35db6 (cleanup)
     $payload = json_encode([
         'model' => $MODEL,
         'messages' => [
