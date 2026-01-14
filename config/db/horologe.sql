@@ -17,15 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
--- Database: `horologe`
---
 
--- --------------------------------------------------------
-
---
--- Table structure for table `cart`
---
 
 CREATE TABLE `cart` (
   `cart_id` varchar(50) NOT NULL,
@@ -33,11 +25,7 @@ CREATE TABLE `cart` (
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
 
---
--- Table structure for table `cartitems`
---
 
 CREATE TABLE `cartitems` (
   `cart_item_id` varchar(50) NOT NULL,
@@ -46,12 +34,6 @@ CREATE TABLE `cartitems` (
   `quantity` int(11) NOT NULL DEFAULT 1,
   `subtotal` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `orders`
---
 
 CREATE TABLE `orders` (
   `order_id` varchar(50) NOT NULL,
@@ -68,12 +50,6 @@ CREATE TABLE `orders` (
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
---
--- Table structure for table `order_items`
---
-
 CREATE TABLE `order_items` (
   `id` int(11) NOT NULL,
   `order_id` varchar(50) NOT NULL,
@@ -84,12 +60,6 @@ CREATE TABLE `order_items` (
   `price_at_purchase` decimal(10,2) NOT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `payment`
---
 
 CREATE TABLE `payment` (
   `id` int(11) NOT NULL,
@@ -103,12 +73,6 @@ CREATE TABLE `payment` (
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
---
--- Table structure for table `paypalpayment`
---
-
 CREATE TABLE `paypalpayment` (
   `id` int(11) NOT NULL,
   `paypal_transaction_id` varchar(100) NOT NULL,
@@ -118,12 +82,6 @@ CREATE TABLE `paypalpayment` (
   `payment_id` varchar(50) NOT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `sms`
---
 
 CREATE TABLE `sms` (
   `id` int(11) NOT NULL,
@@ -135,11 +93,6 @@ CREATE TABLE `sms` (
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
 
 CREATE TABLE `users` (
   `user_id` varchar(50) NOT NULL,
@@ -154,18 +107,11 @@ CREATE TABLE `users` (
   `role` enum('user','admin') NOT NULL DEFAULT 'user'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `users`
---
+
 
 INSERT INTO `users` (`user_id`, `fname`, `lname`, `email`, `password`, `phone_number`, `status`, `created_at`, `updated_at`, `role`) VALUES
 ('USR001', 'Admin', 'User', 'admin@horologe.com', '$2y$10$YAs7nAeH3gTt7iLln/IthOVzWTFsx3laZq7NZksIj/a.xQk2awOYy', '09123456789', 'active', '2026-01-13 21:11:44', '2026-01-13 21:11:44', 'admin');
 
--- --------------------------------------------------------
-
---
--- Table structure for table `watch`
---
 
 CREATE TABLE `watch` (
   `watch_id` varchar(50) NOT NULL,
@@ -179,9 +125,6 @@ CREATE TABLE `watch` (
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `watch`
---
 
 INSERT INTO `watch` (`watch_id`, `brand`, `model`, `description`, `price`, `stock_quantity`, `image_file`, `created_at`, `updated_at`) VALUES
 ('W001', 'Cartier', 'Americane Rose Gold W2607456', 'A graceful expression of Cartier’s signature elegance, this Tank Américaine in rose gold features a sleek rectangular case and classic Roman numerals. Its refined profile and polished finish make it a quintessential dress watch for those who appreciate subtle sophistication.', 9500.00, 19, 'assets/images/products/cartier/prod_6963dd9f2268f5.79902600_cartier1.png', '2026-01-12 01:27:59', '2026-01-13 13:55:48'),
@@ -205,156 +148,97 @@ INSERT INTO `watch` (`watch_id`, `brand`, `model`, `description`, `price`, `stoc
 ('W019', 'Rolex', 'Datejust 28 Two Tone Yellow Gold White Roman Dial', 'An elegant blend of classic and contemporary design, this 28mm Datejust features a two-tone case and pristine white dial adorned with Roman numerals. It’s a refined and versatile timepiece that elevates both casual and formal ensembles.', 9000.00, 15, 'assets/images/products/rolex/prod_6963e28c723d16.80910908_rolex4.png', '2026-01-12 01:43:17', '2026-01-13 13:39:41'),
 ('W020', 'Rolex', 'Yacht-Master 40 Everose Black Dial 116655 2017', 'The Yacht-Master 40 in Everose gold epitomizes the perfect union of sport and luxury. Its bold black dial contrasts beautifully with the warm glow of Everose, while its Oysterflex bracelet ensures comfort and durability. Designed for maritime elegance and refined adventures, it is a statement of both performance and prestige.', 10000.00, 20, 'assets/images/products/rolex/prod_6964444edd3fb2.27199305_rolex5.png', '2026-01-12 08:46:06', '2026-01-12 08:46:06');
 
---
--- Indexes for dumped tables
---
 
---
--- Indexes for table `cart`
---
 ALTER TABLE `cart`
   ADD PRIMARY KEY (`cart_id`),
   ADD KEY `fk_cart_user` (`user_id`);
 
---
--- Indexes for table `cartitems`
---
+
 ALTER TABLE `cartitems`
   ADD PRIMARY KEY (`cart_item_id`),
   ADD KEY `fk_cartitems_watch` (`watch_id`),
   ADD KEY `fk_cartitems_cart` (`cart_id`);
 
---
--- Indexes for table `orders`
---
+
 ALTER TABLE `orders`
   ADD PRIMARY KEY (`order_id`) USING BTREE,
   ADD KEY `fk_orders_user` (`user_id`),
   ADD KEY `idx_orders_order_date` (`order_date`);
 
---
--- Indexes for table `order_items`
---
+
 ALTER TABLE `order_items`
   ADD PRIMARY KEY (`id`),
   ADD KEY `order_id` (`order_id`),
   ADD KEY `watch_id` (`watch_id`);
 
---
--- Indexes for table `payment`
---
+
 ALTER TABLE `payment`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `payment_id` (`payment_id`),
   ADD UNIQUE KEY `payment_id_2` (`payment_id`),
   ADD KEY `fk_payment_order` (`order_id`);
 
---
--- Indexes for table `paypalpayment`
---
+
 ALTER TABLE `paypalpayment`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `paypal_transaction_id` (`paypal_transaction_id`),
   ADD KEY `payment_id` (`payment_id`);
 
---
--- Indexes for table `sms`
---
+
 ALTER TABLE `sms`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_sms_user` (`user_id`);
 
---
--- Indexes for table `users`
---
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
   ADD UNIQUE KEY `email` (`email`),
   ADD UNIQUE KEY `phone_number` (`phone_number`);
 
---
--- Indexes for table `watch`
---
+
 ALTER TABLE `watch`
   ADD PRIMARY KEY (`watch_id`);
 
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `order_items`
---
 ALTER TABLE `order_items`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
---
--- AUTO_INCREMENT for table `payment`
---
+
 ALTER TABLE `payment`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=120;
 
---
--- AUTO_INCREMENT for table `paypalpayment`
---
+
 ALTER TABLE `paypalpayment`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
---
--- AUTO_INCREMENT for table `sms`
---
 ALTER TABLE `sms`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
---
--- Constraints for dumped tables
---
 
---
--- Constraints for table `cart`
---
 ALTER TABLE `cart`
   ADD CONSTRAINT `fk_cart_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
---
--- Constraints for table `cartitems`
---
+
 ALTER TABLE `cartitems`
   ADD CONSTRAINT `fk_cartitems_cart` FOREIGN KEY (`cart_id`) REFERENCES `cart` (`cart_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_cartitems_watch` FOREIGN KEY (`watch_id`) REFERENCES `watch` (`watch_id`) ON DELETE CASCADE;
 
---
--- Constraints for table `orders`
---
+
 ALTER TABLE `orders`
   ADD CONSTRAINT `fk_orders_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
---
--- Constraints for table `order_items`
---
+
 ALTER TABLE `order_items`
   ADD CONSTRAINT `fk_order_items_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_order_items_watch` FOREIGN KEY (`watch_id`) REFERENCES `watch` (`watch_id`);
 
---
--- Constraints for table `payment`
---
+
 ALTER TABLE `payment`
   ADD CONSTRAINT `fk_payment_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`);
 
---
--- Constraints for table `paypalpayment`
---
+
 ALTER TABLE `paypalpayment`
   ADD CONSTRAINT `fk_paypalpayment_payment` FOREIGN KEY (`payment_id`) REFERENCES `payment` (`payment_id`);
 
---
--- Constraints for table `sms`
---
 ALTER TABLE `sms`
   ADD CONSTRAINT `fk_sms_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
