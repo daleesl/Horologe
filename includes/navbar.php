@@ -1,3 +1,15 @@
+</nav>
+<!-- AOS Animation Library -->
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script>
+        AOS.init({
+            duration: 1000,
+            easing: 'ease-out-quart',
+            offset: 120,
+            once: true,
+            mirror: false
+        });
+    </script>
 <nav class="navbar navbar-dark bg-black sticky-top" style="z-index: 1030;">
     <div class="container-fluid position-relative px-4 py-3 border-bottom border-secondary d-flex align-items-center">
         <button class="navbar-toggler d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLinks"
@@ -15,9 +27,6 @@
 
         <!-- Right icons -->
         <div class="d-flex align-items-center ms-auto">
-            <a href="#" class="text-decoration-none icon-link px-3" aria-label="Search">
-                <i class="bi bi-search text-white"></i>
-            </a>
             <a href="cart.php" class="text-decoration-none icon-link px-3 position-relative" aria-label="Bag">
                 <i class="bi bi-bag text-white"></i>
                 <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
@@ -33,9 +42,9 @@
     <!-- Bottom row: desktop/tablet always visible -->
     <div class="w-100 border-secondary d-none d-md-block align-items-center">
         <div class="container-fluid px-4 py-2 d-flex justify-content-center">
-            <a class="nav-link text-secondary small p-0 mx-4" href="index.php">HOME</a>
-            <a class="nav-link text-secondary small p-0 mx-4" href="collections.php">COLLECTIONS</a>
-            <a class="nav-link text-secondary small p-0 mx-4" href="heritage.php">HERITAGE</a>
+            <a class="nav-link text-secondary  p-0 mx-4" href="index.php">HOME</a>
+            <a class="nav-link text-secondary  p-0 mx-4" href="collections.php">COLLECTIONS</a>
+            <a class="nav-link text-secondary  p-0 mx-4" href="heritage.php">HERITAGE</a>
         </div>
     </div>
 
