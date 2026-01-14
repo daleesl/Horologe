@@ -82,7 +82,6 @@ function formatPrice($value)
 
     <section class="py-5" style="padding-top: 100px;">
         <div class="container">
-            <!-- Success Header -->
             <div class="text-center mb-5">
                 <div class="d-flex justify-content-center mb-4">
                     <div class="check-icon text-white">
@@ -93,9 +92,7 @@ function formatPrice($value)
                 <p class="text-secondary fs-6">THANK YOU FOR CHOOSING HOROLOGE. YOUR TIMEPIECE IS BEING PREPARED</p>
             </div>
 
-            <!-- Order Content -->
             <div class="row g-4">
-                <!-- Order Details Card -->
                 <div class="col-lg-6">
                     <div class="border border-secondary bg-dark p-4 rounded">
                         <h3 class="h5 text-white mb-4 text-uppercase border-bottom border-secondary pb-3">ORDER DETAILS</h3>
@@ -118,7 +115,6 @@ function formatPrice($value)
                             <p class="text-white fw-semibold" id="paymentMethod">PAYPAL</p>
                         </div>
 
-                        <!-- Products Ordered -->
                         <div id="orderedProductsContainer">
                             <?php if (empty($cartItems)) : ?>
                                 <p class="text-secondary">No products in this order</p>
@@ -187,7 +183,6 @@ function formatPrice($value)
                 </div>
             </div>
 
-            <!-- Action Buttons -->
             <div class="row mt-5 justify-content-center">
                 <div class="col-lg-6">
                     <a href="index.php" class="btn btn-light w-100 fw-bold py-3 text-uppercase mb-3">CONTINUE EXPLORING</a>

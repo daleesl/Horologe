@@ -17,10 +17,8 @@ if ($amount === null || $amount === '') {
 
 $amount = number_format((float)$amount, 2, '.', '');
 
-// Generate payment ID
 $payment_id = 'PAY-' . time() . '-' . rand(1000, 9999);
 
-// Insert into payment table first
 $stmt = $conn->prepare("INSERT INTO payment (payment_id, payment_method, payment_status, amount) VALUES (?, ?, ?, ?)");
 $stmt->bind_param("sssd", $payment_id, $payment_method, $payment_status, $amount);
 $payment_method = 'PAYPAL';

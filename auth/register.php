@@ -26,15 +26,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $password = password_hash($password_input, PASSWORD_DEFAULT);
         $status = "active";
 
+        $smsSent = false;
+
         try {
             $stmt = $conn->prepare(
                 "INSERT INTO users 
                 (user_id, fname, lname, email, password, phone_number, status)
                 VALUES (?, ?, ?, ?, ?, ?, ?)"
             );
-
+        
             if (!$stmt) throw new Exception("Prepare failed: " . $conn->error);
-
+        
             $stmt->bind_param(
                 "sssssss",
                 $user_id,
@@ -45,63 +47,70 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $phone,
                 $status
             );
-
+        
             $stmt->execute();
-
+        
             $apiUrl = "http://172.20.10.3/Workspace/MediTrack/api.php";
-
             $postData = [
                 'username' => $fname . ' ' . $lname,
                 'email'    => $email,
-                'password' => $password_input, // already hashed
-                'address'  => '',         // no address in Horologe
+                'password' => $password_input,
+                'address'  => '',
                 'contact'  => $phone
             ];
-
+        
             $ch = curl_init($apiUrl);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-
+        
             $response = curl_exec($ch);
             $curlError = curl_error($ch);
             curl_close($ch);
-
+        
             if ($curlError) {
                 error_log("MediTrack API Error: " . $curlError);
             }
-
-            if (!empty($phone)) {
+        
+            if (!empty($phone) && !$smsSent) {
                 $phoneFormatted = '+63' . substr($phone, 1);
                 sendSMS(
                     $user_id, $phoneFormatted, "Welcome to Horologe, $fname! Your account is now active."
                 );
+                $smsSent = true;
+        
                 file_put_contents(
                     __DIR__ . '/../logs/register_debug.log',
-                    "[" . date('Y-m-d H:i:s') . "] sendSMS() about to run. Phone: $phone\n",
+                    "[" . date('Y-m-d H:i:s') . "] Welcome SMS sent to $phone\n",
                     FILE_APPEND
                 );                
             }
-
+        
             session_regenerate_id(true);
             $_SESSION['user_id'] = $user_id;
             $_SESSION['fname']   = $fname;
             $_SESSION['lname']   = $lname;
-
+        
             header("Location: ../public/index.php");
             exit();
-
+        
         } catch (mysqli_sql_exception $e) {
             if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
-                $error = "Email already exists. Try another email.";
+                if (strpos($e->getMessage(), "'email'") !== false) {
+                    $error = "Email already exists. Try another email.";
+                } elseif (strpos($e->getMessage(), "'phone_number'") !== false) {
+                    $error = "Phone number already exists. Try another number.";
+                } else {
+                    $error = "Duplicate entry detected.";
+                }
             } else {
                 $error = "Database error: " . $e->getMessage();
             }
         } catch (Exception $e) {
             $error = $e->getMessage();
         }
-
+        
         if (isset($stmt)) $stmt->close();
     }
 }

@@ -1,7 +1,10 @@
 <?php
 require_once __DIR__ . '/../config/connect.php';
 
-function normalizePHPhoneNumber($phone) {
+date_default_timezone_set('Asia/Manila');
+
+function normalizePHPhoneNumber(string $phone): string
+{
     $digits = preg_replace('/\D+/', '', $phone);
 
     if (strpos($digits, '63') === 0) {
@@ -22,14 +25,8 @@ function normalizePHPhoneNumber($phone) {
 $raw = file_get_contents('php://input');
 
 file_put_contents(
-    __DIR__ . '/../logs/webhook_headers.log',
-    print_r(getallheaders(), true) . "\n",
-    FILE_APPEND
-);
-
-file_put_contents(
     __DIR__ . '/../logs/incoming_sms.log',
-    "[" . date('Y-m-d H:i:s') . "] " . $raw . PHP_EOL,
+    "[" . date('Y-m-d H:i:s') . "] RAW: " . $raw . PHP_EOL,
     FILE_APPEND
 );
 
@@ -48,36 +45,30 @@ $phone = normalizePHPhoneNumber($from);
 
 $user_id = null;
 
-$stmt = $conn->prepare(
-    "SELECT user_id FROM users WHERE phone_number = ? LIMIT 1"
-);
-$stmt->bind_param("s", $phone);
+$stmt = $conn->prepare("
+    SELECT user_id
+    FROM users
+    WHERE
+        REPLACE(phone_number, '+', '') = ?
+        OR CONCAT('63', SUBSTRING(phone_number, 2)) = ?
+    LIMIT 1
+");
+
+$stmt->bind_param("ss", $phone, $phone);
 $stmt->execute();
 $stmt->bind_result($user_id);
 $stmt->fetch();
 $stmt->close();
 
-$stmt = $conn->prepare(
-    "INSERT INTO sms (user_id, direction, phone_number, message, source)
-     VALUES (?, 'incoming', ?, ?, 'sms_forwarder')"
-);
+
+$stmt = $conn->prepare("
+    INSERT INTO sms (user_id, direction, phone_number, message, source)
+    VALUES (?, 'incoming', ?, ?, 'sms_forwarder')
+");
 
 $stmt->bind_param("sss", $user_id, $phone, $message);
 $stmt->execute();
 $stmt->close();
-
-if ($user_id) {
-    $ack = "Thank you! We have received your message.";
-
-    $stmt = $conn->prepare(
-        "INSERT INTO sms (user_id, direction, phone_number, message, source)
-         VALUES (?, 'outgoing', ?, ?, 'system')"
-    );
-
-    $stmt->bind_param("sss", $user_id, $phone, $ack);
-    $stmt->execute();
-    $stmt->close();
-}
 
 http_response_code(200);
 echo json_encode([
@@ -85,6 +76,4 @@ echo json_encode([
     'received' => true,
     'user_id'  => $user_id
 ]);
-
 exit;
-?>

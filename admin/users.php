@@ -106,17 +106,14 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
 <body class="bg-black text-white">
     <div class="d-flex flex-column flex-md-row">
-        <!-- Sidebar -->
         <?php include '../includes/adminSidebar.php'; ?>
 
-        <!-- Main Content -->
         <div class="flex-grow-1 w-100 p-3 p-sm-4">
             <div class="d-md-none mb-3">
                 <button class="btn btn-outline-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebarOffcanvas" aria-controls="adminSidebarOffcanvas">
                     <i class="bi bi-list"></i> Menu
                 </button>
             </div>
-            <!-- Header -->
             <div class="mb-4">
                 <h1 class="display-5 fw-normal mb-2">Users</h1>
                 <p class="text-secondary mb-0">Manage customer accounts and permissions</p>
@@ -140,7 +137,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     
             <div class="row g-3 mb-4">
 
-                <!-- Active Users -->
                 <div class="col-lg-4">
                     <div class="border border-secondary rounded p-3">
                         <div class="d-flex justify-content-between align-items-center">
@@ -157,8 +153,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
             </div>
 
-
-            <!-- Users Table -->
             <?php
             $users = [];
             $sql = "SELECT u.user_id, u.fname, u.lname, u.email, u.phone_number, u.status, u.created_at,
@@ -248,7 +242,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
             });
         });
 
-        // Handle filter tabs
         document.querySelectorAll('.filter-tab').forEach(tab => {
             tab.addEventListener('click', function() {
                 document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));

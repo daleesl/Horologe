@@ -106,16 +106,12 @@ function formatPrice($value)
 
     <section class="py-5" style="padding-top: 100px;">
         <div class="container-fluid px-4 px-md-5">
-            <!-- Header -->
             <div class="mb-5">
                 <h1 class="display-4 fw-normal text-white mb-2">CHECKOUT</h1>
             </div>
 
-            <!-- Main Checkout Content -->
             <div class="row g-5">
-                <!-- Left Side - Shipping & Payment -->
                 <div class="col-lg-7">
-                    <!-- Shipping Information -->
                     <div class="mb-5">
                         <h3 class="h5 text-white text-uppercase mb-4 pb-3 border-bottom border-secondary">SHIPPING INFORMATION</h3>
 
@@ -161,12 +157,10 @@ function formatPrice($value)
                     </div>
                 </div>
 
-                <!-- Right Side - Order Summary -->
                 <div class="col-lg-5">
                     <div class="border border-secondary bg-dark p-4 rounded position-sticky" style="top: 100px; z-index: 1020;">
                         <h3 class="h5 text-white mb-4 text-uppercase border-bottom border-secondary pb-3">ORDER DETAILS</h3>
 
-                        <!-- Products in Order -->
                         <div id="orderItemsContainer" class="mb-4">
                             <?php if (empty($cartItems)) : ?>
                                 <div class="text-center py-4"><p class="text-secondary">No items in your order</p><a href="collections.php" class="text-white text-decoration-none">Continue Shopping</a></div>
@@ -233,9 +227,7 @@ function formatPrice($value)
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
 
-    <!-- Toast Notifications -->
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080">
-        <!-- Success Toast -->
         <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert">
             <div class="d-flex">
                 <div class="toast-body">
@@ -244,7 +236,6 @@ function formatPrice($value)
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         </div>
-        <!-- Error Toast -->
         <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert">
             <div class="d-flex">
                 <div class="toast-body">

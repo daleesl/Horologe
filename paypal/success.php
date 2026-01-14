@@ -6,7 +6,6 @@ $paypalOrderID = $_GET['token'] ?? '';
 $payment_id = $_SESSION['paypal_payment_id'] ?? '';
 
 if ($paypalOrderID && $payment_id) {
-    // Capture the payment
     $captureUrl = "capture_order.php?orderID=$paypalOrderID&payment_id=$payment_id";
     $captureResponse = file_get_contents($captureUrl);
     $captureData = json_decode($captureResponse, true);
