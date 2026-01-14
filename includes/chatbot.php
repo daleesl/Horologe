@@ -1,8 +1,6 @@
-<!-- HOROLOGE CHATBOT -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
 <style>
-    /* ================= CHAT PANEL ================= */
     #chatPanel {
         overflow: hidden;
         width: 440px;
@@ -21,7 +19,6 @@
         font-size: 15px;
     }
 
-    /* ================= CHAT BODY ================= */
     #chatBox {
         overflow-y: auto;
         flex-grow: 1;
@@ -39,14 +36,12 @@
         border-radius: 3px;
     }
 
-    /* ================= MESSAGE BUBBLES ================= */
     .msg-user {
         max-width: 75%;
         margin-left: auto;
         margin-bottom: 0.9rem;
         background: #d4af37;
         color: #000;
-        /* User text black */
         padding: 0.6rem 0.9rem;
         border-radius: 1rem 1rem 0.3rem 1rem;
         line-height: 1.5;
@@ -60,7 +55,6 @@
         margin-bottom: 0.9rem;
         background: rgba(255, 255, 255, 0.08);
         color: #fff;
-        /* Assistant text white */
         padding: 0.6rem 0.9rem;
         border-radius: 1rem 1rem 1rem 0.3rem;
         line-height: 1.5;
@@ -68,19 +62,16 @@
         word-wrap: break-word;
     }
 
-    /* ================= INPUT ================= */
     #chatInput {
         font-size: 15px;
         padding: 10px 14px;
         background: #000;
         border: none;
         color: #fff;
-        /* Input text white */
     }
 
     #chatInput::placeholder {
         color: #fff;
-        /* Placeholder white */
     }
 
     #chatSend {
@@ -91,46 +82,41 @@
         color: #000;
     }
 
-    /* ================= HEADER ================= */
     #chatPanel .border-bottom span {
         font-size: 17px;
         letter-spacing: 0.3px;
         font-weight: 500;
         color: #fff;
-        /* Header text white */
     }
 
     #chatPanel .border-bottom button {
         color: #fff !important;
-        /* Close button white */
         font-size: 18px;
     }
 
-    /* ================= FORCE THEME ================= */
     #chatPanel * {
         font-family: "degular", sans-serif !important;
     }
 </style>
 
-<!-- ================= CHAT BUTTON ================= -->
 <button id="chatToggle"
         class="btn btn-dark shadow-lg position-fixed rounded-circle"
         style="bottom:25px; right:25px; width:60px; height:60px; padding:0; z-index:1050;">
     <i class="bi bi-chat-dots-fill fs-4"></i>
 </button>
 
-<!-- ================= CHAT PANEL ================= -->
+
 <div id="chatPanel">
-    <!-- HEADER -->
+
     <div class="d-flex justify-content-between align-items-center p-3 border-bottom border-secondary">
         <span>Ask Horologe</span>
         <button id="chatClose" class="btn btn-sm text-secondary-bold">×</button>
     </div>
 
-    <!-- CHAT BODY -->
+
     <div id="chatBox" class="p-3 small"></div>
 
-    <!-- INPUT -->
+
     <div class="input-group border-top border-secondary">
         <input type="text" id="chatInput" class="form-control bg-black border-0" placeholder="Ask about our watches...">
         <button id="chatSend" class="btn btn-outline-light text-secondary-bold">Send</button>
@@ -146,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chatInput");
     const chatBox = document.getElementById("chatBox");
 
-    // Clear chat only on full page refresh
+
     const navigation = performance.getEntriesByType("navigation")[0];
     if (!navigation || navigation.type === "reload") {
         sessionStorage.removeItem("chatHistory");
@@ -154,25 +140,24 @@ document.addEventListener("DOMContentLoaded", () => {
         sessionStorage.removeItem("chatScrollTop");
     }
 
-    // Restore chat history if available
     if (sessionStorage.getItem("chatHistory")) {
         chatBox.innerHTML = sessionStorage.getItem("chatHistory");
     }
 
-    // Restore scroll position if available
+
     if (sessionStorage.getItem("chatScrollTop")) {
         chatBox.scrollTop = parseInt(sessionStorage.getItem("chatScrollTop"));
     }
 
     function toggleChat() {
         chatPanel.style.display = (chatPanel.style.display === "flex") ? "none" : "flex";
-        // Do not change scroll position
+
     }
 
     chatToggle.onclick = toggleChat;
     chatClose.onclick = toggleChat;
 
-    // Save chat history and scroll
+
     function saveChatState() {
         sessionStorage.setItem("chatHistory", chatBox.innerHTML);
         sessionStorage.setItem("chatScrollTop", chatBox.scrollTop);
@@ -190,7 +175,6 @@ document.addEventListener("DOMContentLoaded", () => {
         saveChatState();
     }
 
-    // Welcome message (only once per session)
     if (!sessionStorage.getItem("welcomeShown")) {
         addBotMessage(
         "Hello, welcome to Horologe! I’m your watch assistant. " +
@@ -235,7 +219,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.key === "Enter") sendChat();
     });
 
-    // Save scroll whenever the user scrolls manually
     chatBox.addEventListener("scroll", () => {
         sessionStorage.setItem("chatScrollTop", chatBox.scrollTop);
     });

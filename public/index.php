@@ -19,6 +19,7 @@ function formatPrice($value)
     <title>Horologe</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;700&display=swap" rel="stylesheet">
@@ -74,9 +75,9 @@ function formatPrice($value)
 
             <div id="productsRow" class="row g-3 g-md-4 justify-content-center">
                 <?php if (!empty($featuredProducts)) : ?>
-                    <?php foreach ($featuredProducts as $product) : ?>
+                    <?php $delay = 0; foreach ($featuredProducts as $product) : ?>
                         <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="product-card h-100 d-flex flex-column p-3 rounded-3">
+                            <div class="product-card h-100 d-flex flex-column p-3 rounded-3" data-aos="fade-up" data-aos-delay="<?= $delay ?>">
                                 <a href="viewProduct.php?id=<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>" class="text-decoration-none">
                                     <img src="<?= htmlspecialchars($product['image'], ENT_QUOTES) ?>" alt="<?= htmlspecialchars($product['name'], ENT_QUOTES) ?>" class="img-fluid w-100 object-fit-contain" style="max-height: 350px;">
                                     <div class="pt-3">
@@ -99,7 +100,7 @@ function formatPrice($value)
                                 </div>
                             </div>
                         </div>
-                    <?php endforeach; ?>
+                    <?php $delay += 100; endforeach; ?>
                 <?php else : ?>
                     <div class="col-12 text-center">
                         <p class="text-secondary">Products coming soon.</p>

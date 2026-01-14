@@ -5,7 +5,6 @@ require_once __DIR__ . '/../classes/cart/CartService.php';
 
 session_start();
 
-// Initialize user info
 $userID = $_SESSION['userID'] ?? $_SESSION['user_id'] ?? null;
 $userEmail = $_SESSION['email'] ?? null;
 $user = [
@@ -38,7 +37,6 @@ if ($userID) {
 $cartService = new CartService();
 $cartItems = $cartService->getItems();
 
-// If the cart page stored a subset for checkout, filter items here.
 if (isset($_SESSION['checkout_selected_ids']) && is_array($_SESSION['checkout_selected_ids'])) {
     $selectedMap = array_flip($_SESSION['checkout_selected_ids']);
     $cartItems = array_values(array_filter($cartItems, function ($item) use ($selectedMap) {
@@ -46,7 +44,6 @@ if (isset($_SESSION['checkout_selected_ids']) && is_array($_SESSION['checkout_se
     }));
 }
 
-// Recompute summary based on filtered items.
 $cartSummary = [
     'items' => 0,
     'unique' => count($cartItems),
@@ -260,22 +257,18 @@ function formatPrice($value)
 
     <script src="../assets/js/cart.js"></script>
     <script>
-        // Get cart items and total from the page
         const cartItemsData = <?php echo json_encode($cartItems); ?>;
         const userEmailData = <?php echo json_encode($userEmail ?? null); ?>;
         let formDataSubmitted = null;
 
-        // COMPLETE ORDER button now just validates form
         document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            // Form validation happens here, PayPal works independently
             const firstName = document.getElementById('firstName').value.trim();
             if (firstName) {
                 showToast('successToast', 'Form validated. Click PayPal button to pay.');
             }
         });
 
-        // Function to collect and validate form data when PayPal needs it
         function collectFormData() {
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
@@ -285,7 +278,6 @@ function formatPrice($value)
             const country = document.getElementById('country').value.trim();
             const email = document.getElementById('email').value.trim();
 
-            // Validate all required fields
             if (!firstName || !lastName || !address || !city || !postalCode || !country || !email) {
                 showToast('errorToast', 'Please fill in all required fields before paying.');
                 throw new Error('Missing required checkout data');
@@ -297,7 +289,6 @@ function formatPrice($value)
             };
         }
 
-        // Utility function
         function showToast(id, message = null) {
             const toastEl = document.getElementById(id);
             if (!toastEl) {
@@ -312,7 +303,6 @@ function formatPrice($value)
             toast.show();
         }
 
-        // Initialize PayPal Buttons
         paypal.Buttons({
             style: {
                 layout: 'vertical',
@@ -322,7 +312,6 @@ function formatPrice($value)
             },
 
             createOrder: function(data, actions) {
-                // Calculate total from cart items
                 let totalAmount = 0;
                 cartItemsData.forEach(item => {
                     totalAmount += (item.price * item.quantity);
@@ -352,14 +341,12 @@ function formatPrice($value)
             },
 
             onApprove: function(data, actions) {
-                // Collect and validate form data before capturing payment
                 try {
                     formDataSubmitted = collectFormData();
                 } catch (e) {
                     return Promise.reject(e);
                 }
 
-                // Capture the PayPal order first
                 return fetch('../paypal/capture_order.php?orderID=' + data.orderID, {
                     method: 'POST'
                 })
@@ -373,7 +360,6 @@ function formatPrice($value)
 
                     const total = cartItemsData.reduce((s, i) => s + (i.price * i.quantity), 0);
 
-                    // Save order to DB
                     return fetch('../paypal/save_order.php', {
                         method: 'POST',
                         headers: {
@@ -396,21 +382,15 @@ function formatPrice($value)
                     .then(res => res.json())
                     .then(r => {
                         if (r.success) {
-                            // Store info and show success
                             localStorage.setItem('checkoutInfo', JSON.stringify(formDataSubmitted));
-                                // Update product stock displays immediately using returned mapping
                                 if (r.updatedStocks && typeof r.updatedStocks === 'object') {
                                     Object.keys(r.updatedStocks).forEach(pid => {
                                         const newStock = parseInt(r.updatedStocks[pid], 10);
-                                        // Update any stock-count spans
                                         document.querySelectorAll('[data-product-id="' + pid + '"]').forEach(el => {
                                             const sc = el.querySelector('.stock-count');
                                             if (sc) sc.textContent = newStock;
-                                            // Update any add-to-cart buttons inside product cards
-                                            // If the element itself is the product-stock container, also update sibling buttons
                                         });
 
-                                        // Update add-to-cart buttons in listings
                                         document.querySelectorAll('button.add-to-cart-btn[data-product-id="' + pid + '"]').forEach(btn => {
                                             if (newStock > 0) {
                                                 btn.disabled = false;
@@ -421,7 +401,6 @@ function formatPrice($value)
                                             }
                                         });
 
-                                        // Update single product page add button (if present)
                                         const singleBtn = document.querySelector('#addToCartBtn[data-product-id="' + pid + '"]');
                                         if (singleBtn) {
                                             if (newStock > 0) {
@@ -434,13 +413,11 @@ function formatPrice($value)
                                         }
                                     });
                                 }
-                            // Refresh cart display (calls actions/cart/summary.php) so UI reflects empty cart
-                            // Also clear any client-side cart storage for completeness
+
                             try {
                                 localStorage.removeItem('cart');
                                 sessionStorage.removeItem('cart');
                             } catch (e) {
-                                /* ignore */
                             }
                             if (typeof updateCartCountDisplay === 'function') {
                                 updateCartCountDisplay();

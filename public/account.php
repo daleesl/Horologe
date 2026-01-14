@@ -146,24 +146,45 @@ if ($stmt) {
 
 				<div class="card bg-dark border-0 shadow-lg rounded-4">
 					<div class="card-body p-4 p-lg-5">
-						<form method="post" action="#" class="row g-4">
+
+						<!-- Confirmation Modal -->
+						<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+							<div class="modal-dialog modal-dialog-centered">
+								<div class="modal-content bg-dark text-light">
+									<div class="modal-header">
+										<h5 class="modal-title" id="confirmModalLabel">Confirm Credential Change</h5>
+										<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+									</div>
+									<div class="modal-body fs-6" >
+										<p class="text-white text-secondary"> Are you sure you want to change your account credentials (email, password, or other sensitive information)?<br>
+										This action will update your credentials in the database.</p>
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-secondary text-secondary text-white" data-bs-dismiss="modal">Cancel</button>
+										<button type="button" class="btn btn-success text-secondary text-white" id="confirmSaveBtn">Yes, Save Changes</button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<form method="post" action="#" class="row g-4" id="accountForm">
 
 							<div class="col-12">
 								<div class="row g-3">
 									<div class="col-12">
-										<label class="form-label text-white fw-semibold">First Name</label>
+										<label class="form-label text-white fw-semibold text-secondary fs-5">First Name</label>
 										<input type="text" class="form-control form-control-lg bg-dark text-secondary border-secondary rounded-3" name="first_name" value="<?php echo htmlspecialchars($user['first_name']); ?>">
 									</div>
 									<div class="col-12">
-										<label class="form-label text-white fw-semibold">Last Name</label>
+										<label class="form-label text-white fw-semibold text-secondary fs-5">Last Name</label>
 										<input type="text" class="form-control form-control-lg bg-dark text-secondary border-secondary rounded-3" name="last_name" value="<?php echo htmlspecialchars($user['last_name']); ?>">
 									</div>
 									<div class="col-12">
-										<label class="form-label text-white fw-semibold">Email Address</label>
+										<label class="form-label text-white fw-semibold text-secondary fs-5">Email Address</label>
 										<input type="email" class="form-control form-control-lg bg-dark text-secondary border-secondary rounded-3" name="email" value="<?php echo htmlspecialchars($user['email']); ?>">
 									</div>
 									<div class="col-12">
-										<label class="form-label text-white fw-semibold">Phone Number</label>
+										<label class="form-label text-white fw-semibold text-secondary fs-5">Phone Number</label>
 										<input type="number" class="form-control form-control-lg bg-dark text-secondary border-secondary rounded-3" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>">
 									</div>
 								</div>
@@ -173,10 +194,10 @@ if ($stmt) {
 
 							<div class="col-12 d-flex justify-content-end gap-2">
 	
-									<button type="submit" class="btn btn-success btn-lg rounded-pill shadow-sm me-3">
+									<button type="submit" class="btn btn-success btn-lg rounded-pill shadow-sm me-3 text-secondary text-white" id="saveChangesBtn">
 										Save Changes
 									</button>
-									<button type="submit" name="logout" value="1" class="btn btn-outline-light btn-lg">Logout</button>
+									<button type="submit" name="logout" value="1" class="btn btn-outline-light btn-lg text-secondary text-white" id="logoutBtn">Logout</button>
 							</div>
 						</form>
 					</div>
@@ -187,6 +208,39 @@ if ($stmt) {
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="../assets/js/cart.js"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const form = document.getElementById('accountForm');
+			const saveBtn = document.getElementById('saveChangesBtn');
+			const logoutBtn = document.getElementById('logoutBtn');
+			const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+			const confirmSaveBtn = document.getElementById('confirmSaveBtn');
+
+			let submitRequested = false;
+
+			saveBtn.addEventListener('click', function (e) {
+				e.preventDefault();
+				confirmModal.show();
+			});
+
+			confirmSaveBtn.addEventListener('click', function () {
+				submitRequested = true;
+				form.submit();
+			});
+
+			logoutBtn.addEventListener('click', function () {
+				submitRequested = true;
+			});
+
+			form.addEventListener('submit', function (e) {
+				if (!submitRequested) {
+					e.preventDefault();
+				} else {
+					submitRequested = false;
+				}
+			});
+		});
+	</script>
 </body>
 
 </html>

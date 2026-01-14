@@ -155,6 +155,7 @@ function formatPrice($value)
 
     <script src="../assets/js/cart.js"></script>
     <script>
+        const IS_LOGGED_IN = <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>;
         async function postForm(url, data) {
             const res = await fetch(url, {
                 method: 'POST',
@@ -245,6 +246,10 @@ function formatPrice($value)
             if (checkoutBtn) {
                 checkoutBtn.addEventListener('click', async (e) => {
                     e.preventDefault();
+                    if (!IS_LOGGED_IN) {
+                        window.location.href = '../auth/sign-in.php';
+                        return;
+                    }
                     const selectedIds = collectSelectedIds();
                     if (selectedIds.length === 0) {
                         alert('Select at least one item to checkout.');

@@ -8,14 +8,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Sanitize input
+
 $fname = mysqli_real_escape_string($conn, $_POST['fname'] ?? '');
 $lname = mysqli_real_escape_string($conn, $_POST['lname'] ?? '');
 $email = mysqli_real_escape_string($conn, $_POST['email'] ?? '');
 $password_input = mysqli_real_escape_string($conn, $_POST['password'] ?? '');
 $phone = mysqli_real_escape_string($conn, $_POST['phone_number'] ?? '');
 
-// Check if email already exists
+
 $check = "SELECT user_id FROM users WHERE email = '$email'";
 $result = mysqli_query($conn, $check);
 
@@ -27,7 +27,6 @@ if (mysqli_num_rows($result) > 0) {
 $user_id = generateId($conn, 'users', 'user_id', 'USR');
 $password = password_hash($password_input, PASSWORD_DEFAULT);
 
-// Insert into Horologe users table
 $insert = "
     INSERT INTO users
     (user_id, fname, lname, email, password, phone_number, status, created_at, updated_at)

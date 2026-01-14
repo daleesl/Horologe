@@ -1,13 +1,11 @@
-// Resolve a stable base for cart endpoints regardless of current page depth.
 function getCartApiBase() {
-    // Prefer the path of the loaded cart.js file so we know where the repo root sits.
     const scripts = document.getElementsByTagName('script');
     for (const s of scripts) {
         if (s.src && s.src.includes('/assets/js/cart.js')) {
             return s.src.replace(/\/assets\/js\/cart\.js.*$/, '/');
         }
     }
-    // Fallback: strip off everything after /public/ so /actions is reachable.
+  
     const publicIndex = window.location.pathname.indexOf('/public/');
     if (publicIndex !== -1) {
         return window.location.origin + window.location.pathname.substring(0, publicIndex + 1);
@@ -17,7 +15,6 @@ function getCartApiBase() {
 
 const CART_API_BASE = getCartApiBase();
 
-// Cart Management Functions (server-backed via PHP actions)
 
 async function cartRequest(endpoint, data = null) {
     const url = new URL(`actions/cart/${endpoint}`, CART_API_BASE).toString();
@@ -54,7 +51,6 @@ async function cartRequest(endpoint, data = null) {
     return dataJson;
 }
 
-// Add item to cart (server session)
 async function addToCart(product, quantity) {
     const res = await cartRequest('add.php', {
         product_id: product.id,
@@ -67,7 +63,6 @@ async function addToCart(product, quantity) {
     showCartNotification(`${product.name} added to cart!`);
 }
 
-// Remove item from cart
 async function removeFromCart(productId) {
     const res = await cartRequest('remove.php', { product_id: productId });
     if (res && res.error) {
@@ -76,7 +71,6 @@ async function removeFromCart(productId) {
     await updateCartCountDisplay();
 }
 
-// Update quantity
 async function updateQuantity(productId, quantity) {
     const res = await cartRequest('update.php', { product_id: productId, quantity });
     if (res && res.error) {
@@ -85,13 +79,11 @@ async function updateQuantity(productId, quantity) {
     await updateCartCountDisplay();
 }
 
-// Get summary (items/unique/subtotal)
 async function getCartSummary() {
     const data = await cartRequest('summary.php');
     return data && data.summary ? data.summary : { items: 0, unique: 0, subtotal: 0 };
 }
 
-// Update navbar badge from server summary
 async function updateCartCountDisplay() {
     const cartBadge = document.getElementById('cartBadge');
     const cartCountSpan = document.getElementById('cartCount');
@@ -110,17 +102,14 @@ async function updateCartCountDisplay() {
     }
 }
 
-// Format price to USD currency
-
 function formatPrice(price) {
-    return '$' + parseFloat(price).toLocaleString('en-PH', {
+    return '$' + parseFloat(price).toLocaleString('en-US', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
     });
 }
 
 
- // Show notification
 
 function showCartNotification(message) {
     const notification = document.createElement('div');
