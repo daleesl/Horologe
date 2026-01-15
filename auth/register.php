@@ -50,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         
             $stmt->execute();
         
-            $apiUrl = "http://172.20.10.3/Workspace/MediTrack/api.php";
+            $apiUrl = "http://172.20.10.2/Workspace/pill-and-pestle/api.php";
             $postData = [
                 'username' => $fname . ' ' . $lname,
                 'email'    => $email,

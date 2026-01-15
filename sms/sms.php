@@ -1,37 +1,40 @@
 <?php
-
+require_once __DIR__ . '/../config/connect.php';
 require_once __DIR__ . '/../config/env.php';
 
-function normalizePHPhoneNumber($phoneNumber) {
-    $digitsOnly = preg_replace('/\D+/', '', $phoneNumber);
+function normalizePHPhoneNumber(string $phone): string
+{
+    $digits = preg_replace('/\D+/', '', $phone);
 
-    if (strpos($digitsOnly, '63') === 0) {
-        return $digitsOnly;
-    }
+    if (strpos($digits, '63') === 0) return $digits;
+    if (strpos($digits, '09') === 0) return '63' . substr($digits, 1);
+    if (strlen($digits) === 10 && $digits[0] === '9') return '63' . $digits;
 
-    if (strpos($digitsOnly, '09') === 0) {
-        return '63' . substr($digitsOnly, 1);
-    }
-
-    if (strlen($digitsOnly) === 10 && $digitsOnly[0] === '9') {
-        return '63' . $digitsOnly;
-    }
-
-    return $digitsOnly;
+    return $digits;
 }
 
-
-function sendSMS($userId, $phoneNumber, $message) {
+function sendSMS(?string $userId, string $phoneNumber, string $message): bool
+{
+    global $conn;
 
     $gatewayUrl = getenv('SMS_GATEWAY_URL');
     $username   = getenv('SMS_GATEWAY_USER');
     $password   = getenv('SMS_GATEWAY_PASS');
 
-    $normalizedPhoneNumber = normalizePHPhoneNumber($phoneNumber);
-    $url = rtrim($gatewayUrl, '/') . '/messages';
+    if (!$gatewayUrl || !$username || !$password) {
+        file_put_contents(
+            __DIR__ . '/../logs/sms_error.log',
+            "[" . date('Y-m-d H:i:s') . "] ENV CONFIG MISSING\n",
+            FILE_APPEND
+        );
+        return false;
+    }
+
+    $phone = normalizePHPhoneNumber($phoneNumber);
+    $url   = rtrim($gatewayUrl, '/') . '/messages';
 
     $payload = json_encode([
-        'phoneNumbers' => [$normalizedPhoneNumber],
+        'phoneNumbers' => [$phone],
         'message'      => $message
     ]);
 
@@ -52,14 +55,22 @@ function sendSMS($userId, $phoneNumber, $message) {
     $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    global $conn;
-    $stmt = $conn->prepare(
-        "INSERT INTO sms (user_id, direction, phone_number, message, source, created_at)
-        VALUES (?, 'outgoing', ?, ?, 'system', NOW())"
-    );
-    $stmt->bind_param("sss", $userId, $normalizedPhoneNumber, $message);
+    if ($curlError || $statusCode < 200 || $statusCode >= 300) {
+        file_put_contents(
+            __DIR__ . '/../logs/sms_gateway_error.log',
+            "[" . date('Y-m-d H:i:s') . "] HTTP:$statusCode ERROR:$curlError RESPONSE:$response\n",
+            FILE_APPEND
+        );
+        return false;
+    }
+
+    $stmt = $conn->prepare("
+        INSERT INTO sms (user_id, direction, phone_number, message, source, created_at)
+        VALUES (?, 'outgoing', ?, ?, 'system', NOW())
+    ");
+    $stmt->bind_param("sss", $userId, $phone, $message);
     $stmt->execute();
     $stmt->close();
 
-    return $statusCode >= 200 && $statusCode < 300;
+    return true;
 }

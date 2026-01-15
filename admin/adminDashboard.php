@@ -99,6 +99,19 @@ if ($resTop) {
     }
 }
 
+$overview['sms_inbox'] = 0;
+
+$resSms = $conn->query("
+    SELECT COUNT(*) AS total
+    FROM sms
+    WHERE direction = 'incoming'
+");
+
+if ($resSms) {
+    $row = $resSms->fetch_assoc();
+    $overview['sms_inbox'] = (int)($row['total'] ?? 0);
+}
+
 function moneyFormat(float $value): string
 {
     return '$' . number_format($value, 2, '.', ',');
@@ -185,9 +198,7 @@ function moneyFormat(float $value): string
             vertical-align: -0.2em;
         }
 
-        .display-5,
         .display-6,
-        h1,
         h2,
         h3,
         h4,
@@ -215,31 +226,35 @@ function moneyFormat(float $value): string
                 </button>
             </div>
             <div class="mb-5">
-                <h1 class="display-5 fw-bold text-white">Dashboard</h1>
+                <h1 class="display-5 text-white">Dashboard</h1>
                 <p class="text-secondary">Welcome to your admin dashboard</p>
             </div>
 
             <div class="row g-4 mb-5">
-                <div class="col-12 col-sm-6 col-lg-4">
+                <div class="col-12 col-sm-6 col-lg-3">
                     <div class="dashboard-card h-100">
                         <div class="dashboard-label mb-2"><i class="bi bi-cash-coin me-2"></i>TOTAL REVENUE</div>
                         <div class="dashboard-value mb-1"><?= moneyFormat($overview['revenue']); ?></div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-lg-4">
+                <div class="col-12 col-sm-6 col-lg-3">
                     <div class="dashboard-card h-100">
                         <div class="dashboard-label mb-2"><i class="bi bi-bag-check me-2"></i>TOTAL ORDERS</div>
                         <div class="dashboard-value mb-1"><?= htmlspecialchars($overview['orders']); ?></div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-lg-4">
+                <div class="col-12 col-sm-6 col-lg-3">
                     <div class="dashboard-card h-100">
                         <div class="dashboard-label mb-2"><i class="bi bi-people me-2"></i>TOTAL CUSTOMERS</div>
                         <div class="dashboard-value mb-1"><?= htmlspecialchars($overview['customers']); ?></div>
-
                     </div>
                 </div>
-
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="dashboard-card h-100">
+                        <div class="dashboard-label mb-2"><i class="bi bi-cash-coin me-2"></i>TOTAL INCOMING SMS</div>
+                        <div class="dashboard-value mb-1"><?= htmlspecialchars($overview['sms_inbox']); ?></div>
+                    </div>
+                </div>
             </div>
 
             <div class="mb-5">
@@ -262,7 +277,18 @@ function moneyFormat(float $value): string
             </div>
 
             <div class="mb-5">
-                <h3 class="text-white text-uppercase fw-bold mb-4">Recent Orders</h3>
+                <div class="row mb-5 align-items-center">
+                    <div class="col-lg-6">
+                        <h3 class="text-white text-uppercase fw-bold mb-0">Recent Orders</h3>
+                    </div>
+                    <div class="col-lg-6 text-lg-end mt-2 mt-lg-0">
+                        <a href="orders.php"
+                        class="text-white text-decoration-none fs-6 header font-primary">
+                            VIEW ALL ORDERS <span>→</span>
+                        </a>
+                    </div>
+                </div>
+
                 <div class="card bg-dark border-0 shadow rounded-4">
                     <div class="card-body p-0 border border-secondary rounded overflow-hidden">
                         <div class="table-responsive">
@@ -316,7 +342,17 @@ function moneyFormat(float $value): string
             </div>
 
             <div class="mb-5">
-                <h3 class="text-white text-uppercase fw-bold mb-4">Top Selling Products</h3>
+                <div class="row mb-5 align-items-center">
+                    <div class="col-lg-6">
+                        <h3 class="text-white text-uppercase fw-bold mb-0">Top Selling Products</h3>
+                    </div>
+                    <div class="col-lg-6 text-lg-end mt-2 mt-lg-0">
+                        <a href="products.php"
+                        class="text-white text-decoration-none fs-6 header font-primary">
+                            VIEW ALL PRODUCTS <span>→</span>
+                        </a>
+                    </div>
+                </div>
                 <div class="row g-4">
                     <?php if (!empty($topProducts)) : ?>
                         <?php $rank = 1;
