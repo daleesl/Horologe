@@ -58,7 +58,7 @@ function formatPrice($value)
                             <option value="featured" selected class="text-secondary">Featured</option>
                             <option value="price-asc" class="text-secondary">Price: Low to High</option>
                             <option value="price-desc" class="text-secondary">Price: High to Low</option>
-                            <option value="newest" class="text-secondary">Newest</option>
+                            <option value="oldest" class="text-secondary">Oldest</option>
                         </select>
                     </div>
                 </div>
@@ -139,7 +139,7 @@ function formatPrice($value)
                     sorted.sort((a, b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price));
                 } else if (mode === 'price-desc') {
                     sorted.sort((a, b) => parseFloat(b.dataset.price) - parseFloat(a.dataset.price));
-                } else if (mode === 'newest') {
+                } else if (mode === 'oldest') {
                     sorted.sort((a, b) => parseInt(b.dataset.index, 10) - parseInt(a.dataset.index, 10));
                 } else {
                     sorted.sort((a, b) => parseInt(a.dataset.index, 10) - parseInt(b.dataset.index, 10));

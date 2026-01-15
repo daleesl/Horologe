@@ -54,13 +54,11 @@ foreach ($products as $p) {
                 </button>
             </div>
 
-            <!-- Header -->
             <div class="mb-4">
-                <h1 class="display-5 fw-normal mb-2">PRODUCTS</h1>
+                <h1 class="display-5 fw-normal mb-2">Products</h1>
                 <p class="text-secondary">Manage your luxury timepiece collection</p>
             </div>
 
-            <!-- Search and Add Button -->
             <div class="row mb-4 g-3 align-items-center">
                 <div class="col-lg-8">
                     <div class="input-group">
@@ -136,7 +134,6 @@ foreach ($products as $p) {
         </div>
     </div>
 
-    <!-- Add/Edit Product Modal -->
     <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-white border-secondary">
@@ -189,7 +186,6 @@ foreach ($products as $p) {
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-white border-secondary">
@@ -210,9 +206,46 @@ foreach ($products as $p) {
         </div>
     </div>
 
+    <div class="modal fade" id="editConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Confirm Changes</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">Are you sure you want to save the changes to this product?</p>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="confirmEditBtn">Yes, Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editSuccessModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Success</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">Product changes have been saved successfully!</p>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
+        crossorigin="anonymous">
+    </script>
+    
     <script>
         const productModal = document.getElementById('productModal');
         const productForm = document.getElementById('productForm');
@@ -235,8 +268,20 @@ foreach ($products as $p) {
             document.getElementById('image').value = '';
         });
 
-        productForm.addEventListener('submit', async (e) => {
+        const editConfirmModalEl = document.getElementById('editConfirmModal');
+        const editConfirmModal = new bootstrap.Modal(editConfirmModalEl);
+        const confirmEditBtn = document.getElementById('confirmEditBtn');
+
+        const editSuccessModalEl = document.getElementById('editSuccessModal');
+        const editSuccessModal = new bootstrap.Modal(editSuccessModalEl);
+
+        productForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            editConfirmModal.show();
+        });
+
+        confirmEditBtn.addEventListener('click', async () => {
+            editConfirmModal.hide();
             const formData = new FormData(productForm);
             try {
                 const res = await fetch('../actions/admin/save_product.php', {
@@ -248,7 +293,13 @@ foreach ($products as $p) {
                     alert(data && data.error ? data.error : 'Save failed');
                     return;
                 }
-                window.location.reload();
+
+                editSuccessModal.show();
+
+                editSuccessModalEl.addEventListener('hidden.bs.modal', () => {
+                    window.location.reload();
+                }, { once: true });
+
             } catch (err) {
                 console.error(err);
                 alert('Unable to save product right now.');

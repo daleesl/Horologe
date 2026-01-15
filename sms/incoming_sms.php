@@ -1,20 +1,21 @@
 <?php
 require_once __DIR__ . '/../config/connect.php';
-
 date_default_timezone_set('Asia/Manila');
 
-function normalizePHPhoneNumber(string $phone): string
+/**
+ * Normalize phone to PH international format:
+ * 639XXXXXXXXX
+ */
+function normalizePhone(string $phone): string
 {
     $digits = preg_replace('/\D+/', '', $phone);
 
-    if (strpos($digits, '63') === 0) {
+    if (str_starts_with($digits, '63')) {
         return $digits;
     }
-
-    if (strpos($digits, '09') === 0) {
+    if (str_starts_with($digits, '09')) {
         return '63' . substr($digits, 1);
     }
-
     if (strlen($digits) === 10 && $digits[0] === '9') {
         return '63' . $digits;
     }
@@ -22,58 +23,96 @@ function normalizePHPhoneNumber(string $phone): string
     return $digits;
 }
 
-$raw = file_get_contents('php://input');
+/**
+ * Read raw INPUT (JSON or POST)
+ */
+$rawInput = file_get_contents('php://input');
+$data = json_decode($rawInput, true);
+if (!is_array($data)) {
+    $data = $_POST;
+}
 
+/**
+ * Logging ALL for debugging
+ */
 file_put_contents(
     __DIR__ . '/../logs/incoming_sms.log',
-    "[" . date('Y-m-d H:i:s') . "] RAW: " . $raw . PHP_EOL,
+    "[" . date('Y-m-d H:i:s') . "] RAW:\n" . $rawInput . "\nPARSED:\n" . print_r($data, true) . "\n\n",
     FILE_APPEND
 );
 
-$data = json_decode($raw, true);
+/**
+ * Extract phone + message with fallback keys
+ */
+$from = $data['from']
+     ?? $data['sender']
+     ?? $data['phone']
+     ?? $data['number']
+     ?? $data['origin']
+     ?? '';
 
-$from    = $data['from'] ?? '';
-$message = $data['text'] ?? '';
+$message = $data['text']
+        ?? $data['message']
+        ?? $data['body']
+        ?? $data['content']
+        ?? '';
 
-if (!$from || !$message) {
-    http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'Missing from or text']);
+if ($from === '' || $message === '') {
+    echo json_encode(['status' => 'ignored']);
     exit;
 }
 
-$phone = normalizePHPhoneNumber($from);
+$normalized = normalizePhone($from);
+
+/**
+ * Multi-format lookup for best matching chance
+ */
+$formats = [
+    $normalized,                        // 63915...
+    '+'.$normalized,                    // +63915...
+    '0'.substr($normalized, 2),         // 0915...
+    substr($normalized, 2),             // 915...
+];
 
 $user_id = null;
-
-$stmt = $conn->prepare("
-    SELECT user_id
-    FROM users
-    WHERE
-        REPLACE(phone_number, '+', '') = ?
-        OR CONCAT('63', SUBSTRING(phone_number, 2)) = ?
+$sql = "
+    SELECT user_id FROM users
+    WHERE REPLACE(REPLACE(REPLACE(REPLACE(phone_number, '+', ''), ' ', ''), '-', ''), '(', '') IN (?,?,?,?)
     LIMIT 1
-");
-
-$stmt->bind_param("ss", $phone, $phone);
+";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("ssss", ...$formats);
 $stmt->execute();
-$stmt->bind_result($user_id);
-$stmt->fetch();
+$stmt->bind_result($found_id);
+if ($stmt->fetch()) {
+    $user_id = $found_id;
+}
 $stmt->close();
 
+/**
+ * Insert ALWAYS, user optional
+ */
+$sql = "
+    INSERT INTO sms (user_id, direction, phone_number, message, source, created_at)
+    VALUES (?, 'incoming', ?, ?, 'sms_forwarder', NOW())
+";
+$stmt = $conn->prepare($sql);
 
-$stmt = $conn->prepare("
-    INSERT INTO sms (user_id, direction, phone_number, message, source)
-    VALUES (?, 'incoming', ?, ?, 'sms_forwarder')
-");
+/**
+ * Bind as strings so NULL works properly
+ */
+$stmt->bind_param("sss",
+    $user_id,
+    $normalized,
+    $message
+);
 
-$stmt->bind_param("sss", $user_id, $phone, $message);
 $stmt->execute();
 $stmt->close();
 
-http_response_code(200);
 echo json_encode([
-    'status'   => 'ok',
-    'received' => true,
-    'user_id'  => $user_id
+    'status'  => 'ok',
+    'saved'   => true,
+    'user_id' => $user_id ?: null,
 ]);
 exit;

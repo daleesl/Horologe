@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../auth/sign-in.php");
     exit();
@@ -62,6 +63,7 @@ $res = $stmt->get_result();
         body {
             font-family: 'EB Garamond', serif;
         }
+
         .table td {
             vertical-align: middle;
         }
@@ -75,101 +77,116 @@ $res = $stmt->get_result();
 
     <div class="flex-grow-1 w-100 p-3 p-sm-4">
 
-        <!-- Mobile menu -->
         <div class="d-md-none mb-3">
-            <button class="btn btn-outline-light"
-                    data-bs-toggle="offcanvas"
-                    data-bs-target="#adminSidebarOffcanvas">
+            <button class="btn btn-outline-light" data-bs-toggle="offcanvas" data-bs-target="#adminSidebarOffcanvas">
                 <i class="bi bi-list"></i> Menu
             </button>
         </div>
 
-        <!-- Search (MATCHES ORDERS UI) -->
+        <div class="mb-4">
+            <h1 class="display-5 fw-normal mb-2">SMS Inbox</h1>
+            <p class="text-secondary">View and manage customer messages</p>
+        </div>
+
         <div class="mb-4">
             <form method="GET">
                 <div class="input-group">
                     <span class="input-group-text bg-dark border-secondary text-secondary">
                         <i class="bi bi-search"></i>
                     </span>
-                    <input type="text"
-                           name="search"
-                           class="form-control bg-dark border-secondary text-white"
-                           placeholder="Search phone, message, or user..."
-                           value="<?= htmlspecialchars($search) ?>">
+                    <input 
+                        type="text" 
+                        name="search" 
+                        class="form-control bg-dark border-secondary text-white" 
+                        placeholder="Search phone, message, or user..." 
+                        value="<?= htmlspecialchars($search) ?>"
+                    >
                 </div>
             </form>
         </div>
 
-        <!-- SMS TABLE -->
         <div class="border border-secondary rounded overflow-hidden">
             <div class="table-responsive">
                 <table class="table table-dark table-hover align-middle mb-0">
                     <thead class="border-bottom border-secondary">
-                    <tr>
-                        <th class="text-secondary fw-normal py-3">Date</th>
-                        <th class="text-secondary fw-normal py-3">Direction</th>
-                        <th class="text-secondary fw-normal py-3">User</th>
-                        <th class="text-secondary fw-normal py-3">Phone</th>
-                        <th class="text-secondary fw-normal py-3">Message</th>
-                        <th class="text-secondary fw-normal py-3 text-end">Actions</th>
-                    </tr>
+                        <tr>
+                            <th class="text-secondary fw-normal py-3">Date</th>
+                            <th class="text-secondary fw-normal py-3">Direction</th>
+                            <th class="text-secondary fw-normal py-3">User</th>
+                            <th class="text-secondary fw-normal py-3">Phone</th>
+                            <th class="text-secondary fw-normal py-3">Message</th>
+                            <th class="text-secondary fw-normal py-3 text-end">Actions</th>
+                        </tr>
                     </thead>
                     <tbody>
+                        <?php if ($res->num_rows > 0): ?>
+                            <?php while ($row = $res->fetch_assoc()): ?>
+                            <?php 
+                                $userDisplay = $row['fname'] 
+                                    ? htmlspecialchars($row['fname'] . ' ' . $row['lname']) 
+                                    : 'Unknown';
 
-                    <?php if ($res->num_rows > 0): ?>
-                        <?php while ($row = $res->fetch_assoc()): ?>
-                            <tr class="border-bottom border-secondary">
-                                <td class="py-3">
-                                    <?= date('n/j/Y H:i', strtotime($row['created_at'])) ?>
-                                </td>
-                                <td class="py-3">
-                                    <span class="badge <?= $row['direction'] === 'incoming' ? 'bg-success' : 'bg-primary' ?>">
-                                        <?= strtoupper($row['direction']) ?>
-                                    </span>
-                                </td>
-                                <td class="py-3">
-                                    <?= $row['fname']
-                                        ? htmlspecialchars($row['fname'] . ' ' . $row['lname'])
-                                        : '<span class="text-secondary">Unknown</span>' ?>
-                                </td>
-                                <td class="py-3"><?= htmlspecialchars($row['phone_number']) ?></td>
-                                <td class="py-3 text-truncate" style="max-width: 280px;">
-                                    <?= htmlspecialchars($row['message']) ?>
-                                </td>
-                                <td class="py-3 text-end">
-                                    <button class="btn btn-sm btn-outline-light view-sms-btn"
+                                $userForModal = $row['fname']
+                                    ? htmlspecialchars($row['fname'] . ' ' . $row['lname'])
+                                    : 'Unknown';
+                            ?>
+                                <tr class="border-bottom border-secondary">
+                                    <td class="py-3">
+                                        <?= date('n/j/Y H:i', strtotime($row['created_at'])) ?>
+                                    </td>
+                                    <td class="py-3">
+                                        <span class="badge <?= $row['direction'] === 'incoming' ? 'bg-success' : 'bg-primary' ?>">
+                                            <?= strtoupper($row['direction']) ?>
+                                        </span>
+                                    </td>
+                                    <td class="py-3">
+                                    <?= $row['fname'] 
+                                        ? $userDisplay
+                                        : '<span class="text-secondary">Unknown</span>'
+                                    ?>
+
+                                    </td>
+                                    <td class="py-3"><?= htmlspecialchars($row['phone_number']) ?></td>
+                                    <td class="py-3 text-truncate" style="max-width: 280px;">
+                                        <?= htmlspecialchars($row['message']) ?>
+                                    </td>
+                                    <td class="py-3 text-end">
+                                        <button 
+                                            class="btn btn-sm btn-outline-light view-sms-btn"
                                             data-id="<?= $row['id'] ?>"
                                             data-phone="<?= htmlspecialchars($row['phone_number']) ?>"
-                                            data-user="<?= htmlspecialchars($row['fname'] . ' ' . $row['lname']) ?>"
+                                            $dataUser = $row['fname'] ? ($row['fname'] . ' ' . $row['lname']) : null;
                                             data-message="<?= htmlspecialchars($row['message']) ?>"
                                             data-date="<?= date('n/j/Y H:i', strtotime($row['created_at'])) ?>"
-                                            data-direction="<?= strtoupper($row['direction']) ?>">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
+                                            data-direction="<?= strtoupper($row['direction']) ?>"
+                                        >
+                                            <i class="bi bi-eye"></i>
+                                        </button>
 
-                                    <button class="btn btn-sm btn-outline-danger delete-sms-btn"
-                                            data-id="<?= $row['id'] ?>">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                        <button 
+                                            class="btn btn-sm btn-outline-danger delete-sms-btn"
+                                            data-id="<?= $row['id'] ?>"
+                                        >
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="6" class="text-center text-secondary py-4">
+                                    No SMS found.
                                 </td>
                             </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="6" class="text-center text-secondary py-4">
-                                No SMS found.
-                            </td>
-                        </tr>
-                    <?php endif; ?>
-
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
+
     </div>
 </div>
 
-<!-- VIEW SMS MODAL -->
 <div class="modal fade" id="viewSmsModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-black text-white border border-secondary rounded-4">
@@ -190,7 +207,6 @@ $res = $stmt->get_result();
     </div>
 </div>
 
-<!-- DELETE CONFIRM MODAL -->
 <div class="modal fade" id="deleteSmsModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-black text-white border border-danger rounded-4">
@@ -214,7 +230,6 @@ $res = $stmt->get_result();
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
 document.querySelectorAll('.view-sms-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -223,7 +238,6 @@ document.querySelectorAll('.view-sms-btn').forEach(btn => {
         document.getElementById('smsUser').textContent = btn.dataset.user || 'Unknown';
         document.getElementById('smsPhone').textContent = btn.dataset.phone;
         document.getElementById('smsMessage').textContent = btn.dataset.message;
-
         new bootstrap.Modal(document.getElementById('viewSmsModal')).show();
     });
 });
