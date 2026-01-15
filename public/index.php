@@ -7,7 +7,7 @@ $featuredProducts = $productService->getFeaturedProducts(4);
 
 function formatPrice($value)
 {
-    return '$' . number_format((float) $value, 0, '.', ',');
+    return '$' . number_format((float)$value, 0, '.', ',');
 }
 ?>
 <!doctype html>
@@ -19,7 +19,6 @@ function formatPrice($value)
     <title>Horologe</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;700&display=swap" rel="stylesheet">
@@ -29,21 +28,17 @@ function formatPrice($value)
 
     <?php include '../includes/navbar.php'; ?>
 
-    <section class="text-white min-vh-100 d-flex align-items-center position-relative overflow-hidden"
-        style="background-color: #181818;">
-        <video autoplay muted loop playsinline class="position-absolute top-0 start-0 w-100 h-100 hero-video"
-            style="object-fit: cover; z-index: 0;">
+    <section class="text-white min-vh-100 d-flex align-items-center position-relative overflow-hidden" style="background-color: #181818;">
+        <video autoplay muted loop playsinline class="position-absolute top-0 start-0 w-100 h-100 hero-video" style="object-fit: cover; z-index: 0;">
             <source src="../assets/video/hero-vid.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
-        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0, 0, 0, 0.4); z-index: 1;">
-        </div>
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0, 0, 0, 0.4); z-index: 1;"></div>
         <div class="container-fluid px-3 px-md-5 position-relative" style="z-index: 2;">
             <div class="row align-items-center g-0 flex-column-reverse flex-lg-row">
                 <div class="col-lg-6 py-2 ps-lg-4 ps-3">
                     <div class="mb-4">
-                        <span class="border border-white text-white px-3 px-md-5 py-2 d-inline-block small"
-                            style="letter-spacing: .2rem;">ESTABLISH 1924</span>
+                        <span class="border border-white text-white px-3 px-md-5 py-2 d-inline-block small" style="letter-spacing: .2rem;">ESTABLISH 1924</span>
                     </div>
 
                     <div class="mb-3">
@@ -53,23 +48,12 @@ function formatPrice($value)
                     </div>
 
                     <p class="text-secondary fs-5 mb-md-5 mb-3 pe-lg-5">
-                        Discover the art of horology with our curated collection of the world's most prestigious
-                        timepieces.
+                        Discover the art of horology with our curated collection of the world's most prestigious timepieces.
                     </p>
 
                     <div class="d-flex flex-wrap gap-3">
-                        <a href="collections.php">
-                            <button class="btn btn-light text-dark px-4 py-2 text-secondary">
-                                EXPLORE COLLECTIONS
-                            </button>
-                        </a>
-
-                        <a href="heritage.php">
-                            <button class="btn btn-outline-light px-4 py-2 text-secondary">
-                                OUR HERITAGE
-                            </button>
-                        </a>
-
+                        <a href="collections.php"><button class="btn btn-light text-dark px-4 py-2 text-secondary">EXPLORE COLLECTIONS</button></a>
+                        <a href="heritage.php"><button class="btn btn-outline-light px-4 py-2 text-secondary">OUR HERITAGE</button></a>
                     </div>
                 </div>
             </div>
@@ -81,33 +65,28 @@ function formatPrice($value)
             <div class="row mb-5">
                 <div class="col-lg-8">
                     <h2 class="display-3 fw-normal mb-3 header font-primary">The Featured Collection</h2>
-                    <p class="fs-5 text-secondary">A selection of our most sought-after timepieces, representing the
-                        pinnacle of precision and style.</p>
+                    <p class="fs-5 text-secondary">A selection of our most sought-after timepieces, representing the pinnacle of precision and style.</p>
                 </div>
                 <div class="col-lg-4 d-flex align-items-end justify-content-lg-end">
-                    <a href="collections.php" class="text-white text-decoration-none fs-6 header font-primary">VIEW ALL
-                        COLLECTIONS <span>→</span></a>
+                    <a href="collections.php" class="text-white text-decoration-none fs-6 header font-primary">VIEW ALL COLLECTIONS <span>→</span></a>
                 </div>
             </div>
 
             <div id="productsRow" class="row g-3 g-md-4 justify-content-center">
                 <?php if (!empty($featuredProducts)) : ?>
-                    <?php $delay = 0; foreach ($featuredProducts as $product) : ?>
+                    <?php foreach ($featuredProducts as $product) : ?>
                         <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="product-card h-100 d-flex flex-column p-3 rounded-3" data-aos="fade-up" data-aos-delay="<?= $delay ?>">
+                            <div class="product-card h-100 d-flex flex-column p-3 rounded-3">
                                 <a href="viewProduct.php?id=<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>" class="text-decoration-none">
                                     <img src="<?= htmlspecialchars($product['image'], ENT_QUOTES) ?>" alt="<?= htmlspecialchars($product['name'], ENT_QUOTES) ?>" class="img-fluid w-100 object-fit-contain" style="max-height: 350px;">
                                     <div class="pt-3">
-                                        <p class="small text-secondary mb-2 text-uppercase">
-                                            <?= htmlspecialchars($product['category'], ENT_QUOTES) ?></p>
-                                        <h3 class="h5 text-secondary-bold mb-2 text-white">
-                                            <?= htmlspecialchars($product['name'], ENT_QUOTES) ?></h3>
+                                        <p class="small text-secondary mb-2 text-uppercase"><?= htmlspecialchars($product['category'], ENT_QUOTES) ?></p>
+                                        <h3 class="h5 text-secondary-bold mb-2 text-white"><?= htmlspecialchars($product['name'], ENT_QUOTES) ?></h3>
                                         <p class="text-white font-primary mb-3"><?= formatPrice($product['price']) ?></p>
                                     </div>
                                 </a>
                                 <div class="d-flex gap-2 mt-auto">
-                                    <a href="viewProduct.php?id=<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>"
-                                        class="btn btn-sm btn-outline-light flex-fill">VIEW</a>
+                                    <a href="viewProduct.php?id=<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>" class="btn btn-sm btn-outline-light flex-fill">VIEW</a>
                                     <button class="btn btn-sm btn-outline-light flex-fill add-to-cart-btn" type="button"
                                         data-product-id="<?= htmlspecialchars($product['id'], ENT_QUOTES) ?>"
                                         data-product-name="<?= htmlspecialchars($product['name'], ENT_QUOTES) ?>"
@@ -120,7 +99,7 @@ function formatPrice($value)
                                 </div>
                             </div>
                         </div>
-                    <?php $delay += 100; endforeach; ?>
+                    <?php endforeach; ?>
                 <?php else : ?>
                     <div class="col-12 text-center">
                         <p class="text-secondary">Products coming soon.</p>
@@ -134,33 +113,26 @@ function formatPrice($value)
         <div class="container-fluid p-5 p-md-5" style="background-color: #171717;">
             <div class="row align-items-center g-4 flex-column-reverse flex-lg-row">
                 <div class="col-lg-6">
-                    <h2 class="display-3 fw-normal text-white mb-4 header font-primary">A Century of Horological Mastery
-                    </h2>
+                    <h2 class="display-3 fw-normal text-white mb-4 header font-primary">A Century of Horological Mastery</h2>
 
                     <p class="fs-5 text-secondary mb-4">
-                        Founded in the heart of the Swiss Alps, Horologe has been dedicated to the pursuit of perfection
-                        for over a hundred years. Each timepiece is a testament to our commitment to craftsmanship and
-                        innovation.
+                        Founded in the heart of the Swiss Alps, Horologe has been dedicated to the pursuit of perfection for over a hundred years. Each timepiece is a testament to our commitment to craftsmanship and innovation.
                     </p>
 
                     <p class="fs-5 text-secondary mb-4">
-                        Our master watchmakers spend hundreds of hours on a single movement, ensuring that every tick is
-                        a synchronization of art and engineering.
+                        Our master watchmakers spend hundreds of hours on a single movement, ensuring that every tick is a synchronization of art and engineering.
                     </p>
 
-                    <a href="#" class="text-white text-decoration-none fs-6 header font-primary">LEARN MORE
-                        <span>→</span></a>
+                    <a href="heritage.php" class="text-white text-decoration-none fs-6 header font-primary">LEARN MORE <span>→</span></a>
                 </div>
 
                 <div class="col-lg-6">
                     <div class="row g-3">
                         <div class="col-6 mb-5">
-                            <img src="../assets/images/watch-machine.jpg" alt="Watch Mechanism"
-                                class="img-fluid w-100 h-100 object-fit-cover">
+                            <img src="../assets/images/watch-machine.jpg" alt="Watch Mechanism" class="img-fluid w-100 h-100 object-fit-cover">
                         </div>
                         <div class="col-6 mt-5">
-                            <img src="../assets/images/machine-worker.jpg" alt="Master Watchmaker"
-                                class="img-fluid w-100 h-100 object-fit-cover">
+                            <img src="../assets/images/machine-worker.jpg" alt="Master Watchmaker" class="img-fluid w-100 h-100 object-fit-cover">
                         </div>
                     </div>
                 </div>
@@ -178,8 +150,7 @@ function formatPrice($value)
 
                     <blockquote class="mb-4">
                         <p class="display-6 fw-normal text-white" style="font-family: EB Garamond, serif;">
-                            "Horologe doesn't just sell watches; they provide a legacy. The attention to detail in my
-                            Celestial Moonphase is unlike anything else in my collection."
+                            "Horologe doesn't just sell watches; they provide a legacy. The attention to detail in my Celestial Moonphase is unlike anything else in my collection."
                         </p>
                     </blockquote>
 
@@ -196,7 +167,7 @@ function formatPrice($value)
 
     <?php include '../includes/chatbot.php'; ?>
 
-
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
