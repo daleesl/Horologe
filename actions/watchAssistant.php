@@ -146,10 +146,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     /* ---------- 5. FALLBACK ---------- */
 =======
 
 >>>>>>> 2a35db6 (cleanup)
+=======
+
+=======
+    /* ---------- 5. FALLBACK ---------- */
+>>>>>>> 0963ec4 (final ai)
+>>>>>>> 513ab96 (final ai)
     if (trim($dbOutput) === '') {
         echo json_encode(['ok' => true, 'reply' => $NO_DATA_RESPONSE]);
         exit;
@@ -168,10 +175,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     /* ---------- 7. CALL OLLAMA ---------- */
 =======
 
 >>>>>>> 2a35db6 (cleanup)
+=======
+
+=======
+    /* ---------- 7. CALL OLLAMA ---------- */
+>>>>>>> 0963ec4 (final ai)
+>>>>>>> 513ab96 (final ai)
     $payload = json_encode([
         'model' => $MODEL,
         'messages' => [
