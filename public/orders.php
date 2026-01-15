@@ -79,7 +79,7 @@ function moneyFormat(float $value): string {
                                             <div class="text-end">
                                                 <div class="text-white fw-semibold"><?= moneyFormat((float)$order['total_amount']) ?></div>
                                                 <div class="text-secondary small">Items: <?= (int)($order['items_count'] ?? 0) ?></div>
-                                                <div class="mt-2"><span class="badge bg-secondary text-uppercase"><?= htmlspecialchars($order['status'] ?? 'Completed') ?></span></div>
+                                                <div class="mt-2"><span class="badge bg-secondary text-uppercase"><?= htmlspecialchars($order['status'] ?? 'Shipping') ?></span></div>
                                             </div>
                                         </div>
 
