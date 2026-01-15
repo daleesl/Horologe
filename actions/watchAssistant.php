@@ -65,9 +65,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($matchedModels)) {
             $stmt = $conn->prepare("
-            SELECT model 
-            FROM watch 
-            WHERE LOWER(model) LIKE CONCAT('%', ?, '%') 
+            SELECT model
+            FROM watch
+            WHERE LOWER(model) LIKE CONCAT('%', ?, '%')
             ORDER BY model
         ");
             $searchTerm = strtolower($userInput);
@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-
+    /* ---------- 5. FALLBACK ---------- */
     if (trim($dbOutput) === '') {
         echo json_encode(['ok' => true, 'reply' => $NO_DATA_RESPONSE]);
         exit;
@@ -163,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "DATA:\n$dbOutput"
     ];
 
-
+    /* ---------- 7. CALL OLLAMA ---------- */
     $payload = json_encode([
         'model' => $MODEL,
         'messages' => [
