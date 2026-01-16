@@ -143,6 +143,8 @@ function moneyFormat(float $value): string {
             </div>
         </div>
     </div>
+
+      <?php include '../includes/chatbot.php'; ?>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
@@ -194,5 +196,7 @@ document.querySelectorAll('.view-order-btn').forEach(btn => {
     });
 });
 </script>
+
+<script src="../assets/js/cart.js"></script>
 </body>
 </html>

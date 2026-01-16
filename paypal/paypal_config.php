@@ -1,4 +1,4 @@
 <?php
-define("PAYPAL_CLIENT_ID", "AeITdYYwqMzxLLK2T57VKo4iybrNj2bMO1jvWWhAANFDTMjNFCwz3U8ii3KEpha_go0EphIL91JkivDi" );
-define("PAYPAL_SECRET", "EPOkltcn0JCIYhX22FQ7eA0zFODJfu6DOg9wfF1PuUVEFNR85dVwfksBgKb0aeyf2LUlRb0HKCuVRIdh");
+define("PAYPAL_CLIENT_ID", "Aaae2MrD5-W4dGB4ZXpodvrNnWrkD79zeynS0mhmO00BdngACX8TqxNWKyONc9OjcQtSdIqlAYYOOore" );
+define("PAYPAL_SECRET", "EN_qCI0Vc9Zf-_hdkiEn1hpKILsp-1Pzwi5f8ky3XMEeA2FOQS4ucOHvU2DT1u6DtziUcQsqVLmi7EtL");
 define("PAYPAL_API", "https://api-m.sandbox.paypal.com" );

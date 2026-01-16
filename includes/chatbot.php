@@ -40,7 +40,7 @@
         max-width: 75%;
         margin-left: auto;
         margin-bottom: 0.9rem;
-        background: #d4af37;
+        background: #2d517d;
         color: #000;
         padding: 0.6rem 0.9rem;
         border-radius: 1rem 1rem 0.3rem 1rem;
@@ -78,7 +78,7 @@
         font-size: 14px;
         font-weight: 500;
         border: none;
-        background: #d4af37;
+        background: #4377b9;
         color: #000;
     }
 
